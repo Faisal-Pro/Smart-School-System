@@ -1,0 +1,264 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Teacher Grade Page</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: 'Arial', sans-serif;
+    }
+
+        body {
+      display: flex;
+      flex-direction: column; /* Stack items vertically */
+      align-items: center;    /* Center-align cards horizontally */
+      min-height: 100vh;
+      background: linear-gradient(135deg, #284e88, #2575fc);
+      padding: 1rem;
+    }
+
+    .container {
+      background: white;
+      padding: 2rem;
+      border-radius: 20px;
+      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+      max-width: 600px;
+      width: 100%;
+      margin-bottom: 2rem; /* Space between stacked cards */
+      animation: fadeIn 1s ease-in-out;
+    }
+
+
+    @keyframes fadeIn {
+      from {
+        opacity: 0;
+        transform: translateY(20px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .profile {
+      text-align: center;
+      margin-bottom: 2rem;
+    }
+
+    .profile img {
+      width: 120px;
+      height: 120px;
+      border-radius: 50%;
+      object-fit: cover;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+    }
+
+    .profile .name, .profile .id, .profile .class {
+      margin-top: 0.5rem;
+      font-size: 1.3rem;
+      font-weight: bold;
+      color: #243daf;
+    }
+
+    .container h1 {
+      font-size: 2rem;
+      text-align: center;
+      color: #444;
+      margin-bottom: 2rem;
+    }
+
+    .form-group {
+      margin-bottom: 1.5rem;
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+    }
+
+    .form-group label {
+      flex: 1;
+      font-weight: bold;
+      color: #666;
+      text-align: right;
+    }
+
+    .form-group input {
+      flex: 2;
+      padding: 0.8rem;
+      border: 1px solid #ccc;
+      border-radius: 10px;
+      font-size: 1rem;
+      transition: border 0.3s;
+    }
+
+    .form-group input:focus {
+      border-color: #6a11cb;
+      outline: none;
+    }
+
+    .form-group i {
+      font-size: 1.5rem;
+      color: #6a11cb;
+    }
+
+    .submit-btn {
+      display: block;
+      width: 100%;
+      padding: 0.8rem;
+      background: linear-gradient(135deg, #6a11cb, #2575fc);
+      color: white;
+      border: none;
+      border-radius: 12px;
+      font-size: 1.2rem;
+      font-weight: bold;
+      cursor: pointer;
+      transition: background 0.3s, transform 0.2s;
+    }
+
+    .submit-btn:hover {
+      background: linear-gradient(135deg, #2575fc, #6a11cb);
+      transform: translateY(-2px);
+      box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+    }
+
+    .result {
+      margin-top: 2rem;
+      font-size: 1.3rem;
+      text-align: center;
+      color: #444;
+      font-weight: bold;
+    }
+  </style>
+  <script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script>
+</head>
+<body>
+  {% for Student in StudentRecord %}
+  <div class="container" id="card-{{ Student.StudentID }}">
+    <!-- Profile Section -->
+    <div class="profile">
+      <img src="data:image/jpeg;base64,{{ Student.StudentImage }}" alt="Student Photo">
+      <div class="name">Name: {{ Student.StudentName }}</div>
+      <div class="id">ID: {{ Student.StudentID }}</div>
+      <div class="class">Class: {{ Student.Class }}</div>
+    </div>
+  
+    <h1>Generate Student Grade</h1>
+    <form>
+      <div class="form-group">
+        <i class="fas fa-book"></i>
+        <label for="assignment">Assignment (%)</label>
+        <input type="number" id="assignment" value="{{ Student.TotalAssignmentGrade }}" required>
+      </div>
+      <div class="form-group">
+        <i class="fas fa-pencil-alt"></i>
+        <label for="quiz">Quiz (%)</label>
+        <input type="number" id="quiz" value="{{ Student.TotalQuizGrade }}" required>
+      </div>
+      <div class="form-group">
+        <i class="fas fa-clipboard-list"></i>
+        <label for="midterm">Midterm (%)</label>
+        <input type="number" id="midterm" min="0" max="100" placeholder="Enter midterm grade" required>
+      </div>
+      <div class="form-group">
+        <i class="fas fa-file-alt"></i>
+        <label for="finalExam">Final Exam (%)</label>
+        <input type="number" id="finalExam" min="0" max="100" placeholder="Enter final exam grade" required>
+      </div>
+      <div class="form-group">
+        <i class="fas fa-user"></i>
+        <label for="ClassParticipation">Class Participation (%)</label>
+        <input type="number" id="ClassParticipation" min="0" max="100" placeholder="Enter Class Participation grade" required>
+      </div>
+      <div class="form-group">
+        <i class="fas fa-calendar-check"></i>
+        <label for="ClassAttendance">Class Attendance (%)</label>
+        <input type="number" id="ClassAttendance" value="{{ Student.TotalAttendanceGrade }}" required>
+      </div>
+      <!-- Pass StudentID and card ID to the function -->
+      <button type="button" class="submit-btn" onclick="calculateGrade({{ Student.StudentID }}, {{ Student.CourseID }}, 'card-{{ Student.StudentID }}')">Calculate Grade</button>
+    </form>
+    <div class="result"></div>
+  </div>
+  
+
+  <script>
+    const grades = {};
+    function getCsrfToken() {
+            const csrfToken = document.cookie.match(/csrftoken=([^;]+)/);
+            return csrfToken ? csrfToken[1] : null;
+        }
+    function calculateGrade(studentId, CourseID, cardId) {
+      const card = document.getElementById(cardId);
+      const assignment = parseFloat(card.querySelector('#assignment').value) || 0;
+      const quiz = parseFloat(card.querySelector('#quiz').value) || 0;
+      const midterm = parseFloat(card.querySelector('#midterm').value) || 0;
+      const finalExam = parseFloat(card.querySelector('#finalExam').value) || 0;
+      const participation = parseFloat(card.querySelector('#ClassParticipation').value) || 0;
+      const attendance = parseFloat(card.querySelector('#ClassAttendance').value) || 0;
+  
+      const totalGrade = assignment + quiz + midterm + finalExam + participation + attendance;
+  
+      const resultElement = card.querySelector('.result');
+      grades[studentId] = totalGrade;
+  
+      let gradeMessage;
+      if (totalGrade >= 90) {
+        gradeMessage = `Final Grade: ${grades[studentId].toFixed(2)}% (A)`;
+      } else if (totalGrade >= 80) {
+        gradeMessage = `Final Grade: ${grades[studentId].toFixed(2)}% (B)`;
+      } else if (totalGrade >= 70) {
+        gradeMessage = `Final Grade: ${grades[studentId].toFixed(2)}% (C)`;
+      } else if (totalGrade >= 60) {
+        gradeMessage = `Final Grade: ${grades[studentId].toFixed(2)}% (D)`;
+      } else {
+        gradeMessage = `Final Grade: ${grades[studentId].toFixed(2)}% (F)`;
+      }
+  
+      resultElement.innerHTML = gradeMessage;
+  
+      setTimeout(() => {
+        resultElement.innerHTML = '';
+      }, 10000); 
+
+
+      const csrfToken = getCsrfToken(); 
+      const studentGrades = grades[studentId];
+
+      fetch("/SaveFinalGrade/", {
+          method: "POST",
+          headers: {
+              "Content-Type": "application/json",
+              "X-CSRFToken": csrfToken,
+          },
+          body: JSON.stringify({
+              StudentID: studentId,
+              Grades: studentGrades,
+              Assignment: assignment,
+              Quiz: quiz,
+              MidTerm: midterm, 
+              Final: finalExam,
+              Participation: participation,
+              Attendance: attendance,
+              CourseID: CourseID
+            }),
+      })
+          .then((res) => res.json())
+          .then((data) => {
+              alert(data.message || `Grades for Student ${studentId} confirmed!`);
+          })
+          .catch((err) => console.error(err));
+        
+    }
+    
+  </script>
+  
+  
+    {% endfor %}
+
+</body>
+
+</html>

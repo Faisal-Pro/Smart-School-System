@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Student List</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f9;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 20px auto;
+            background: #fff;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+        }
+
+        .header {
+            text-align: center;
+            background-color: #4caf50;
+            color: #fff;
+            padding: 15px 10px;
+        }
+
+        .filter {
+            padding: 15px;
+            text-align: center;
+            background-color: #f9f9f9;
+            border-bottom: 1px solid #ddd;
+        }
+
+        .filter select {
+            padding: 8px 12px;
+            font-size: 16px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        .student-row {
+            display: flex;
+            align-items: center;
+            padding: 15px;
+            border-bottom: 1px solid #ddd;
+        }
+
+        .student-row:last-child {
+            border-bottom: none;
+        }
+
+        .student-image {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            overflow: hidden;
+            margin-right: 15px;
+            flex-shrink: 0;
+        }
+
+        .student-image img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .student-details {
+            flex-grow: 1;
+        }
+
+        .student-name {
+            font-size: 16px;
+            font-weight: bold;
+            margin: 0;
+        }
+
+        .student-level {
+            font-size: 14px;
+            color: #666;
+            margin: 5px 0 0;
+        }
+
+        .student-button {
+            background-color: #4caf50;
+            color: #fff;
+            border: none;
+            padding: 8px 12px;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        .student-button:hover {
+            background-color: #45a049;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Student List</h1>
+        </div>
+
+        <div class="filter">
+            <label for="level-select">Filter by Level:</label>
+            <select id="level-select" onchange="filterByLevel()">
+                <option value="">Select a level</option>
+                <option value="Freshman">Freshman</option>
+                <option value="Sophomore">Sophomore</option>
+                <option value="Junior">Junior</option>
+                <option value="Senior">Senior</option>
+            </select>
+        </div>
+
+        <div id="student-list">
+            <!-- Student rows will be dynamically loaded here -->
+        </div>
+    </div>
+
+    <script>
+        function fetchStudents(level) {
+            const xhr = new XMLHttpRequest();
+            xhr.open("GET", `/api/students?level=${level}`, true); // Replace with your API endpoint
+            xhr.onreadystatechange = function () {
+                if (xhr.readyState === 4) {
+                    if (xhr.status === 200) {
+                        const students = JSON.parse(xhr.responseText);
+                        renderStudents(students);
+                    } else {
+                        alert('Failed to fetch students. Please try again.');
+                    }
+                }
+            };
+            xhr.send();
+        }
+
+        function renderStudents(students) {
+            const studentList = document.getElementById('student-list');
+            studentList.innerHTML = '';
+
+            if (students.length === 0) {
+                studentList.innerHTML = '<p style="text-align: center; color: #666;">No students found for the selected level.</p>';
+                return;
+            }
+
+            students.forEach(student => {
+                const studentRow = document.createElement('div');
+                studentRow.className = 'student-row';
+
+                studentRow.innerHTML = `
+                    <div class="student-image">
+                        <img src="${student.image || 'https://via.placeholder.com/50'}" alt="Student">
+                    </div>
+                    <div class="student-details">
+                        <p class="student-name">${student.name}</p>
+                        <p class="student-level">Level: ${student.level}</p>
+                    </div>
+                    <button class="student-button" onclick="handleButtonClick('${student.name}')">Click Me</button>
+                `;
+
+                studentList.appendChild(studentRow);
+            });
+        }
+
+        function filterByLevel() {
+            const level = document.getElementById('level-select').value;
+            if (level) {
+                fetchStudents(level);
+            } else {
+                document.getElementById('student-list').innerHTML = '';
+            }
+        }
+
+        function handleButtonClick(studentName) {
+            alert(`Button clicked for ${studentName}`);
+        }
+    </script>
+</body>
+</html>

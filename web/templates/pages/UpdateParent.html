@@ -1,0 +1,179 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Update Parent | Admin Portal</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #1b262c; /* Matching your admin theme */
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            padding: 20px;
+        }
+
+        .form-container {
+            background-color: white;
+            padding: 35px;
+            border-radius: 16px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+            width: 100%;
+            max-width: 500px;
+        }
+
+        h1 {
+            color: #0f4c75;
+            text-align: center;
+            margin-bottom: 25px;
+            font-size: 24px;
+            font-weight: 700;
+        }
+
+        .input-group {
+            margin-bottom: 18px;
+        }
+
+        .input-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #1e293b;
+            font-size: 14px;
+        }
+
+        .input-group input, .input-group select {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e2e8f0;
+            border-radius: 8px;
+            box-sizing: border-box;
+            font-size: 14px;
+            transition: border-color 0.3s;
+        }
+
+        .input-group input:focus {
+            outline: none;
+            border-color: #3282b8;
+        }
+
+        .input-group input[readonly] {
+            background-color: #f8fafc;
+            color: #64748b;
+            cursor: not-allowed;
+        }
+
+        .current-info {
+            font-size: 0.8em;
+            color: #64748b;
+            margin-top: 5px;
+            display: block;
+            font-style: italic;
+        }
+
+        .btn-container {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            margin-top: 25px;
+        }
+
+        .submit-btn {
+            background-color: #3282b8;
+            color: white;
+            padding: 14px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 700;
+            transition: all 0.3s;
+        }
+
+        .submit-btn:hover {
+            background-color: #0f4c75;
+            transform: translateY(-1px);
+        }
+
+        .cancel-btn {
+            text-align: center;
+            text-decoration: none;
+            color: #94a3b8;
+            font-size: 14px;
+            font-weight: 600;
+        }
+
+        .cancel-btn:hover {
+            color: #e63946;
+        }
+
+        .current-img-preview {
+            width: 60px;
+            height: 60px;
+            border-radius: 12px;
+            object-fit: cover;
+            margin-top: 8px;
+            border: 2px solid #f1f5f9;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="form-container">
+        <h1><i class="fas fa-user-edit"></i> Update Parent</h1>
+        
+        <form method="POST" enctype="multipart/form-data">
+            {% csrf_token %}
+
+            <div class="input-group">
+                <label>System Parent ID:</label>
+                <input type="text" value="{{ parent.Parent_ID }}" readonly>
+            </div>
+
+            <div class="input-group">
+                <label>Parent Name:</label>
+                <input type="text" name="parent_name" value="{{ parent.Parent_Name }}" required>
+            </div>
+
+            <div class="input-group">
+                <label>National ID:</label>
+                <input type="text" name="parent_national_id" value="{{ parent.Parent_NationalID|default:'' }}" placeholder="Enter 14-digit National ID" required>
+            </div>
+
+            <div class="input-group">
+                <label>Linked Student:</label>
+                <select name="student_id" required>
+                    {% for student in students %}
+                        <option value="{{ student.Student_ID }}" 
+                            {% if student.Student_ID == parent.Student_ID.Student_ID %} selected {% endif %}>
+                            {{ student.Student_Name }} (ID: {{ student.Student_ID }})
+                        </option>
+                    {% endfor %}
+                </select>
+                <span class="current-info">Currently linked to: {{ parent.Student_ID.Student_Name }}</span>
+            </div>
+
+            <div class="input-group">
+                <label>Parent Profile Image:</label>
+                <div style="display: flex; align-items: center; gap: 15px;">
+                    {% if parent.Parent_Image %}
+                        <img src="{% static 'Images/' %}{{ parent.Parent_Image }}" class="current-img-preview" alt="Current Image">
+                    {% endif %}
+                    <input type="file" name="parent_image" accept="image/*">
+                </div>
+            </div>
+
+            <div class="btn-container">
+                <button type="submit" class="submit-btn">Update Record</button>
+                <a href="{% url 'view_parents' %}" class="cancel-btn">Back to Registry</a>
+            </div>
+        </form>
+    </div>
+
+</body>
+</html>

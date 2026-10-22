@@ -1,0 +1,358 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="icon" type="image/x-icon" href="{% static 'Images/School Logo.jpg' %}">
+    <title>Create Quiz | {{ CourseRecord.0.1 }}</title>
+    
+    <style>
+        :root {
+            --primary-dark: #0f172a;
+            --accent: #3b82f6;
+            --accent-hover: #2563eb;
+            --bg-canvas: #f8fafc;
+            --white: #ffffff;
+            --text-main: #1e293b;
+            --text-muted: #64748b;
+            --radius: 16px;
+            --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { 
+            font-family: 'Plus Jakarta Sans', sans-serif; 
+            background-color: var(--bg-canvas); 
+            color: var(--text-main); 
+            min-height: 100vh;
+        }
+
+        /* Top Navigation */
+        .navbar {
+            background: var(--white);
+            padding: 15px 5%;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+
+        .nav-left { display: flex; align-items: center; gap: 20px; }
+        .back-btn {
+            text-decoration: none;
+            color: var(--text-main);
+            background: #f1f5f9;
+            padding: 8px 16px;
+            border-radius: 10px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            transition: 0.2s;
+            display: flex;
+            align-items: center; gap: 8px;
+        }
+        .back-btn:hover { background: #e2e8f0; color: var(--accent); }
+
+        /* Main Form Container */
+        .container { max-width: 850px; margin: 40px auto; padding: 0 20px; }
+
+        .quiz-card {
+            background: var(--white);
+            border-radius: 24px;
+            padding: 40px;
+            box-shadow: var(--shadow);
+            border: 1px solid #f1f5f9;
+        }
+
+        h1 { font-size: 2rem; font-weight: 800; color: var(--primary-dark); margin-bottom: 30px; }
+
+        .form-group { margin-bottom: 25px; }
+        .form-group label { display: block; font-weight: 700; margin-bottom: 8px; font-size: 0.9rem; color: var(--text-main); }
+        
+        .form-control {
+            width: 100%;
+            padding: 12px 16px;
+            border-radius: 12px;
+            border: 1px solid #e2e8f0;
+            font-family: inherit;
+            font-size: 1rem;
+            transition: 0.3s;
+            background: #fcfdfe;
+        }
+        .form-control:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.1); }
+
+        /* Question Item */
+        .question-item {
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: 20px;
+            padding: 25px;
+            margin-bottom: 20px;
+            position: relative;
+        }
+
+        .question-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; }
+        .question-num { background: var(--primary-dark); color: white; width: 28px; height: 28px; display: flex; align-items: center; justify-content: center; border-radius: 8px; font-size: 0.8rem; font-weight: 800; }
+
+        .btn-delete { background: #fee2e2; color: #ef4444; border: none; padding: 8px 12px; border-radius: 10px; cursor: pointer; transition: 0.2s; font-weight: 600; font-size: 0.8rem; }
+        .btn-delete:hover { background: #fecaca; }
+
+        /* Buttons */
+        .actions-bar { display: flex; gap: 15px; margin-top: 30px; border-top: 1px solid #e2e8f0; padding-top: 30px; }
+        
+        .btn-primary { 
+            background: var(--accent); color: white; border: none; padding: 14px 28px; border-radius: 12px; 
+            font-weight: 700; cursor: pointer; transition: 0.2s; font-size: 1rem; flex: 1;
+        }
+        .btn-primary:hover { background: var(--accent-hover); transform: translateY(-2px); }
+
+        .btn-secondary { 
+            background: #f1f5f9; color: var(--text-main); border: none; padding: 14px 28px; border-radius: 12px; 
+            font-weight: 700; cursor: pointer; transition: 0.2s; flex: 1;
+        }
+        .btn-secondary:hover { background: #e2e8f0; }
+
+        .add-btn {
+            width: 100%; padding: 15px; background: white; border: 2px dashed #cbd5e1; border-radius: 15px;
+            color: var(--text-muted); font-weight: 700; cursor: pointer; transition: 0.2s; margin-bottom: 20px;
+        }
+        .add-btn:hover { border-color: var(--accent); color: var(--accent); background: #eff6ff; }
+
+        /* Preview Area */
+        .preview-section { margin-top: 40px; padding-top: 40px; border-top: 2px solid #e2e8f0; }
+        .preview-card { background: #f1f5f9; padding: 20px; border-radius: 15px; margin-bottom: 15px; }
+    </style>
+</head>
+<body>
+
+    <nav class="navbar">
+        <div class="nav-left">
+            <a href="javascript:history.back()" class="back-btn">
+                <i class="fas fa-arrow-left"></i> Back to Dashboard
+            </a>
+            <div style="font-size: 0.85rem; font-weight: 700; color: var(--text-muted);">QUIZ BUILDER</div>
+        </div>
+        {% for Teacher in TeacherRecords %}
+        <div style="display: flex; align-items: center; gap: 10px;">
+            <span style="font-weight: 700; font-size: 0.9rem;">Dr. {{ Teacher.TeacherName }}</span>
+            <img src="data:image/jpeg;base64,{{ Teacher.TeacherImage }}" style="width: 35px; height: 35px; border-radius: 50%; object-fit: cover;">
+        </div>
+        {% endfor %}
+    </nav>
+
+    <div class="container">
+        <div class="quiz-card">
+            <h1>Create New Quiz</h1>
+            
+            <form id="quiz-form">
+                {% csrf_token %}
+                <div class="form-group">
+                    <label for="quiz-name">Quiz Title</label>
+                    <input type="text" id="quiz-name" class="form-control" placeholder="e.g. Midterm Assessment - Unit 1" required>
+                </div>
+
+                <div id="questions-container">
+                    </div>
+
+                <button type="button" class="add-btn" onclick="addQuestion()">
+                    <i class="fas fa-plus-circle"></i> Add Question
+                </button>
+
+                <div class="actions-bar">
+                    <button class="btn-secondary" type="button" onclick="previewQuiz()">
+                        <i class="far fa-eye"></i> Preview
+                    </button>
+                    <button class="btn-delete" type="button" onclick="deleteQuiz()" style="flex: 0.5; font-size: 1rem;">
+                        <i class="far fa-trash-alt"></i> Reset
+                    </button>
+                </div>
+            </form>
+
+            <div id="preview-container" class="preview-section" style="display: none;">
+                <h2 style="margin-bottom: 20px; font-size: 1.5rem;">Quiz Preview</h2>
+                <div id="preview-questions"></div>
+                <button class="btn-primary" type="button" onclick="submitQuiz()" style="margin-top: 20px; width: 100%;">
+                    <i class="fas fa-cloud-upload-alt"></i> Finalize and Upload Quiz
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let questionCount = 0;
+
+        function addQuestion() {
+            const container = document.getElementById('questions-container');
+            const questionDiv = document.createElement('div');
+            questionDiv.className = 'question-item';
+            questionDiv.id = `question-${questionCount}`;
+            
+            questionDiv.innerHTML = `
+                <div class="question-header">
+                    <span class="question-num">${questionCount + 1}</span>
+                    <button type="button" class="btn-delete" onclick="deleteQuestion(${questionCount})">
+                        <i class="fas fa-times"></i> Remove
+                    </button>
+                </div>
+
+                <div class="form-group">
+                    <label>Question Prompt</label>
+                    <textarea class="form-control" name="questions[${questionCount}][text]" style="height: 80px;" required placeholder="Enter your question here..."></textarea>
+                </div>
+
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+                    <div class="form-group">
+                        <label>Type</label>
+                        <select class="form-control" name="questions[${questionCount}][type]" onchange="toggleOptions(${questionCount})">
+                            <option value="written">Written Answer</option>
+                            <option value="mcq">Multiple Choice (MCQ)</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Points/Marks</label>
+                        <input type="number" class="form-control" name="questions[${questionCount}][mark]" required value="1">
+                    </div>
+                </div>
+
+                <div id="mcq-options-${questionCount}" style="display: none; border-top: 1px solid #e2e8f0; padding-top: 15px; margin-top: 10px;">
+                    <div class="form-group">
+                        <label>Options (Separate with commas)</label>
+                        <textarea class="form-control" name="questions[${questionCount}][options]" placeholder="Apple, Orange, Banana, Grapes"></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label>Correct Choice Index (0 = First Option)</label>
+                        <input type="number" class="form-control" name="questions[${questionCount}][correct_option]" placeholder="0">
+                    </div>
+                </div>
+            `;
+            container.appendChild(questionDiv);
+            questionCount++;
+        }
+
+        function toggleOptions(count) {
+            const mcqOptions = document.getElementById(`mcq-options-${count}`);
+            const selectElement = document.querySelector(`select[name="questions[${count}][type]"]`);
+            mcqOptions.style.display = selectElement.value === 'mcq' ? 'block' : 'none';
+        }
+
+        function previewQuiz() {
+            const container = document.getElementById('preview-container');
+            const previewQuestions = document.getElementById('preview-questions');
+            const quizName = document.getElementById('quiz-name').value;
+            const questionDivs = document.querySelectorAll('.question-item');
+
+            if (!quizName || questionDivs.length === 0) {
+                alert('Please provide a quiz name and at least one question.');
+                return;
+            }
+
+            previewQuestions.innerHTML = '';
+            questionDivs.forEach((div, index) => {
+                const text = div.querySelector('textarea').value;
+                const type = div.querySelector('select').value;
+                const mark = div.querySelector('input[name*="[mark]"]').value;
+
+                const pCard = document.createElement('div');
+                pCard.className = 'preview-card';
+                let content = `<p><strong>Q${index+1}:</strong> ${text} <span style="float:right; color:var(--accent)">[${mark} Marks]</span></p>`;
+                
+                if (type === 'mcq') {
+                    const opts = div.querySelector('textarea[name*="[options]"]').value.split(',');
+                    content += '<ul style="list-style:none; margin-top:10px;">';
+                    opts.forEach((o, i) => {
+                        content += `<li style="margin:5px 0;"><i class="far fa-circle"></i> ${o.trim()}</li>`;
+                    });
+                    content += '</ul>';
+                } else {
+                    content += `<div style="margin-top:10px; border:1px solid #cbd5e1; height:40px; border-radius:8px; background:white;"></div>`;
+                }
+                
+                pCard.innerHTML = content;
+                previewQuestions.appendChild(pCard);
+            });
+
+            container.style.display = 'block';
+            window.scrollTo({ top: container.offsetTop, behavior: 'smooth' });
+        }
+
+        // Logic for Submit, Delete, and Cookies remains the same as your functional original
+        function getCookie(name) {
+            let cookieValue = null;
+            if (document.cookie && document.cookie !== '') {
+                const cookies = document.cookie.split(';');
+                for (let i = 0; i < cookies.length; i++) {
+                    const cookie = cookies[i].trim();
+                    if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                        break;
+                    }
+                }
+            }
+            return cookieValue;
+        }
+
+        function submitQuiz() {
+            const quizName = document.getElementById('quiz-name').value;
+            const questions = [];
+            const questionElements = document.querySelectorAll('.question-item');
+            const teacherId = parseInt('{{ TecherID }}'); 
+            const courseId = parseInt('{{ CourseID }}'); 
+
+            questionElements.forEach((div) => {
+                const questionText = div.querySelector('textarea').value;
+                const questionType = div.querySelector('select').value;
+                const questionMark = div.querySelector('input[name*="[mark]"]').value;
+
+                let options = [];
+                let correctOption = null;
+                
+                if (questionType === 'mcq') {
+                    options = div.querySelector('textarea[name*="[options]"]').value.split(',').map(o => o.trim());
+                    correctOption = div.querySelector('input[name*="[correct_option]"]').value;
+                }
+
+                questions.push({
+                    text: questionText,
+                    type: questionType,
+                    mark: questionMark,
+                    options: options,
+                    correct_option: correctOption
+                });
+            });
+
+            const data = { quiz_name: quizName, questions: questions, TeacherID: teacherId, CourseID: courseId };
+            const csrftoken = getCookie('csrftoken');
+
+            fetch('/quiz-insertion/', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json', 'X-CSRFToken': csrftoken },
+                body: JSON.stringify(data)
+            })
+            .then(res => res.json())
+            .then(data => {
+                if (data.message) {
+                    alert("Quiz Published Successfully!");
+                    window.location.reload();
+                } else { alert(data.error); }
+            });
+        }
+
+        function deleteQuiz() {
+            if (confirm("Reset everything?")) {
+                document.getElementById('quiz-form').reset();
+                document.getElementById('questions-container').innerHTML = '';
+                document.getElementById('preview-container').style.display = 'none';
+            }
+        }
+
+        function deleteQuestion(id) {
+            document.getElementById(`question-${id}`).remove();
+        }
+    </script>
+</body>
+</html>

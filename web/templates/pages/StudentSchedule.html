@@ -1,0 +1,241 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Academic Schedule | Portal</title>
+    
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="icon" type="image/x-icon" href="{% static 'Images/School Logo.jpg' %}">
+
+    <style>
+        :root {
+            --primary: #0f4c75;
+            --accent: #3282b8;
+            --bg-body: #f8fafc;
+            --white: #ffffff;
+            --text-main: #1e293b;
+            --text-muted: #64748b;
+            --border: #e2e8f0;
+            
+            /* Course Palette - Soft Pastel */
+            --c-math: #dbeafe;
+            --t-math: #1e40af;
+            --c-physics: #fef3c7;
+            --t-physics: #92400e;
+            --c-chem: #dcfce7;
+            --t-chem: #166534;
+            --c-cs: #f3e8ff;
+            --t-cs: #6b21a8;
+            --c-stats: #ffe4e6;
+            --t-stats: #9f1239;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background-color: var(--bg-body);
+            color: var(--text-main);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 40px 20px;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 1100px;
+            animation: fadeIn 0.6s ease-out;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* === HEADER === */
+        .schedule-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+        }
+
+        .header-title h1 {
+            font-size: 28px;
+            font-weight: 800;
+            color: var(--primary);
+            letter-spacing: -0.5px;
+        }
+
+        .btn-back {
+            text-decoration: none;
+            color: var(--text-muted);
+            font-weight: 700;
+            font-size: 14px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px 20px;
+            background: var(--white);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            transition: 0.3s;
+        }
+
+        .btn-back:hover {
+            color: var(--primary);
+            border-color: var(--primary);
+            background: #f1f5f9;
+        }
+
+        /* === SCHEDULE CARD === */
+        .schedule-card {
+            background: var(--white);
+            border-radius: 24px;
+            padding: 35px;
+            box-shadow: 0 10px 25px -5px rgba(0,0,0,0.05);
+            border: 1px solid var(--border);
+        }
+
+        .grid-container {
+            display: grid;
+            grid-template-columns: 120px repeat(6, 1fr);
+            gap: 12px;
+            overflow-x: auto;
+        }
+
+        /* Headers */
+        .grid-header {
+            background: #f1f5f9;
+            padding: 15px;
+            text-align: center;
+            font-weight: 800;
+            font-size: 13px;
+            color: var(--primary);
+            text-transform: uppercase;
+            border-radius: 10px;
+            letter-spacing: 1px;
+        }
+
+        .time-col {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 12px;
+            color: var(--text-muted);
+            background: var(--bg-body);
+            border-radius: 10px;
+            border: 1px dashed var(--border);
+        }
+
+        /* Course Item */
+        .class-box {
+            min-height: 80px;
+            padding: 12px;
+            border-radius: 14px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            font-size: 13px;
+            font-weight: 700;
+            transition: all 0.3s ease;
+            border: 1px solid transparent;
+        }
+
+        .class-box:hover:not(.empty) {
+            transform: scale(1.05);
+            box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1);
+            z-index: 10;
+        }
+
+        .class-box span {
+            font-size: 10px;
+            font-weight: 500;
+            opacity: 0.8;
+            margin-top: 4px;
+        }
+
+        .empty {
+            background: #fcfcfc;
+            border: 1px dashed #eef2f6;
+        }
+
+        /* Dynamic Colors */
+        .math { background: var(--c-math); color: var(--t-math); }
+        .physics { background: var(--c-physics); color: var(--t-physics); }
+        .chemistry { background: var(--c-chem); color: var(--t-chem); }
+        .cs { background: var(--c-cs); color: var(--t-cs); }
+        .stats { background: var(--c-stats); color: var(--t-stats); }
+
+        @media (max-width: 900px) {
+            .grid-container { grid-template-columns: 80px repeat(6, 200px); }
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <div class="schedule-header">
+        <div class="header-title">
+            <h1>Weekly Timetable</h1>
+        </div>
+        <a href="javascript:history.back()" class="btn-back">
+            <i class="fas fa-chevron-left"></i> Back to Dashboard
+        </a>
+    </div>
+
+    <div class="schedule-card">
+        <div class="grid-container">
+            <div class="grid-header" style="background: transparent;">Time</div>
+            <div class="grid-header">Sat</div>
+            <div class="grid-header">Sun</div>
+            <div class="grid-header">Mon</div>
+            <div class="grid-header">Tue</div>
+            <div class="grid-header">Wed</div>
+            <div class="grid-header">Thu</div>
+
+            <div class="time-col">09:30 - 11:20</div>
+            <div class="class-box math">Math <span>Room 101</span></div>
+            <div class="class-box physics">Physics <span>Lab A</span></div>
+            <div class="class-box empty"></div>
+            <div class="class-box empty"></div>
+            <div class="class-box empty"></div>
+            <div class="class-box math">Discrete <span>Room 204</span></div>
+
+            <div class="time-col">11:30 - 12:30</div>
+            <div class="class-box physics">Physics <span>Lab A</span></div>
+            <div class="class-box cs">Computer Sci <span>Lab B</span></div>
+            <div class="class-box stats">Statistics <span>Room 302</span></div>
+            <div class="class-box empty"></div>
+            <div class="class-box empty"></div>
+            <div class="class-box empty"></div>
+
+            <div class="time-col">12:30 - 13:40</div>
+            <div class="class-box chemistry">Discrete <span>Room 204</span></div>
+            <div class="class-box empty"></div>
+            <div class="class-box stats">Statistics <span>Room 302</span></div>
+            <div class="class-box math">Math <span>Room 101</span></div>
+            <div class="class-box chemistry">Electronics <span>Lab C</span></div>
+            <div class="class-box empty"></div>
+
+            <div class="time-col">14:00 - 15:40</div>
+            <div class="class-box cs">Computer Sci <span>Lab B</span></div>
+            <div class="class-box empty"></div>
+            <div class="class-box empty"></div>
+            <div class="class-box chemistry">Electronics <span>Lab C</span></div>
+            <div class="class-box empty"></div>
+            <div class="class-box empty"></div>
+        </div>
+    </div>
+</div>
+
+</body>
+</html>

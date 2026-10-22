@@ -1,0 +1,377 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Assign Course to Instructor | Admin Portal</title>
+    
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            --primary-blue: #3282b8;
+            --dark-steel: #1b262c;
+            --navy-deep: #0f4c75;
+            --white: #ffffff;
+            --bg-muted: #f8fafc;
+            --border-soft: #e2e8f0;
+            --text-main: #1e293b;
+        }
+
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background-color: var(--dark-steel);
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        /* === DASHBOARD BUTTON === */
+        .dashboard-nav {
+            position: fixed;
+            top: 30px;
+            left: 30px;
+            z-index: 100;
+        }
+
+        .btn-dashboard {
+            text-decoration: none;
+            background: rgba(255, 255, 255, 0.1);
+            color: var(--white);
+            padding: 12px 20px;
+            border-radius: 12px;
+            font-weight: 600;
+            font-size: 14px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            transition: 0.3s;
+        }
+
+        .btn-dashboard:hover {
+            background: var(--primary-blue);
+            transform: translateX(5px);
+        }
+
+        /* === ASSIGNMENT CARD === */
+        .assign-card {
+            background: var(--white);
+            width: 100%;
+            max-width: 550px;
+            padding: 40px;
+            border-radius: 24px;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+            animation: cardEntrance 0.6s cubic-bezier(0.23, 1, 0.32, 1);
+        }
+
+        @keyframes cardEntrance {
+            from { opacity: 0; transform: translateY(30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .header-section {
+            text-align: center;
+            margin-bottom: 35px;
+        }
+
+        .header-section img {
+            width: 70px;
+            height: 70px;
+            border-radius: 15px;
+            margin-bottom: 15px;
+        }
+
+        .header-section h1 {
+            font-size: 24px;
+            color: var(--dark-steel);
+            font-weight: 800;
+            margin: 0;
+            letter-spacing: -0.5px;
+        }
+
+        /* === FORM ELEMENTS === */
+        .input-group {
+            margin-bottom: 20px;
+        }
+
+        .input-group label {
+            display: block;
+            font-weight: 700;
+            font-size: 13px;
+            color: var(--text-main);
+            margin-bottom: 8px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        input {
+            width: 100%;
+            padding: 14px 16px;
+            border-radius: 12px;
+            border: 2px solid var(--border-soft);
+            background: var(--bg-muted);
+            font-size: 15px;
+            transition: 0.3s;
+            box-sizing: border-box;
+        }
+
+        input:focus {
+            outline: none;
+            border-color: var(--primary-blue);
+            background: white;
+            box-shadow: 0 0 0 4px rgba(50, 130, 184, 0.1);
+        }
+
+        input[readonly] {
+            background: #f1f5f9;
+            cursor: not-allowed;
+            color: #64748b;
+        }
+
+        /* === CUSTOM DROPDOWN === */
+        .course-picker {
+            position: relative;
+            margin-bottom: 25px;
+        }
+
+        .picker-btn {
+            width: 100%;
+            padding: 14px 16px;
+            background: white;
+            border: 2px solid var(--primary-blue);
+            border-radius: 12px;
+            text-align: left;
+            font-weight: 600;
+            color: var(--navy-deep);
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: 0.3s;
+        }
+
+        .picker-btn:hover {
+            background: #f0f7ff;
+        }
+
+        .dropdown-list {
+            display: none;
+            position: absolute;
+            top: 100%;
+            left: 0;
+            right: 0;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.15);
+            margin-top: 8px;
+            max-height: 200px;
+            overflow-y: auto;
+            z-index: 10;
+            border: 1px solid var(--border-soft);
+        }
+
+        .dropdown-item {
+            padding: 12px 16px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: 0.2s;
+        }
+
+        .dropdown-item:hover {
+            background: var(--primary-blue);
+            color: white;
+        }
+
+        /* === ACTION BUTTON === */
+        .submit-btn {
+            width: 100%;
+            padding: 16px;
+            background: var(--primary-blue);
+            color: white;
+            border: none;
+            border-radius: 14px;
+            font-size: 16px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: 0.3s;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 10px;
+            margin-top: 10px;
+        }
+
+        .submit-btn:hover {
+            background: var(--navy-deep);
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(15, 76, 117, 0.3);
+        }
+
+        /* === MESSAGES === */
+        .msg-box {
+            margin-top: 20px;
+            padding: 14px;
+            border-radius: 12px;
+            text-align: center;
+            font-size: 14px;
+            font-weight: 600;
+            display: none;
+        }
+
+        .success-msg { background: #dcfce7; color: #166534; border: 1px solid #bbf7d0; display: block; }
+        .error-msg { background: #fee2e2; color: #991b1b; border: 1px solid #fecaca; display: block; }
+
+        @media (max-width: 600px) {
+            .dashboard-nav { position: absolute; top: 15px; left: 15px; }
+            .assign-card { padding: 30px 20px; margin-top: 60px; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="dashboard-nav">
+        <a href="{% url 'DirectAdminPage' %}" class="btn-dashboard">
+            <i class="fas fa-th-large"></i> Dashboard
+        </a>
+    </div>
+
+    <div class="assign-card">
+        <div class="header-section">
+            <img src="{% static 'Images/School logo.jpg' %}" alt="Logo">
+            <h1>Assign Instructor Course</h1>
+        </div>
+
+        <form id="add-course-form">
+            {% csrf_token %}
+
+            <div class="course-picker">
+                <label>Select Target Course</label>
+                <div class="picker-btn" id="dropdown-button">
+                    <span>Choose a course...</span>
+                    <i class="fas fa-chevron-down"></i>
+                </div>
+                <div class="dropdown-list" id="dropdown-list"></div>
+            </div>
+
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+                <div class="input-group">
+                    <label>Course ID</label>
+                    <input type="number" id="course_id" name="course_id" readonly placeholder="-">
+                </div>
+
+                <div class="input-group">
+                    <label>Level</label>
+                    <input type="text" id="course_level" name="course_level" readonly placeholder="-">
+                </div>
+            </div>
+
+            <div class="input-group">
+                <label><i class="fas fa-id-badge"></i> Instructor ID</label>
+                <input type="number" id="teacher_id" name="teacher_id" placeholder="Enter valid Instructor ID" required>
+            </div>
+
+            <button type="button" class="submit-btn" id="submit-btn">
+                <i class="fas fa-link"></i> Link Course
+            </button>
+
+            <div id="message-container"></div>
+        </form>
+    </div>
+
+    <script>
+        const dropdownButton = document.getElementById('dropdown-button');
+        const dropdownList = document.getElementById('dropdown-list');
+        const submitBtn = document.getElementById('submit-btn');
+        const messageContainer = document.getElementById('message-container');
+
+        dropdownButton.onclick = function() {
+            if (dropdownList.style.display === 'block') {
+                dropdownList.style.display = 'none';
+            } else {
+                fetchCourses();
+            }
+        };
+
+        function fetchCourses() {
+            fetch('/fetchcoursesLists/')
+                .then(response => response.json())
+                .then(data => {
+                    dropdownList.innerHTML = '';
+                    data.forEach(course => {
+                        const item = document.createElement('div');
+                        item.classList.add('dropdown-item');
+                        item.innerText = course.name;
+                        item.onclick = function() {
+                            selectCourse(course.id, course.name, course.level);
+                        };
+                        dropdownList.appendChild(item);
+                    });
+                    dropdownList.style.display = 'block';
+                })
+                .catch(error => console.error('Error:', error));
+        }
+
+        function selectCourse(courseId, courseName, courseLevel) {
+            dropdownButton.querySelector('span').innerText = courseName;
+            dropdownList.style.display = 'none';
+            document.getElementById('course_id').value = courseId;
+            document.getElementById('course_level').value = courseLevel;
+        }
+
+        window.onclick = function(event) {
+            if (!event.target.closest('.course-picker')) {
+                dropdownList.style.display = 'none';
+            }
+        };
+
+        submitBtn.onclick = function() {
+            const courseId = document.getElementById('course_id').value;
+            const teacherId = document.getElementById('teacher_id').value;
+
+            if(!courseId || !teacherId) {
+                showMessage("Please select a course and enter Instructor ID", "error-msg");
+                return;
+            }
+
+            const formData = new FormData();
+            formData.append('course_id', courseId);
+            formData.append('teacher_id', teacherId);
+
+            submitBtn.disabled = true;
+            submitBtn.innerHTML = '<i class="fas fa-circle-notch fa-spin"></i> Processing...';
+
+            fetch("{% url 'AssignTeacherCourse' %}", {
+                method: "POST",
+                headers: {
+                    "X-CSRFToken": "{{ csrf_token }}",
+                    "X-Requested-With": "XMLHttpRequest"
+                },
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                showMessage(data.message, data.status === "success" ? "success-msg" : "error-msg");
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = '<i class="fas fa-link"></i> Link Course';
+            })
+            .catch(error => {
+                showMessage("An error occurred. Check Instructor ID and connection.", "error-msg");
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = '<i class="fas fa-link"></i> Link Course';
+            });
+        };
+
+        function showMessage(message, type) {
+            messageContainer.innerHTML = `<div class="msg-box ${type}">${message}</div>`;
+            setTimeout(() => { messageContainer.innerHTML = ''; }, 5000);
+        }
+    </script>
+</body>
+</html>

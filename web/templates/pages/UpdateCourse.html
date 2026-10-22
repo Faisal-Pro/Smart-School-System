@@ -1,0 +1,141 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Update Course</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f0f8ff;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+
+        .form-container {
+            background-color: white;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+            width: 100%;
+            max-width: 450px;
+            border: 1px solid #0f4c75;
+        }
+
+        h1 {
+            color: #0f4c75;
+            text-align: center;
+            margin-bottom: 25px;
+            font-size: 24px;
+        }
+
+        .input-group {
+            margin-bottom: 15px;
+        }
+
+        .input-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: bold;
+            color: #333;
+        }
+
+        .input-group input, .input-group select {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ccc;
+            border-radius: 6px;
+            box-sizing: border-box;
+            font-size: 14px;
+        }
+
+        .input-group input[readonly] {
+            background-color: #e9ecef;
+            cursor: not-allowed;
+        }
+
+        .current-image-info {
+            font-size: 0.85em;
+            color: #666;
+            margin-top: 5px;
+            display: block;
+        }
+
+        .btn-container {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        .submit-btn {
+            background-color: #0f4c75;
+            color: white;
+            padding: 12px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: bold;
+            transition: background 0.3s;
+        }
+
+        .submit-btn:hover {
+            background-color: #1b6b99;
+        }
+
+        .cancel-btn {
+            text-align: center;
+            text-decoration: none;
+            color: #666;
+            font-size: 14px;
+        }
+
+        .cancel-btn:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="form-container">
+        <h1><i class="fas fa-book"></i> Update Course</h1>
+        
+        <form method="POST" enctype="multipart/form-data">
+            {% csrf_token %}
+
+            <div class="input-group">
+                <label>Course ID (Primary Key):</label>
+                <input type="text" value="{{ course.course_id }}" readonly>
+            </div>
+
+            <div class="input-group">
+                <label>Course Name:</label>
+                <input type="text" name="course_name" value="{{ course.course_name }}" required placeholder="Enter course name">
+            </div>
+
+                <div class="input-group">
+                    <label>Course Level:</label>
+                    <input type="text" name="course_level" value="{{ course.course_level }}" required placeholder="e.g. Grade 10, Beginner, etc.">
+                </div>
+
+            <div class="input-group">
+                <label>Course Image:</label>
+                <span class="current-image-info">Current: {{ course.image_url }}</span>
+                <input type="file" name="course_image" accept="image/*">
+            </div>
+
+            <div class="btn-container">
+                <button type="submit" class="submit-btn">Update Details</button>
+                <a href="{% url 'view_courses' %}" class="cancel-btn">Cancel and Return</a>
+            </div>
+        </form>
+    </div>
+
+</body>
+</html>

@@ -1,0 +1,275 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <link rel="icon" type="image/x-icon" href="{% static 'Images/School Logo.jpg' %}">
+    <title>Add Announcement</title>
+    <style>
+        /* Global Styles */
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: linear-gradient(135deg, #6dd5ed, #2193b0);
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            overflow: hidden;
+            animation: backgroundScroll 10s infinite linear;
+        }
+
+        @keyframes backgroundScroll {
+            0% { background-position: 0% 0%; }
+            100% { background-position: 100% 100%; }
+        }
+
+        .announcement-form-container {
+            background-color: rgba(255, 255, 255, 0.95);
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 8px 40px rgba(0, 0, 0, 0.2);
+            max-width: 600px;
+            width: 90%;
+            animation: fadeIn 1s ease-out;
+            transform: translateY(-10px);
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(-50px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        h1 {
+            color: #0f4c75;
+            text-align: center;
+            font-size: 28px;
+            margin-bottom: 20px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+            position: relative;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+            color: #333;
+        }
+
+        .form-group input[type="text"],
+        .form-group textarea {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #ddd;
+            border-radius: 6px;
+            background: #f9f9f9;
+            font-size: 16px;
+            outline: none;
+            transition: border-color 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .form-group input[type="text"]:focus,
+        .form-group textarea:focus {
+            border-color: #0f4c75;
+            box-shadow: 0 0 10px rgba(15, 76, 117, 0.2);
+        }
+
+        .form-group textarea {
+            height: 150px;
+            resize: none;
+        }
+
+        .file-upload-container {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 12px;
+            border: 2px dashed #0f4c75;
+            border-radius: 8px;
+            cursor: pointer;
+            position: relative;
+            transition: border-color 0.3s ease;
+        }
+
+        .file-upload-container:hover {
+            border-color: #3282b8;
+        }
+
+        .file-upload-container i {
+            font-size: 28px;
+            color: #0f4c75;
+            margin-right: 10px;
+            animation: bounce 1s infinite ease-in-out;
+        }
+
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+
+        .file-upload-container span {
+            font-size: 14px;
+            color: #555;
+        }
+
+        .form-group input[type="file"] {
+            display: none;
+        }
+
+        .submit-btn {
+            width: 100%;
+            padding: 14px;
+            background: linear-gradient(135deg, #0f4c75, #3282b8);
+            color: white;
+            border: none;
+            font-size: 18px;
+            border-radius: 6px;
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+            transition: transform 0.2s ease, background-color 0.3s ease;
+        }
+
+        .submit-btn::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 300%;
+            height: 300%;
+            background: rgba(255, 255, 255, 0.2);
+            transform: translate(-50%, -50%) scale(0);
+            border-radius: 50%;
+            transition: transform 0.4s ease;
+        }
+
+        .submit-btn:active::after {
+            transform: translate(-50%, -50%) scale(1);
+        }
+
+        .submit-btn:hover {
+            background: #3282b8;
+            transform: translateY(-2px);
+        }
+
+        #responseMessage {
+            margin-top: 15px;
+            font-size: 16px;
+            color: green;
+            opacity: 0; /* Start hidden */
+            transition: opacity 0.5s ease-in-out, transform 0.5s ease-in-out;
+        }
+
+        #responseMessage.show {
+            opacity: 1; /* Fully visible */
+            transform: translateY(0); /* Reset position */
+        }
+
+        #responseMessage.hide {
+            opacity: 0; /* Fade out */
+            transform: translateY(-20px); /* Move up */
+        }
+
+    </style>
+</head>
+<body>
+    <div class="announcement-form-container">
+        <h1>Add Announcement</h1>
+        <form id="announcementForm" enctype="multipart/form-data">
+            {% csrf_token %}
+  
+            <div class="form-group">
+                <label for="pdf_file">Upload PDF</label>
+                <div class="file-upload-container" onclick="document.getElementById('pdf_file').click()">
+                    <i class="fas fa-upload"></i>
+                    <span>Click to select PDF</span>
+                </div>
+                <input type="file" id="pdf_file" name="pdf_file" accept="application/pdf">
+                <p id="pdfFileName" style="margin-top: 5px; color: #333;"></p>
+            </div>
+
+            <div class="form-group">
+                <label for="video_file">Upload Video</label>
+                <div class="file-upload-container" onclick="document.getElementById('video_file').click()">
+                    <i class="fas fa-video"></i>
+                    <span>Click to select Video</span>
+                </div>
+                <input type="file" id="video_file" name="video_file" accept="video/*">
+                <p id="videoFileName" style="margin-top: 5px; color: #333;"></p>
+            </div>
+
+            <div class="form-group">
+                <label for="content">Announcement</label>
+                <textarea id="content" name="content" required></textarea>
+            </div>
+
+            <button type="button" class="submit-btn" id="submitBtn">Submit</button>
+        </form>
+        <p id="responseMessage" style="margin-top: 15px; color: green;"></p>
+    </div>
+
+
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script>
+        document.getElementById('pdf_file').addEventListener('change', function () {
+            const fileName = this.files[0]?.name || 'No file selected';
+            document.getElementById('pdfFileName').textContent = `Selected: ${fileName}`;
+        });
+
+        document.getElementById('video_file').addEventListener('change', function () {
+            const fileName = this.files[0]?.name || 'No file selected';
+            document.getElementById('videoFileName').textContent = `Selected: ${fileName}`;
+        });
+
+        $('#submitBtn').on('click', function () {
+        const formData = new FormData(document.getElementById('announcementForm'));
+        $.ajax({
+            url: "{% url 'AddAnnouncementsCourse' TeacherID CourseID %}",
+            method: "POST",
+            data: formData,
+            processData: false,
+            contentType: false,
+            success: function (response) {
+                const responseMessage = $('#responseMessage');
+                responseMessage.text('Announcement added successfully!');
+                responseMessage.removeClass('hide').addClass('show');
+
+                // Hide the message after 5 seconds
+                setTimeout(() => {
+                    responseMessage.removeClass('show').addClass('hide');
+                }, 5000);
+
+                $('#announcementForm')[0].reset();
+                $('#pdfFileName').text('');
+                $('#videoFileName').text('');
+            },
+            error: function () {
+                const responseMessage = $('#responseMessage');
+                responseMessage.text('An error occurred while adding the announcement.')
+                               .css('color', 'red')
+                               .removeClass('hide').addClass('show');
+
+                // Hide the message after 5 seconds
+                setTimeout(() => {
+                    responseMessage.removeClass('show').addClass('hide');
+                }, 5000);
+            }
+        });
+    });
+    
+    </script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+</body>
+</html>

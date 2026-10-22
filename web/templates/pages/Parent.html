@@ -1,0 +1,320 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Parent Portal | {{ ParentRecord.0.ParentName }}</title>
+    
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="icon" type="image/x-icon" href="{% static 'Images/School Logo.jpg' %}">
+
+    <style>
+        :root {
+            --primary: #0f4c75;
+            --accent: #3282b8;
+            --bg-body: #f8fafc;
+            --white: #ffffff;
+            --text-dark: #1e293b;
+            --text-muted: #64748b;
+            --sidebar-width: 280px;
+            --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background-color: var(--bg-body);
+            color: var(--text-dark);
+            display: flex;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        /* === SIDEBAR === */
+        .sidebar {
+            width: var(--sidebar-width);
+            background: var(--primary);
+            color: white;
+            display: flex;
+            flex-direction: column;
+            transition: var(--transition);
+            z-index: 1000;
+            box-shadow: 4px 0 15px rgba(0,0,0,0.05);
+        }
+
+        .sidebar.hidden { margin-left: calc(-1 * var(--sidebar-width)); }
+
+        .sidebar-header {
+            padding: 40px 20px;
+            text-align: center;
+            background: rgba(0,0,0,0.1);
+        }
+
+        .profile-wrapper {
+            position: relative;
+            display: inline-block;
+            margin-bottom: 15px;
+        }
+
+        .profile-wrapper img {
+            width: 85px;
+            height: 85px;
+            border-radius: 24px;
+            border: 3px solid var(--accent);
+            object-fit: cover;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.2);
+        }
+
+        .sidebar-header h2 { font-size: 1.1rem; font-weight: 700; }
+        .sidebar-header p { font-size: 0.8rem; opacity: 0.6; margin-top: 4px; }
+
+        nav { flex: 1; padding: 25px 15px; overflow-y: auto; }
+        nav ul { list-style: none; }
+        nav ul li { margin-bottom: 8px; }
+
+        nav ul li a {
+            display: flex;
+            align-items: center;
+            padding: 14px 18px;
+            color: rgba(255,255,255,0.7);
+            text-decoration: none;
+            border-radius: 12px;
+            font-weight: 500;
+            font-size: 0.95rem;
+            transition: var(--transition);
+        }
+
+        nav ul li a i { margin-right: 14px; font-size: 1.1rem; width: 24px; }
+
+        nav ul li a:hover, nav ul li a.active {
+            background: rgba(255,255,255,0.1);
+            color: white;
+            transform: translateX(5px);
+        }
+
+        .notif-badge {
+            background: #ef4444; color: white; padding: 2px 8px; border-radius: 8px;
+            font-size: 0.7rem; font-weight: 800; margin-left: auto;
+        }
+
+        /* === MAIN CONTENT === */
+        .main-wrapper { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
+
+        .top-nav {
+            padding: 20px 40px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: var(--white);
+            border-bottom: 1px solid #e2e8f0;
+        }
+
+        #menu-toggle { font-size: 1.4rem; cursor: pointer; color: var(--primary); }
+
+        .content-body {
+            flex: 1; padding: 40px; overflow-y: auto;
+            display: grid; grid-template-columns: 1fr 320px; gap: 40px;
+        }
+
+        .welcome-msg h1 { font-size: 2rem; font-weight: 800; color: var(--primary); margin-bottom: 10px; }
+        .welcome-msg p { color: var(--text-muted); margin-bottom: 40px; }
+
+        /* === COURSE CARDS (Synced with Student) === */
+        .course-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+            gap: 25px;
+        }
+
+        .course-card {
+            background: var(--white);
+            border-radius: 20px;
+            overflow: hidden;
+            border: 1px solid #e2e8f0;
+            box-shadow: 0 4px 6px -1px rgba(0,0,0,0.02);
+            transition: var(--transition);
+            cursor: pointer;
+            text-decoration: none;
+            display: block;
+        }
+
+        .course-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 20px 25px -5px rgba(0,0,0,0.05);
+            border-color: var(--accent);
+        }
+
+        .course-img {
+            height: 140px;
+            width: 100%;
+            object-fit: cover;
+            border-bottom: 1px solid #f1f5f9;
+        }
+
+        .course-info { padding: 20px; }
+        .course-info h3 { font-size: 1rem; margin-bottom: 5px; color: var(--primary); }
+        .course-info p { font-size: 0.8rem; color: var(--text-muted); font-weight: 600; }
+
+        /* === RIGHT PANELS === */
+        .calendar-card {
+            background: var(--white); padding: 25px; border-radius: 24px; border: 1px solid #e2e8f0; margin-bottom: 30px;
+        }
+
+        .calendar-header {
+            font-weight: 800; color: var(--primary); margin-bottom: 20px; font-size: 1.1rem;
+            display: flex; justify-content: space-between;
+        }
+
+        .cal-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 8px; text-align: center; }
+        .cal-day { font-size: 0.75rem; padding: 10px 0; border-radius: 10px; color: var(--text-muted); font-weight: 600; }
+        .cal-day.today { background: var(--accent); color: white; box-shadow: 0 5px 15px rgba(50, 130, 184, 0.4); }
+        .cal-header-label { font-size: 0.65rem; font-weight: 800; text-transform: uppercase; color: var(--accent); margin-bottom: 5px;}
+
+        @media (max-width: 1024px) {
+            .content-body { grid-template-columns: 1fr; }
+            .right-panel { display: none; }
+        }
+    </style>
+</head>
+<body>
+
+    {% for Parent in ParentRecord %}
+    {% for Information in StudentRecord %}
+    {% for Count in AnnouncementNum %}
+
+    <aside id="sidebar" class="sidebar">
+        <div class="sidebar-header">
+            <div class="profile-wrapper">
+                <img src="{% static 'Images/' %}{{ Parent.ParentImage }}" alt="Parent Photo">
+            </div>
+            <h2>{{ Parent.ParentName }}</h2>
+            <p>Guardian Account</p>
+        </div>
+        
+        <nav>
+            <ul>
+                <li><a href="#" class="active"><i class="fas fa-columns"></i> Dashboard</a></li>
+                <li><a href="{% url 'StudentInformation' Information.StudentID %}"><i class="fas fa-user-circle"></i> Student Profile</a></li>
+                <li><a href="{% url 'StudentSchedulePage' Information.StudentID %}"><i class="fas fa-calendar-alt"></i> Schedule</a></li>
+                <li>
+                    <a href="{% url 'announcements' Information.StudentID %}">
+                        <i class="fas fa-bullhorn"></i> Announcements
+                        {% if Count.0 > 0 %}
+                            <span class="notif-badge">{{ Count.0 }}</span>
+                        {% endif %}
+                    </a>
+                </li>
+                <li><a href="{% url 'index2' Information.StudentID %}"><i class="fas fa-history"></i> Attendance</a></li>
+                <li><a href="{% url 'FinalGrade' Information.StudentID %}"><i class="fas fa-award"></i> Grades</a></li>
+                <li style="margin-top: 40px;"><a href="{% url 'MainPage' %}" style="color: #ff7675;"><i class="fas fa-power-off"></i> Logout</a></li>
+            </ul>
+        </nav>
+    </aside>
+
+    <div class="main-wrapper">
+        <header class="top-nav">
+            <i class="fas fa-bars-staggered" id="menu-toggle"></i>
+            <div style="display: flex; align-items: center; gap: 15px;">
+                <span style="font-weight: 700; color: var(--primary); font-size: 0.9rem;">{{ Information.StudentName }}</span>
+                <img src="{% static 'Images/' %}{{ Information.StudentImage }}" height="35" width="35" style="border-radius: 8px; object-fit: cover;">
+            </div>
+        </header>
+
+        <main class="content-body">
+            <section class="left-content">
+                <div class="welcome-msg">
+                    <h1>Welcome, {{ Parent.ParentName|truncatechars:15 }}</h1>
+                    <p>Overview for {{ Information.StudentName }}'s academic activities.</p>
+                </div>
+
+                <h3 style="margin-bottom: 20px; font-weight: 800; color: var(--primary);">Enrolled Courses</h3>
+                
+                <div class="course-grid">
+                    {% for Record in CourseRecord %}
+                        <a href="{% url 'CoursePageStudent' Information.StudentID Record.CourseID %}" class="course-card">
+                            <img src="{% static 'Images/' %}{{ Record.CourseImage }}" 
+                                 class="course-img"
+                                 onerror="this.onerror=null; this.src='https://ui-avatars.com/api/?name={{ Record.CourseName }}&background=3282b8&color=fff';" 
+                                 alt="Course">
+                            <div class="course-info">
+                                <h3>{{ Record.CourseName }}</h3>
+                                <p>CODE: {{ Record.CourseID }}</p>
+                            </div>
+                        </a>
+                    {% empty %}
+                        <div style="grid-column: 1/-1; text-align: center; padding: 40px; background: #fff; border-radius: 20px; border: 2px dashed #e2e8f0;">
+                            <p style="color: var(--text-muted);">No courses found for this student.</p>
+                        </div>
+                    {% endfor %}
+                </div>
+            </section>
+
+            <aside class="right-panel">
+                <div class="calendar-card">
+                    <div class="calendar-header">
+                        <span id="cal-month">Month</span>
+                        <i class="fas fa-calendar-day" style="opacity: 0.3;"></i>
+                    </div>
+                    <div class="cal-grid">
+                        <div class="cal-header-label">S</div><div class="cal-header-label">M</div><div class="cal-header-label">T</div>
+                        <div class="cal-header-label">W</div><div class="cal-header-label">T</div><div class="cal-header-label">F</div>
+                        <div class="cal-header-label">S</div>
+                    </div>
+                    <div class="cal-grid" id="calendar-days"></div>
+                </div>
+
+                <div class="calendar-card" style="background: var(--primary); color: white;">
+                    <h4 style="font-size: 0.9rem; margin-bottom: 15px;">Upcoming Tasks</h4>
+                    <div style="font-size: 0.8rem; background: rgba(255,255,255,0.1); padding: 12px; border-radius: 10px;">
+                        No pending parent notifications.
+                    </div>
+                </div>
+            </aside>
+        </main>
+    </div>
+
+    {% endfor %}{% endfor %}{% endfor %}
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            const menuToggle = document.getElementById("menu-toggle");
+            const sidebar = document.getElementById("sidebar");
+
+            menuToggle.addEventListener("click", () => {
+                sidebar.classList.toggle("hidden");
+            });
+
+            function buildCalendar() {
+                const daysContainer = document.getElementById("calendar-days");
+                const monthLabel = document.getElementById("cal-month");
+                const now = new Date();
+                const year = now.getFullYear();
+                const month = now.getMonth();
+                const today = now.getDate();
+
+                const monthNames = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+                monthLabel.textContent = monthNames[month];
+
+                const firstDay = new Date(year, month, 1).getDay();
+                const daysInMonth = new Date(year, month + 1, 0).getDate();
+
+                daysContainer.innerHTML = '';
+                for (let i = 0; i < firstDay; i++) {
+                    daysContainer.appendChild(document.createElement('div'));
+                }
+                for (let d = 1; d <= daysInMonth; d++) {
+                    const dayEl = document.createElement('div');
+                    dayEl.classList.add('cal-day');
+                    dayEl.textContent = d;
+                    if (d === today) dayEl.classList.add('today');
+                    daysContainer.appendChild(dayEl);
+                }
+            }
+            buildCalendar();
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,42 @@
+from django.contrib import admin
+from .models import (
+    Info, Courses, MidtermGrades, AttendanceGate, 
+    New_previous_Profiles, StudentInformation, StudentCourses, 
+    ParentInformation, TeacherInformation, TeacherCourses, 
+    StudentTeacherCommunications, CourseContents, Announcements, 
+    Quizzes, Questions, Options, StudentAnswers, Assignments, 
+    HomeworkDelivered, SubmittedAssignmentFlag, HomeWorkGrades, 
+    QuizGrades, QuizTakeStatus, TeacherSchedule, 
+    CourseAnnouncementReadStatus, FinalGrade, AttendanceList, 
+    AnnouncementReadStatus
+)
+
+# تسجيل جميع الجداول لتظهر في لوحة الإدارة
+admin.site.register(Info)
+admin.site.register(Courses)
+admin.site.register(MidtermGrades)
+admin.site.register(AttendanceGate)
+admin.site.register(New_previous_Profiles)
+admin.site.register(StudentInformation)
+admin.site.register(StudentCourses)
+admin.site.register(ParentInformation)
+admin.site.register(TeacherInformation)
+admin.site.register(TeacherCourses)
+admin.site.register(StudentTeacherCommunications)
+admin.site.register(CourseContents)
+admin.site.register(Announcements)
+admin.site.register(Quizzes)
+admin.site.register(Questions)
+admin.site.register(Options)
+admin.site.register(StudentAnswers)
+admin.site.register(Assignments)
+admin.site.register(HomeworkDelivered)
+admin.site.register(SubmittedAssignmentFlag)
+admin.site.register(HomeWorkGrades)
+admin.site.register(QuizGrades)
+admin.site.register(QuizTakeStatus)
+admin.site.register(TeacherSchedule)
+admin.site.register(CourseAnnouncementReadStatus)
+admin.site.register(FinalGrade)
+admin.site.register(AttendanceList)
+admin.site.register(AnnouncementReadStatus)

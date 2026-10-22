@@ -1,0 +1,360 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Submissions | {{ CourseRecord.0.1 }}</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            --primary: #2563eb;
+            --primary-dark: #1e40af;
+            --bg-body: #f1f5f9;
+            --text-main: #1e293b;
+            --text-muted: #64748b;
+            --white: #ffffff;
+            --success: #10b981;
+            --shadow-sm: 0 1px 3px rgba(0,0,0,0.12);
+            --shadow-md: 0 4px 6px -1px rgba(0,0,0,0.1);
+            --radius: 12px;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg-body);
+            color: var(--text-main);
+            line-height: 1.6;
+        }
+
+        /* Navigation Header */
+        .header-nav {
+            background: var(--white);
+            padding: 1rem 2rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            box-shadow: var(--shadow-sm);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .btn-back {
+            text-decoration: none;
+            color: var(--text-muted);
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: color 0.2s;
+        }
+
+        .btn-back:hover { color: var(--primary); }
+
+        .course-badge {
+            background: #eff6ff;
+            color: var(--primary);
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 600;
+        }
+
+        /* Main Layout */
+        .container {
+            max-width: 900px;
+            margin: 40px auto;
+            padding: 0 20px;
+        }
+
+        .page-title {
+            margin-bottom: 2rem;
+            font-weight: 800;
+            font-size: 1.8rem;
+            color: #0f172a;
+        }
+
+        /* Submission Card */
+        .submission-card {
+            background: var(--white);
+            border-radius: var(--radius);
+            margin-bottom: 20px;
+            padding: 24px;
+            display: flex;
+            gap: 24px;
+            box-shadow: var(--shadow-md);
+            border: 1px solid rgba(0,0,0,0.05);
+            transition: transform 0.2s;
+        }
+
+        .submission-card:hover { transform: translateY(-2px); }
+
+        .student-profile {
+            flex-shrink: 0;
+            text-align: center;
+            width: 120px;
+        }
+
+        .avatar {
+            width: 70px;
+            height: 70px;
+            border-radius: 50%;
+            background: #f1f5f9;
+            margin-bottom: 12px;
+            border: 2px solid #e2e8f0;
+        }
+
+        .student-name { font-size: 1rem; font-weight: 700; margin-bottom: 4px; }
+        .student-id { font-size: 0.8rem; color: var(--text-muted); }
+
+        /* Submission Content */
+        .submission-details { flex-grow: 1; }
+        
+        .meta-info {
+            display: flex;
+            gap: 15px;
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            margin-bottom: 15px;
+        }
+
+        .file-preview-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
+            padding: 12px 16px;
+            border-radius: 8px;
+            cursor: pointer;
+            width: 100%;
+            margin-bottom: 20px;
+            transition: all 0.2s;
+        }
+
+        .file-preview-btn:hover { background: #f1f5f9; border-color: var(--primary); color: var(--primary); }
+
+        /* Grading Section */
+        .grading-area {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            background: #f8fafc;
+            padding: 15px;
+            border-radius: 10px;
+        }
+
+        .grade-input-wrapper { display: flex; align-items: center; gap: 8px; font-weight: 600; }
+        
+        input[type="number"] {
+            width: 70px;
+            padding: 8px;
+            border: 1px solid #cbd5e1;
+            border-radius: 6px;
+            outline: none;
+            text-align: center;
+        }
+
+        .btn-action {
+            padding: 10px 18px;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            border: none;
+            transition: 0.2s;
+        }
+
+        .btn-save { background: var(--text-main); color: white; }
+        .btn-confirm { background: var(--success); color: white; margin-left: auto; }
+        .btn-action:hover { opacity: 0.9; transform: scale(1.02); }
+
+        /* PDF Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(15, 23, 42, 0.9);
+            backdrop-filter: blur(4px);
+            z-index: 1000;
+            padding: 40px;
+        }
+
+        .modal-content {
+            background: var(--white);
+            width: 100%;
+            height: 100%;
+            border-radius: var(--radius);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .close-modal {
+            position: absolute;
+            top: 20px;
+            right: 25px;
+            background: white;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            display: grid;
+            place-items: center;
+            cursor: pointer;
+            box-shadow: var(--shadow-md);
+            z-index: 10;
+        }
+
+        /* Empty State */
+        .empty-state {
+            text-align: center;
+            padding: 60px;
+            background: var(--white);
+            border-radius: var(--radius);
+            color: var(--text-muted);
+        }
+    </style>
+</head>
+<body>
+
+    <header class="header-nav">
+        <a href="javascript:history.back()" class="btn-back">
+            <i class="fas fa-arrow-left"></i>
+            <span>Back to Dashboard</span>
+        </a>
+        <div class="course-badge">{{ CourseRecord.0.1 }}</div>
+    </header>
+
+    <div class="container">
+        <h1 class="page-title">Homework Submissions</h1>
+
+        {% for sub in Submissions %}
+        <div class="submission-card">
+            <div class="student-profile">
+                <img src="https://ui-avatars.com/api/?name={{ sub.0 }}&background=0D8ABC&color=fff" class="avatar" alt="Student">
+                <div class="student-name">{{ sub.0 }}</div>
+                <div class="student-id">ID: {{ sub.1 }}</div>
+            </div>
+
+            <div class="submission-details">
+                <div class="meta-info">
+                    <span><i class="far fa-calendar-alt"></i> Submitted: {{ sub.3 }}</span>
+                    <span><i class="fas fa-hashtag"></i> HW #{{ sub.2 }}</span>
+                </div>
+
+                <div class="file-preview-btn" onclick="openPdf('{{ sub.1 }}')">
+                    <i class="fas fa-file-pdf" style="color: #ef4444; font-size: 1.2rem;"></i>
+                    <span>Review Submission PDF</span>
+                    <i class="fas fa-external-link-alt" style="margin-left: auto; font-size: 0.8rem;"></i>
+                </div>
+                <div class="grading-area">
+                    <div class="grade-input-wrapper">
+                        <input type="number" 
+                            id="input-{{ sub.1 }}" 
+                            class="grade-input" 
+                            placeholder="0" 
+                            max="{{ sub.4 }}" 
+                            value="{{ sub.6|default:'' }}"> <span>/ {{ sub.4 }}</span>
+                </div>
+    
+    <button class="btn-action btn-confirm" 
+            onclick="confirmGrades('{{ sub.1 }}', '{{ sub.5 }}', '{{ CourseID }}', '{{ sub.4 }}')">
+        {% if sub.6 %} Update Grade {% else %} Finalize Grade {% endif %}
+    </button>
+</div>
+            </div>
+
+            <div id="pdf-modal-{{ sub.1 }}" class="modal">
+                <div class="close-modal" onclick="closePdf('{{ sub.1 }}')"><i class="fas fa-times"></i></div>
+                <div class="modal-content">
+                    <iframe src="/ViewAssignmentFile/{{ sub.5 }}/" width="100%" height="100%" frameborder="0"></iframe>
+                </div>
+            </div>
+        </div>
+        {% empty %}
+        <div class="empty-state">
+            <i class="fas fa-inbox fa-3x" style="margin-bottom: 20px; opacity: 0.3;"></i>
+            <p>No student submissions have been uploaded yet.</p>
+        </div>
+        {% endfor %}
+    </div>
+
+    {% csrf_token %}
+
+    <script>
+        const tempGrades = {};
+
+        function openPdf(id) { 
+            document.getElementById(`pdf-modal-${id}`).style.display = "block";
+            document.body.style.overflow = "hidden"; // Prevent background scroll
+        }
+
+        function closePdf(id) { 
+            document.getElementById(`pdf-modal-${id}`).style.display = "none"; 
+            document.body.style.overflow = "auto";
+        }
+
+        function saveGrade(studentId) {
+            const val = document.getElementById(`input-${studentId}`).value;
+            if(!val) return alert("Please enter a numeric grade.");
+            tempGrades[studentId] = val;
+            
+            // Visual feedback
+            const btn = event.target;
+            const originalText = btn.innerText;
+            btn.innerText = "Saved!";
+            btn.style.background = "#10b981";
+            setTimeout(() => {
+                btn.innerText = originalText;
+                btn.style.background = "";
+            }, 2000);
+        }
+
+        function confirmGrades(studentId, submissionId, courseId, total) {
+            const inputField = document.getElementById('input-' + studentId);
+            const gradeValue = inputField ? inputField.value : null;
+
+            if (gradeValue === null || gradeValue === "") {
+                alert("Please enter a grade first.");
+                return;
+            }
+
+            // --- NEW FRONTEND VALIDATION ---
+            if (parseFloat(gradeValue) > parseFloat(total)) {
+                alert(`Error: You entered ${gradeValue}, but the maximum possible points are ${total}.`);
+                inputField.style.borderColor = "red"; // Visual cue
+                return;
+            }
+            // -------------------------------
+
+            fetch("/SaveAssignmentGrade/", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    "X-CSRFToken": document.querySelector('[name=csrfmiddlewaretoken]').value
+                },
+                body: JSON.stringify({
+                    studentId: studentId,
+                    grades: gradeValue,
+                    AssignmentID: submissionId,
+                    CourseID: courseId,
+                    TotalMark: total
+                })
+            })
+            .then(res => res.json().then(data => ({ status: res.status, body: data })))
+            .then(obj => {
+                if (obj.status === 200) {
+                    alert("Success: Grade recorded.");
+                    location.reload();
+                } else {
+                    alert("Server Error: " + obj.body.error);
+                }
+            })
+            .catch(err => alert("Connection failed."));
+        }
+    </script>
+</body>
+</html>

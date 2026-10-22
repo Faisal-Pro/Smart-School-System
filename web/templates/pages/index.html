@@ -1,0 +1,288 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PDF Widget Generator</title>
+    <link rel="stylesheet" href="{% static 'Model.css' %}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    <style>
+        /* Your CSS styles here */
+
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            background-color: #f0f0f0;
+        }
+
+        .form-container, .widget-container {
+            width: 420px;
+            margin: 20px;
+            padding: 10px;
+            border: 1px solid #ccc;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            background: #fff;
+        }
+
+        .form-container {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .form-container label {
+            margin: 10px 0 5px;
+        }
+
+        .form-container input, .form-container textarea {
+            padding: 8px;
+            margin-bottom: 10px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+
+        .widget-container {
+            background-color: #fff; /* Set the main container background color to white */
+            padding: 10px; /* Add padding to the main container */
+        }
+
+        .widget {
+            background-color: #f0f0f0; /* Set the background color of individual widgets to gray */
+            margin-bottom: 20px; /* Add margin to create space between widgets */
+            padding: 10px; /* Add padding to each widget */
+        }
+
+        .widget-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 10px;
+            position: relative;
+            border-bottom: 3px solid #ccc;
+        }
+
+        .publisher-info {
+            display: flex;
+            align-items: center;
+            width: 50%;
+        }
+
+        .publisher-image {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            margin-right: 10px;
+        }
+
+        .publisher-name {
+            font-size: 14px;
+            color: #333;
+            font-weight: bold;
+        }
+
+        .date-time {
+            font-size: 14px;
+            color: #555;
+            width: 50%;
+            text-align: right;
+        }
+
+        .pdf-icon {
+            text-align: center;
+            cursor: pointer;
+        }
+
+        .pdf-icon img {
+            width: 100px;
+            height: 100px;
+        }
+
+        .widget-content pre {
+            white-space: pre-wrap;
+            word-wrap: break-word;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0, 0, 0, 0.9);
+        }
+
+        .modal-content {
+            position: relative;
+            margin: 5% auto;
+            width: 80%;
+            height: 80%;
+            padding: 20px;
+            background: white;
+        }
+
+        .close-button {
+            position: absolute;
+            top: 10px;
+            right: 25px;
+            color: #aaa;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        .close-button:hover,
+        .close-button:focus {
+            color: #000;
+            text-decoration: none;
+            cursor: pointer;
+        }
+
+        /* Adjust video width */
+        .widget video {
+            width: 100%; /* Set video width to 100% of the widget's width */
+        }
+    </style>
+</head>
+<body>
+    <nav>
+
+    </nav>
+
+    <div class="menu-icon" id="menu-icon">
+        <i class="fas fa-bars"></i>
+    </div>
+
+    <div class="sidebar" id="sidebar">
+        <div class="sidebar-header">
+            <h2>My App</h2>
+        </div>
+        <ul class="sidebar-menu">
+            <li><a href="Index.html"> Dashboard</a></li>
+            <li><a href="{% url 'Messages' %}"> Messages</a></li>
+            <li><a href="#"> Overview</a></li>
+            <li><a href="#"> Events</a></li>
+            <li><a href="#"> About</a></li>
+            <li><a href="#"> Services</a></li>
+            <li><a href="#"> Contact</a></li>
+        </ul>
+    </div>
+
+    <div class="form-container">
+        <label for="avatar">Avatar Path:</label>
+        <input type="text" id="avatar" placeholder="Enter avatar image path">
+
+        <label for="publisherName">Publisher Name:</label>
+        <input type="text" id="publisherName" placeholder="Enter publisher name">
+
+        <label for="pdfPath">PDF Path:</label>
+        <input type="text" id="pdfPath" placeholder="Enter PDF file path">
+
+        <label for="description">Description:</label>
+        <textarea id="description" rows="4" placeholder="Enter description"></textarea>
+
+        <button id="addWidget">Add Widget</button>
+    </div>
+
+    <div class="widget-container" id="widgetContainer">
+        <!-- New widgets will be added here -->
+    </div>
+
+    <div id="pdfModal" class="modal">
+        <div class="modal-content">
+            <span class="close-button" id="closeButton">&times;</span>
+            <embed id="pdfEmbed" src="" width="100%" height="100%" type="application/pdf">
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            var addWidgetButton = document.getElementById("addWidget");
+            var widgetContainer = document.getElementById("widgetContainer");
+            var pdfModal = document.getElementById("pdfModal");
+            var closeButton = document.getElementById("closeButton");
+            var pdfEmbed = document.getElementById("pdfEmbed");
+
+            addWidgetButton.addEventListener("click", function() {
+                var avatar = document.getElementById("avatar").value;
+                var publisherName = document.getElementById("publisherName").value;
+                var filePath = document.getElementById("pdfPath").value;
+                var description = document.getElementById("description").value;
+                var date = new Date();
+                var monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+                var formattedDate = monthNames[date.getMonth()] + " " + date.getDate();
+                var fileExtension = filePath.split('.').pop().toLowerCase(); // Get file extension
+
+                var widgetHTML;
+
+                if (fileExtension === 'pdf') {
+                    widgetHTML = `
+                        <div class="widget">
+                            <div class="widget-header">
+                                <div class="publisher-info">
+                                    <img src="${avatar}" alt="Avatar" class="publisher-image">
+                                    <div class="publisher-name">${publisherName}</div>
+                                </div>
+                                <div class="date-time">${formattedDate}</div>
+                            </div>
+                            <div class="widget-content">
+                                <pre>${description}</pre>
+                            </div>
+                            <div class="pdf-icon" onclick="showPDFModal('${filePath}')">
+                                <img src="PdfIcone.jpg" alt="PDF Icon">
+                            </div>
+                        </div>
+                    `;
+                } else if (fileExtension === 'mp4' || fileExtension === 'avi' || fileExtension === 'mov') {
+                    widgetHTML = `
+                        <div class="widget">
+                            <div class="widget-header">
+                                <div class="publisher-info">
+                                    <img src="${avatar}" alt="Avatar" class="publisher-image">
+                                    <div class="publisher-name">${publisherName}</div>
+                                </div>
+                                <div class="date-time">${formattedDate}</div>
+                            </div>
+                            <div class="widget-content">
+                                <pre>${description}</pre>
+                                <video width="320" height="240" controls>
+                                    <source src="${filePath}" type="video/${fileExtension}">
+                                    Your browser does not support the video tag.
+                                </video>
+                            </div>
+                        </div>
+                    `;
+                } else {
+                    alert("Unsupported file type. Only PDF and video files are supported.");
+                    return; // Exit function
+                }
+
+                widgetContainer.insertAdjacentHTML('beforeend', widgetHTML);
+            });
+
+            closeButton.addEventListener("click", function() {
+                pdfModal.style.display = "none";
+            });
+
+            window.addEventListener("click", function(event) {
+                if (event.target == pdfModal) {
+                    pdfModal.style.display = "none";
+                }
+            });
+        });
+
+        function showPDFModal(pdfPath) {
+            var pdfModal = document.getElementById("pdfModal");
+            var pdfEmbed = document.getElementById("pdfEmbed");
+            pdfEmbed.src = pdfPath;
+            pdfModal.style.display = "block";
+        }
+    </script>
+</body>
+</html>

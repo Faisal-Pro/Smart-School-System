@@ -1,0 +1,203 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Instructor Login | School Management</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary-blue: #0f4c75;
+            --primary-dark: #1b262c;
+            --accent-blue: #3282b8;
+            --error-red: #e74c3c; /* Added for errors */
+        }
+
+        /* ... Your existing styles ... */
+        body {
+            font-family: 'Inter', sans-serif;
+            margin: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background: linear-gradient(rgba(27, 38, 44, 0.85), rgba(27, 38, 44, 0.85)), 
+                        url("{% static 'Images/ClassRoom.jpg' %}") no-repeat center center;
+            background-size: cover;
+        }
+
+        .login-card {
+            background: rgba(255, 255, 255, 0.98);
+            backdrop-filter: blur(12px);
+            border-radius: 20px;
+            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.5);
+            padding: 50px 40px;
+            width: 100%;
+            max-width: 420px;
+            text-align: center;
+            animation: slideUp 0.6s ease-out;
+        }
+
+        /* NEW ERROR MESSAGE STYLING */
+        .error-alert {
+            background-color: #fdeaea;
+            color: var(--error-red);
+            padding: 12px;
+            border-radius: 8px;
+            border: 1px solid #fad2d2;
+            margin-bottom: 20px;
+            font-size: 0.9rem;
+            font-weight: 600;
+        }
+
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .logo-container {
+            width: 90px;
+            height: 90px;
+            margin: 0 auto 25px;
+            background: white;
+            border-radius: 50%;
+            padding: 4px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            border: 2px solid var(--primary-blue);
+        }
+
+        .logo-container img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+            border-radius: 50%;
+        }
+
+        h2 {
+            color: var(--primary-dark);
+            font-weight: 700;
+            margin-bottom: 5px;
+            letter-spacing: -0.5px;
+        }
+
+        .role-badge {
+            display: inline-block;
+            background: #e1eef6;
+            color: var(--primary-blue);
+            font-size: 0.75rem;
+            font-weight: 700;
+            padding: 4px 12px;
+            border-radius: 50px;
+            margin-bottom: 25px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        form { text-align: left; }
+
+        .form-group { margin-bottom: 20px; }
+
+        label {
+            display: block;
+            font-size: 0.8rem;
+            font-weight: 700;
+            color: #555;
+            margin-bottom: 8px;
+            text-transform: uppercase;
+        }
+
+        input[type="text"],
+        input[type="password"] {
+            width: 100%;
+            padding: 14px;
+            border: 1.5px solid #e0e0e0;
+            border-radius: 10px;
+            box-sizing: border-box;
+            transition: all 0.3s ease;
+            font-family: inherit;
+            font-size: 1rem;
+        }
+
+        input:focus {
+            outline: none;
+            border-color: var(--accent-blue);
+            box-shadow: 0 0 0 4px rgba(50, 130, 184, 0.1);
+        }
+
+        .btn-login {
+            background-color: var(--primary-blue);
+            color: white;
+            border: none;
+            padding: 16px;
+            width: 100%;
+            border-radius: 10px;
+            font-weight: 600;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-top: 10px;
+        }
+
+        .btn-login:hover {
+            background-color: var(--primary-dark);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(15, 76, 117, 0.3);
+        }
+
+        .footer-links {
+            margin-top: 25px;
+            padding-top: 20px;
+            border-top: 1px solid #eee;
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .footer-links a {
+            text-decoration: none;
+            color: #888;
+            font-size: 0.85rem;
+            transition: color 0.2s;
+        }
+
+        .footer-links a:hover { color: var(--primary-blue); }
+    </style>
+</head>
+<body>
+    <div class="login-card">
+        <div class="logo-container">
+            <img src="{% static 'Images/School Logo.jpg' %}" alt="School Logo">
+        </div>
+
+        <h2>Staff Portal</h2>
+        <span class="role-badge">Instructor Access</span>
+
+        {% if messages %}
+            {% for message in messages %}
+                <div class="error-alert">
+                    {{ message }}
+                </div>
+            {% endfor %}
+        {% endif %}
+
+        <form action="{% url 'TeacherLogIn2' %}" method="POST">
+            {% csrf_token %}
+            <div class="form-group">
+                <label for="id">Employee ID</label>
+                <input type="text" id="id" name="id" placeholder="Enter your ID" required>
+            </div>
+            
+            <div class="form-group">
+                <label for="password">Password</label>
+                <input type="password" id="password" name="password" placeholder="••••••••" required>
+            </div>
+            
+            <button type="submit" class="btn-login">Authorize Login</button>
+        </form>
+
+        <div class="footer-links">
+            <a href="/">← Back to Site</a>
+        </div>
+    </div>
+</body>
+</html>

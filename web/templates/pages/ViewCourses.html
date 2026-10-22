@@ -1,0 +1,287 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Course Catalog | Admin Portal</title>
+    
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            --primary-blue: #3282b8;
+            --dark-steel: #1b262c;
+            --navy-deep: #0f4c75;
+            --white: #ffffff;
+            --bg-muted: #f8fafc;
+            --border-soft: #e2e8f0;
+            --text-main: #1e293b;
+            --danger: #e63946;
+            --accent-orange: #f39c12;
+        }
+
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background-color: var(--dark-steel);
+            margin: 0;
+            padding: 40px 20px;
+            color: var(--white);
+            min-height: 100vh;
+        }
+
+        .dashboard-nav {
+            position: fixed;
+            top: 25px;
+            left: 25px;
+            z-index: 1000;
+        }
+
+        .btn-dashboard {
+            text-decoration: none;
+            background: rgba(255, 255, 255, 0.1);
+            color: var(--white);
+            padding: 12px 20px;
+            border-radius: 12px;
+            font-weight: 600;
+            font-size: 14px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            transition: 0.3s ease;
+        }
+
+        .btn-dashboard:hover {
+            background: var(--primary-blue);
+            transform: translateX(5px);
+        }
+
+        .container {
+            max-width: 1100px;
+            margin: 60px auto 0 auto;
+        }
+
+        .page-header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        .page-header h1 {
+            font-size: 32px;
+            font-weight: 800;
+            letter-spacing: -1px;
+            margin-bottom: 10px;
+        }
+
+        .table-card {
+            background: var(--white);
+            border-radius: 24px;
+            overflow: hidden;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+            color: var(--text-main);
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th {
+            background: #f1f5f9;
+            padding: 20px;
+            text-align: left;
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: #64748b;
+            font-weight: 800;
+        }
+
+        td {
+            padding: 18px 20px;
+            border-bottom: 1px solid var(--border-soft);
+            vertical-align: middle;
+        }
+
+        tr:hover td {
+            background-color: #f8fafc;
+        }
+
+        .course-id {
+            font-weight: 700;
+            color: var(--navy-deep);
+            background: #e0f2fe;
+            padding: 5px 12px;
+            border-radius: 8px;
+            font-size: 12px;
+        }
+
+        .course-name {
+            font-weight: 700;
+            font-size: 15px;
+            color: var(--dark-steel);
+        }
+
+        .level-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            background: var(--navy-deep);
+            color: white;
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 11px;
+            font-weight: 600;
+        }
+
+        /* NEW STYLE FOR COURSE HOURS */
+        .hour-tag {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            color: var(--accent-orange);
+            font-weight: 700;
+            font-size: 14px;
+            background: #fff9f0;
+            padding: 4px 10px;
+            border-radius: 8px;
+            border: 1px solid #fde6d2;
+        }
+
+        .course-img {
+            width: 50px;
+            height: 50px;
+            border-radius: 10px;
+            object-fit: cover;
+            border: 2px solid var(--border-soft);
+        }
+
+        .action-group {
+            display: flex;
+            gap: 8px;
+        }
+
+        .btn-action {
+            text-decoration: none;
+            width: 35px;
+            height: 35px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: 0.2s;
+        }
+
+        .btn-update { background: #f0f7ff; color: var(--primary-blue); }
+        .btn-update:hover { background: var(--primary-blue); color: white; }
+
+        .btn-delete { background: #fff1f2; color: var(--danger); }
+        .btn-delete:hover { background: var(--danger); color: white; }
+
+        .alert {
+            background: #dcfce7;
+            color: #166534;
+            padding: 16px;
+            border-radius: 16px;
+            margin-bottom: 25px;
+            font-weight: 600;
+            text-align: center;
+            border: 1px solid #bbf7d0;
+        }
+
+        .empty-state {
+            padding: 80px 20px;
+            text-align: center;
+            color: #94a3b8;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="dashboard-nav">
+        <a href="{% url 'DirectAdminPage' %}" class="btn-dashboard">
+            <i class="fas fa-arrow-left"></i> Dashboard
+        </a>
+    </div>
+
+    <div class="container">
+        <div class="page-header">
+            <h1>Academic Catalog</h1>
+            <p>Curriculum structure and credit distribution</p>
+        </div>
+
+        {% if messages %}
+            {% for message in messages %}
+                <div class="alert">
+                    <i class="fas fa-check-circle"></i> {{ message }}
+                </div>
+            {% endfor %}
+        {% endif %}
+
+        <div class="table-card">
+            <table>
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Course Details</th>
+                        <th>Duration</th>
+                        <th>Academic Level</th>
+                        <th>Preview</th>
+                        <th style="text-align: right;">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for course in courses %}
+                    <tr>
+                        <td><span class="course-id">#{{ course.course_id }}</span></td>
+                        <td>
+                            <div class="course-name">{{ course.course_name }}</div>
+                            <div style="font-size: 11px; color: #94a3b8; margin-top: 2px;">Ref: {{ course.course_id }}</div>
+                        </td>
+                        
+
+                        <td>
+                            <span class="level-badge">
+                                <i class="fas fa-graduation-cap"></i> Level {{ course.course_level }}
+                            </span>
+                        </td>
+                        <td>
+                            {% if course.image_url %}
+                                <img src="{% static 'Images/' %}{{ course.image_url }}" class="course-img" alt="Course Banner">
+                            {% else %}
+                                <div class="course-img" style="display: flex; align-items: center; justify-content: center; background: #f1f5f9;">
+                                    <i class="fas fa-image" style="color: #cbd5e1;"></i>
+                                </div>
+                            {% endif %}
+                        </td>
+                        <td>
+                            <div class="action-group" style="justify-content: flex-end;">
+                                <a href="{% url 'update_course' course_id=course.course_id %}" class="btn-action btn-update" title="Edit Course">
+                                    <i class="fas fa-pen"></i>
+                                </a>
+                                <a href="{% url 'delete_course' course_id=course.course_id %}" 
+                                   onclick="return confirm('Delete {{ course.course_name }}?');" 
+                                   class="btn-action btn-delete" title="Delete Course">
+                                    <i class="fas fa-trash"></i>
+                                </a>
+                            </div>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="6" class="empty-state">
+                            <i class="fas fa-book-open fa-3x" style="margin-bottom: 20px; display: block;"></i>
+                            <div style="font-weight: 700; font-size: 18px;">Catalog is Empty</div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+</body>
+</html>

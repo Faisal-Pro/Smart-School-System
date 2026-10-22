@@ -1,0 +1,98 @@
+<!-- templates/media_list.html -->
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Media Files</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+        h1 {
+            color: #333;
+        }
+        ul {
+            list-style-type: none;
+            padding: 0;
+        }
+        li {
+            margin-bottom: 20px;
+            border: 1px solid #ccc;
+            padding: 10px;
+            border-radius: 5px;
+        }
+        img, video {
+            max-width: 100%;
+            height: auto;
+            border-radius: 5px;
+        }
+        #pdf-viewer {
+            border: 1px solid #ccc;
+            margin-top: 10px;
+            max-width: 100%;
+            overflow: hidden;
+        }
+    </style>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.10.377/pdf.min.js"></script>
+</head>
+<body>
+
+<h1>Media Files</h1>
+
+{% if media_records %}
+    <ul>
+        {% for record in media_records %}
+            <li>
+                {% if record.2 == 'image' %}
+                    <img src="{{ record.1 }}" alt="Media Image">
+                {% elif record.2 == 'video' %}
+                    <video controls>
+                        <source src="{{ record.1 }}" type="video/mp4">
+                        Your browser does not support the video tag.
+                    </video>
+                {% elif record.2 == 'pdf' %}
+                    <a href="{{ record.1 }}" target="_blank">Open PDF</a>
+                    <div id="pdf-viewer-{{ record.0 }}" class="pdf-viewer"></div> <!-- Unique ID for each PDF viewer -->
+                    <script>
+                        var url = "{{ record.1 }}"; // The URL of the PDF
+
+                        // Load the PDF
+                        pdfjsLib.getDocument(url).promise.then(function(pdf) {
+                            // Fetch the first page
+                            pdf.getPage(1).then(function(page) {
+                                var scale = 1.5;
+                                var viewport = page.getViewport({scale: scale});
+
+                                // Prepare canvas using PDF page dimensions
+                                var canvas = document.createElement('canvas');
+                                var context = canvas.getContext('2d');
+                                canvas.height = viewport.height;
+                                canvas.width = viewport.width;
+
+                                // Append the canvas to the PDF viewer
+                                document.getElementById('pdf-viewer-{{ record.0 }}').appendChild(canvas);
+
+                                // Render PDF page into canvas context
+                                var renderContext = {
+                                    canvasContext: context,
+                                    viewport: viewport
+                                };
+                                page.render(renderContext);
+                            });
+                        });
+                    </script>
+                {% endif %}
+                <br>
+                <strong>Type:</strong> {{ record.2 }} 
+            </li>
+        {% endfor %}
+    </ul>
+{% else %}
+    <p>No media files found.</p>
+{% endif %}
+
+</body>
+</html>

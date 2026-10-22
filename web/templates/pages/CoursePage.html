@@ -1,0 +1,196 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="icon" type="image/x-icon" href="{% static 'Images/School Logo.jpg' %}">
+    <title>Course Stream | Instructor</title>
+    <style>
+        :root {
+            --primary: #0f172a;
+            --secondary: #3b82f6;
+            --accent: #dbeafe;
+            --danger: #ef4444;
+            --bg: #f8fafc;
+            --white: #ffffff;
+            --sidebar-width: 280px;
+            --shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+        }
+
+        /* ... Your existing styles ... */
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Plus Jakarta Sans', sans-serif; background-color: var(--bg); color: #334155; display: flex; min-height: 100vh; }
+
+        .sidebar { width: var(--sidebar-width); height: 100vh; background-color: var(--primary); color: #fff; position: fixed; display: flex; flex-direction: column; z-index: 100; transition: all 0.3s ease; }
+        .logo-area { padding: 40px 30px; display: flex; align-items: center; gap: 12px; }
+        .logo-area img { height: 45px; width: 45px; border-radius: 10px; background: white; padding: 5px; }
+        .logo-area h3 { font-size: 1.1rem; letter-spacing: 1px; font-weight: 800; }
+        nav { flex: 1; padding: 10px 15px; }
+        nav ul { list-style: none; }
+        nav ul li a { padding: 12px 20px; color: #94a3b8; text-decoration: none; display: flex; align-items: center; gap: 15px; font-size: 0.95rem; font-weight: 500; border-radius: 12px; transition: 0.2s; }
+        nav ul li a:hover { background: rgba(255,255,255,0.05); color: #fff; }
+        nav ul li a.active { background: var(--secondary); color: white; box-shadow: 0 10px 15px -3px rgba(59, 130, 246, 0.3); }
+
+        .upload-btn { background: #1e293b; margin: 20px 15px; padding: 15px; border-radius: 12px; text-decoration: none; color: white; display: flex; align-items: center; justify-content: center; gap: 10px; font-weight: 600; border: 1px solid rgba(255,255,255,0.1); transition: 0.3s; }
+        .upload-btn:hover { background: #334155; transform: translateY(-2px); }
+
+        .main-content { margin-left: var(--sidebar-width); flex: 1; padding: 40px; }
+
+        /* Material Feed Styles */
+        .materials-feed { max-width: 900px; margin: 0 auto; display: flex; flex-direction: column; gap: 25px; }
+        .material-card { background: var(--white); border-radius: 24px; padding: 30px; box-shadow: var(--shadow); border: 1px solid #f1f5f9; position: relative; }
+        
+        .card-top { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 20px; }
+        .user-meta { display: flex; align-items: center; gap: 15px; }
+        .user-meta img { width: 50px; height: 50px; border-radius: 15px; object-fit: cover; }
+        .user-meta .name { display: block; font-weight: 700; color: #1e293b; }
+        .user-meta .date { font-size: 0.85rem; color: #64748b; }
+
+        /* NEW: Delete Button Styling */
+        .btn-delete {
+            background: transparent;
+            color: #94a3b8;
+            border: 1px solid #e2e8f0;
+            padding: 8px 16px;
+            border-radius: 10px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 0.85rem;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-delete:hover {
+            background: #fef2f2;
+            color: var(--danger);
+            border-color: #fee2e2;
+        }
+
+        .card-body-text { font-size: 1.05rem; line-height: 1.7; color: #334155; margin-bottom: 25px; }
+        .attachment-container { border-radius: 16px; overflow: hidden; border: 1px solid #e2e8f0; }
+        .file-attachment { display: flex; align-items: center; padding: 20px; background: #f8fafc; text-decoration: none; color: inherit; }
+    </style>
+</head>
+<body>
+
+    <aside class="sidebar">
+        <div class="logo-area">
+            <img src="{% static 'Images/Teacher.png' %}" alt="Logo">
+            <h3>Instructor</h3>
+        </div>
+        <nav>
+            <ul>
+                <li><a href="#"><i class="fas fa-columns"></i> <span>Dashboard</span></a></li>
+                
+                <li>
+                    <a href="{% url 'materials_view' teacher_id course_id %}" class="active-stream">
+                        <i class="fas fa-stream"></i> <span>View Course Stream</span>
+                    </a>
+                </li>
+
+                <li><a href="#"><i class="fas fa-user-graduate"></i> <span>Students</span></a></li>
+                <li><a href="#"><i class="fas fa-file-alt"></i> <span>Exams</span></a></li>
+                <li><a href="#"><i class="fas fa-book"></i> <span>Homework</span></a></li>
+            </ul>
+        </nav>
+        <a href="{% url 'UploadMaterialPage' teacher_id course_id %}" class="upload-btn">
+            <i class="fas fa-plus-circle"></i> <span>Upload Material</span>
+        </a>
+    </aside>
+
+    <main class="main-content">
+        <div class="header-container" style="max-width: 900px; margin: 0 auto 40px; display: flex; justify-content: space-between; align-items: center;">
+            <h1 style="font-weight: 800; color: var(--primary);">Course Feed</h1>
+            <div id="dateTime" style="font-weight: 600; color: #64748b; background: white; padding: 12px 24px; border-radius: 15px; border: 1px solid #e2e8f0; font-size: 0.9rem;"></div>
+        </div>
+
+        <section class="materials-feed">
+            {% for mat in materials %}
+            <div class="material-card" id="card-{{ mat.material_id }}">
+                <div class="card-top">
+                    <div class="user-meta">
+                        <img src="data:image/jpeg;base64,{{ mat.publisher_image }}" alt="Instructor">
+                        <div>
+                            <span class="name">{{ mat.publisher }}</span>
+                            <span class="date">{{ mat.publish_date }}</span>
+                        </div>
+                    </div>
+                    
+                    <button class="btn-delete" onclick="handleDelete('{{ mat.material_id }}')">
+                        <i class="fas fa-trash-alt"></i>
+                        <span>Delete</span>
+                    </button>
+                </div>
+
+                <div class="card-body-text">
+                    {{ mat.description }}
+                </div>
+
+                {% if mat.file_path %}
+                <div class="attachment-container">
+                    <a href="data:application/pdf;base64,{{ mat.file_path }}" download class="file-attachment">
+                        <i class="{{ mat.material_icon }} file-icon" style="color: var(--secondary);"></i>
+                        <div class="file-info">
+                            <span class="file-name">Attached Resource</span>
+                            <span class="file-size">Click to Download</span>
+                        </div>
+                    </a>
+                </div>
+                {% endif %}
+            </div>
+            {% empty %}
+            <div style="text-align: center; padding: 50px; color: #94a3b8;">
+                <i class="fas fa-stream fa-3x" style="margin-bottom: 15px; opacity: 0.2;"></i>
+
+            </div>
+            {% endfor %}
+        </section>
+    </main>
+
+    <script>
+        // Set current date
+        function updateTime() {
+            const now = new Date();
+            const options = { weekday: 'short', year: 'numeric', month: 'short', day: 'numeric' };
+            document.getElementById('dateTime').innerHTML = `<i class="far fa-calendar-alt" style="margin-right:8px; color:var(--secondary)"></i> ` + now.toLocaleDateString('en-US', options);
+        }
+        updateTime();
+
+        // AJAX DELETE LOGIC
+        async function handleDelete(materialId) {
+            if (!confirm("Are you sure you want to delete this post? This cannot be undone.")) {
+                return;
+            }
+
+            try {
+                const response = await fetch(`/delete-material/${materialId}/`, {
+                    method: 'POST',
+                    headers: {
+                        'X-CSRFToken': '{{ csrf_token }}'
+                    }
+                });
+
+                const data = await response.json();
+
+                if (data.status === 'success') {
+                    // Smoothly remove the card from UI
+                    const card = document.getElementById(`card-${materialId}`);
+                    card.style.opacity = '0';
+                    card.style.transform = 'scale(0.95)';
+                    setTimeout(() => card.remove(), 300);
+                } else {
+                    alert("Error: " + data.message);
+                }
+            } catch (error) {
+                console.error("Delete failed:", error);
+                alert("Server error. Please try again.");
+            }
+        }
+    </script>
+</body>
+</html>

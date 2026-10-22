@@ -1,0 +1,319 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>View Students | Admin Portal</title>
+    
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            --primary-blue: #3282b8;
+            --dark-steel: #1b262c;
+            --navy-accent: #0f4c75;
+            --white: #ffffff;
+            --light-bg: #f8fafc;
+            --text-dark: #33475b;
+            --text-muted: #64748b;
+            --success-green: #27ae60;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--dark-steel);
+            margin: 0;
+            padding: 40px;
+            color: var(--text-dark);
+        }
+
+        .container {
+            max-width: 1300px;
+            margin: 0 auto;
+        }
+
+        /* --- Header Section --- */
+        .page-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            background: var(--white);
+            padding: 20px 30px;
+            border-radius: 12px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.3);
+            border-top: 5px solid var(--primary-blue);
+        }
+
+        .header-title-area h1 {
+            font-size: 24px;
+            color: var(--navy-accent);
+            margin: 0;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .btn-dashboard {
+            text-decoration: none;
+            background: var(--primary-blue);
+            color: white;
+            padding: 10px 18px;
+            border-radius: 8px;
+            font-weight: 600;
+            font-size: 14px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: 0.3s;
+            box-shadow: 0 4px 12px rgba(50, 130, 184, 0.2);
+        }
+
+        .btn-dashboard:hover {
+            background: var(--navy-accent);
+            transform: translateY(-2px);
+        }
+
+        /* --- Table Styling --- */
+        .table-wrapper {
+            background: var(--white);
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.4);
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            text-align: left;
+        }
+
+        thead th {
+            background-color: var(--navy-accent);
+            color: var(--white);
+            padding: 18px 20px;
+            font-weight: 600;
+            text-transform: uppercase;
+            font-size: 12px;
+            letter-spacing: 0.5px;
+        }
+
+        tbody tr {
+            border-bottom: 1px solid #edf2f7;
+            transition: background 0.2s;
+        }
+
+        tbody tr:hover {
+            background-color: #f1f7fa;
+        }
+
+        td {
+            padding: 15px 20px;
+            font-size: 14px;
+            vertical-align: middle;
+            color: var(--text-dark);
+        }
+
+        /* --- Custom Elements --- */
+        .student-id {
+            color: var(--primary-blue);
+            font-weight: 700;
+        }
+
+        .student-img {
+            width: 45px;
+            height: 45px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 2px solid var(--primary-blue);
+            padding: 2px;
+            background: #fff;
+        }
+
+        /* --- CGPA & Year Badges --- */
+        .cgpa-badge {
+            background: #fff5f5;
+            color: #c53030;
+            padding: 5px 10px;
+            border-radius: 8px;
+            font-weight: 700;
+            border: 1px solid #feb2b2;
+            font-size: 13px;
+        }
+
+        .cgpa-high {
+            background: #f0fff4;
+            color: #2f855a;
+            border-color: #9ae6b4;
+        }
+
+        .year-pill {
+            background: #f1f5f9;
+            color: var(--navy-accent);
+            padding: 4px 10px;
+            border-radius: 6px;
+            font-weight: 600;
+            font-size: 12px;
+            border: 1px solid #e2e8f0;
+        }
+
+        .grade-pill {
+            background: var(--navy-accent);
+            color: white;
+            padding: 4px 12px;
+            border-radius: 50px;
+            font-size: 11px;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+
+        .badge-course {
+            display: inline-block;
+            background: #e1effe;
+            color: var(--navy-accent);
+            padding: 4px 10px;
+            border-radius: 6px;
+            margin: 2px;
+            font-size: 11px;
+            font-weight: 600;
+            border: 1px solid rgba(50, 130, 184, 0.1);
+        }
+
+        /* --- Action Buttons --- */
+        .actions {
+            display: flex;
+            gap: 10px;
+        }
+
+        .btn-action {
+            width: 35px;
+            height: 35px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 8px;
+            text-decoration: none;
+            transition: 0.3s;
+        }
+
+        .btn-edit { background: rgba(50, 130, 184, 0.1); color: var(--primary-blue); }
+        .btn-edit:hover { background: var(--primary-blue); color: white; }
+
+        .btn-delete { background: rgba(217, 83, 79, 0.1); color: #d9534f; }
+        .btn-delete:hover { background: #d9534f; color: white; }
+
+        .alert {
+            background-color: var(--success-green);
+            color: white;
+            padding: 15px 25px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            font-weight: 500;
+            box-shadow: 0 4px 12px rgba(39, 174, 96, 0.2);
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <div class="page-header">
+        <div class="header-title-area">
+            <h1><i class="fas fa-users-viewfinder"></i> Student Directory</h1>
+            <div style="color: var(--text-muted); font-size: 13px; margin-top: 5px; margin-left: 35px;">
+                Total Records: <strong>{{ students|length }}</strong>
+            </div>
+        </div>
+
+        <a href="{% url 'DirectAdminPage' %}" class="btn-dashboard">
+            <i class="fas fa-arrow-left"></i> Back to Dashboard
+        </a>
+    </div>
+
+    {% if messages %}
+        {% for message in messages %}
+            <div class="alert">
+                <i class="fas fa-check-circle"></i> {{ message }}
+            </div>
+        {% endfor %}
+    {% endif %}
+
+    <div class="table-wrapper">
+        <table>
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Profile</th>
+                    <th>Full Name</th>
+                    <th>CGPA</th>
+                    <th>Entry Year</th>
+                    <th>Academic Level</th>
+                    <th>Assigned Courses</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for student in students %}
+                <tr>
+                    <td class="student-id">#{{ student.Student_ID }}</td>
+                    <td>
+                        {% if student.Student_Image %}
+                            <img src="{% static 'Images/' %}{{ student.Student_Image }}" class="student-img" alt="Student">
+                        {% else %}
+                            <div class="student-img" style="display:flex; align-items:center; justify-content:center; background:#e2e8f0;">
+                                <i class="fas fa-user" style="color:#94a3b8"></i>
+                            </div>
+                        {% endif %}
+                    </td>
+                    <td>
+                        <div style="font-weight: 600;">{{ student.Student_Name }}</div>
+                        <div style="font-size: 12px; color: var(--text-muted);">{{ student.Student_Gender }}, {{ student.Student_Age }} Years</div>
+                    </td>
+                    
+                    <td>
+                        <span class="cgpa-badge {% if student.student_cgpa|floatformat:2 >= '3.00' %}cgpa-high{% endif %}">
+                            <i class="fas fa-star" style="font-size: 10px; margin-right: 4px;"></i>{{ student.student_cgpa }}
+                        </span>
+                    </td>
+
+                    <td>
+                        <span class="year-pill">{{ student.entry_year }}</span>
+                    </td>
+
+                    <td><span class="grade-pill">Level {{ student.Student_Level }}</span></td>
+                    
+                    <td>
+                        <div style="max-width: 250px;">
+                            <span class="badge-course">{{ student.courses }}</span>
+                        </div>
+                    </td>
+                    
+                    <td>
+                        <div class="actions">
+                            <a href="{% url 'update_student' student.Student_ID %}" class="btn-action btn-edit" title="Edit Student">
+                                <i class="fas fa-pen-to-square"></i>
+                            </a>
+                            <a href="{% url 'delete_student' student.Student_ID %}" 
+                               onclick="return confirm('Delete this record permanently?')" 
+                               class="btn-action btn-delete" title="Delete Student">
+                                <i class="fas fa-trash-can"></i>
+                            </a>
+                        </div>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="8" style="text-align: center; padding: 60px; color: var(--text-muted);">
+                        <i class="fas fa-folder-open fa-3x" style="display:block; margin-bottom:15px; opacity:0.3;"></i>
+                        No student records found in the database.
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+</body>
+</html>

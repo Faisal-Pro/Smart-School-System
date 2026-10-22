@@ -1,0 +1,161 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Update Instructor | {{ teacher.Teacher_Name }}</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    <style>
+        body {
+            font-family: 'Segoe UI', Arial, sans-serif;
+            background-color: #e0f7fa;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            background-image: linear-gradient(to bottom right, #1a3c5a, #0f4c75);
+            margin: 0;
+            padding: 20px 0;
+        }
+
+        .update-form-container {
+            background-color: white;
+            padding: 35px 45px;
+            border-radius: 24px;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.4);
+            max-width: 550px;
+            width: 90%; 
+            animation: fadeIn 0.6s ease-in-out;
+        }
+
+        .header-section { text-align: center; margin-bottom: 10px; }
+        .header-section img {
+            width: 70px; height: 70px;
+            border-radius: 50%;
+            border: 3px solid #0f4c75;
+            object-fit: cover;
+        }
+
+        h1 { color: #0f4c75; margin-top: 10px; font-size: 24px; text-align: center; }
+
+        .input-group { margin-bottom: 18px; }
+        .input-group label { display: block; margin-bottom: 6px; font-weight: bold; color: #444; font-size: 14px; }
+        .input-group input, .input-group select {
+            width: 100%; padding: 12px; font-size: 15px;
+            border-radius: 8px; border: 1px solid #ccc;
+            box-sizing: border-box; background-color: #fcfcfc;
+        }
+
+        .readonly-field { background-color: #f0f0f0 !important; cursor: not-allowed; color: #777; }
+
+        .update-btn {
+            padding: 14px; background-color: #0f4c75; color: white;
+            border: none; cursor: pointer; border-radius: 8px;
+            font-size: 16px; width: 100%; font-weight: bold;
+            transition: 0.3s; margin-top: 10px;
+        }
+
+        .update-btn:hover { background-color: #1b6b99; transform: translateY(-2px); }
+
+        .cancel-link {
+            display: block; text-align: center; margin-top: 15px;
+            color: #666; text-decoration: none; font-size: 14px;
+        }
+        .cancel-link:hover { text-decoration: underline; }
+
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+    </style>
+</head>
+<body>
+
+    <div class="update-form-container">
+        <div class="header-section">
+            <img src="{% static 'Images/School logo.jpg' %}" alt="Logo">
+        </div>
+        <h1>Update Instructor</h1>
+
+        <form id="update-teacher-form" method="post" action="{% url 'UpdateTeacher' teacher.Teacher_Id %}" enctype="multipart/form-data">
+            {% csrf_token %}
+            
+            <div class="input-group">
+                <label>Instructor Name</label>
+                <input type="text" name="teacher_name" value="{{ teacher.Teacher_Name }}" required>
+            </div>
+
+            <div class="input-group">
+                <label>National ID / Social Security</label>
+                <input type="text" name="national_id" value="{{ teacher.Teacher_NationalID }}" maxlength="14" required>
+            </div>
+
+            <div class="input-group">
+                <label>Instructor ID (Fixed)</label>
+                <input type="number" name="teacher_id" value="{{ teacher.Teacher_Id }}" class="readonly-field" readonly>
+            </div>
+
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+                <div class="input-group">
+                    <label>Age</label>
+                    <input type="number" name="teacher_age" value="{{ teacher.Teacher_Age }}" required>
+                </div>
+                <div class="input-group">
+                    <label>Gender</label>
+                    <select name="teacher_gender">
+                        <option value="Male" {% if teacher.Teacher_Gender == "Male" %}selected{% endif %}>Male</option>
+                        <option value="Female" {% if teacher.Teacher_Gender == "Female" %}selected{% endif %}>Female</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="input-group">
+                <label>Assigned Course</label>
+                <select name="teacher_course" required>
+                    <option value="" disabled>-- Select Course --</option>
+                    {% for course in all_courses %}
+                        <option value="{{ course }}" {% if teacher.Course_Handle == course %}selected{% endif %}>
+                            {{ course }}
+                        </option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <div class="input-group">
+                <label>Instructor Image</label>
+                <input type="file" name="teacher_image" accept="image/*">
+                <p style="font-size: 11px; color: #888; margin-top: 5px;">Current: {{ teacher.Teacher_Image }}</p>
+            </div>
+
+            <button type="submit" class="update-btn">Save Changes</button>
+            <a href="{% url 'view_teachers' %}" class="cancel-link"><i class="fas fa-arrow-left"></i> Back to List</a>
+        </form>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script>
+        $(document).ready(function() {
+            $('#update-teacher-form').on('submit', function(event) {
+                event.preventDefault();
+                const formData = new FormData(this);
+                const csrftoken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+
+                $.ajax({
+                    url: $(this).attr('action'),
+                    type: 'POST',
+                    headers: {'X-Requested-With': 'XMLHttpRequest', 'X-CSRFToken': csrftoken},
+                    data: formData,
+                    processData: false,
+                    contentType: false,
+                    success: function(response) {
+                        alert("Instructor updated successfully!");
+                        window.location.href = "{% url 'view_teachers' %}";
+                    },
+                    error: function(xhr) {
+                        // Display error from the server if National ID is missing or table column not found
+                        alert("Error updating record: " + xhr.responseText);
+                    }
+                });
+            });
+        });
+    </script>
+</body>
+</html>

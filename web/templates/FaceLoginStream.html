@@ -1,0 +1,34 @@
+<div class="video-container">
+    <video id="video" width="640" height="480" autoplay style="border-radius: 20px;"></video>
+    <canvas id="canvas" width="640" height="480" style="display:none;"></canvas>
+    <div id="status">Scanning Face...</div>
+</div>
+
+<script>
+    const video = document.getElementById('video');
+    const canvas = document.getElementById('canvas');
+
+    // Start Camera
+    navigator.mediaDevices.getUserMedia({ video: true })
+        .then(stream => { video.srcObject = stream; });
+
+    // Auto-capture every 2 seconds
+    setInterval(() => {
+        const context = canvas.getContext('2d');
+        context.drawImage(video, 0, 0, 640, 480);
+        const imageData = canvas.toDataURL('image/jpeg');
+
+        // Send to Django
+        fetch('/FaceLoginAPI/', {
+            method: 'POST',
+            headers: {'X-CSRFToken': '{{ csrf_token }}', 'Content-Type': 'application/x-www-form-urlencoded'},
+            body: 'image=' + encodeURIComponent(imageData)
+        })
+        .then(res => res.json())
+        .then(data => {
+            if(data.status === 'success') {
+                window.location.href = `/StudentDashboard/${data.id}/`;
+            }
+        });
+    }, 2000);
+</script>

@@ -1,0 +1,242 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Courses</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        :root {
+            --primary: #0f4c75;
+            --secondary: #3282b8;
+            --accent: #bbe1fa;
+            --bg: #f0f2f5;
+            --white: #ffffff;
+            --text: #1b262c;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background-color: var(--bg);
+            margin: 0;
+            color: var(--text);
+        }
+
+        /* Hero Header */
+        .hero-section {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+            padding: 60px 20px;
+            color: white;
+            text-align: center;
+            clip-path: polygon(0 0, 100% 0, 100% 85%, 0 100%);
+        }
+
+        .hero-section h1 {
+            font-size: 2.5rem;
+            margin: 0;
+            letter-spacing: -1px;
+        }
+
+        /* Main Layout */
+        .main-content {
+            max-width: 1200px;
+            margin: -40px auto 50px;
+            padding: 0 20px;
+        }
+
+        .nav-bar {
+            margin-bottom: 25px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .back-link {
+            text-decoration: none;
+            color: white;
+            background: rgba(255, 255, 255, 0.2);
+            padding: 8px 16px;
+            border-radius: 20px;
+            backdrop-filter: blur(5px);
+            transition: 0.3s;
+            font-size: 0.9rem;
+        }
+
+        .back-link:hover {
+            background: rgba(255, 255, 255, 0.3);
+            transform: translateX(-5px);
+        }
+
+        /* Grid System */
+        .course-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 30px;
+        }
+
+        /* Course Card Design */
+        .course-card {
+            background: var(--white);
+            border-radius: 20px;
+            overflow: hidden;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.05);
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            position: relative;
+            border: 1px solid rgba(0,0,0,0.05);
+        }
+
+        .course-card:hover {
+            transform: translateY(-12px);
+            box-shadow: 0 20px 40px rgba(15, 76, 117, 0.15);
+        }
+
+        .course-card a {
+            text-decoration: none;
+            color: inherit;
+        }
+
+        .card-banner {
+            height: 160px;
+            position: relative;
+            background: var(--accent);
+        }
+
+        .card-banner img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .course-level-badge {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            background: rgba(255, 255, 255, 0.9);
+            padding: 5px 12px;
+            border-radius: 12px;
+            font-size: 0.75rem;
+            font-weight: 700;
+            color: var(--primary);
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        .card-body {
+            padding: 25px;
+        }
+
+        .course-id-label {
+            font-size: 0.8rem;
+            color: var(--secondary);
+            font-weight: 600;
+            margin-bottom: 8px;
+            display: block;
+        }
+
+        .course-name {
+            font-size: 1.4rem;
+            margin: 0 0 15px 0;
+            color: var(--primary);
+            line-height: 1.2;
+        }
+
+        /* Fake Progress Bar for Visual Appeal */
+        .progress-container {
+            height: 6px;
+            background: #eee;
+            border-radius: 3px;
+            margin: 20px 0 10px;
+            overflow: hidden;
+        }
+
+        .progress-bar {
+            height: 100%;
+            width: 65%; /* This can be dynamic later */
+            background: linear-gradient(to right, var(--secondary), var(--primary));
+            border-radius: 3px;
+        }
+
+        .card-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 0.85rem;
+            color: #666;
+            padding-top: 15px;
+            border-top: 1px solid #f0f0f0;
+        }
+
+        .enter-btn {
+            background: var(--primary);
+            color: white;
+            width: 35px;
+            height: 35px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: 0.3s;
+        }
+
+        .course-card:hover .enter-btn {
+            background: var(--secondary);
+            transform: rotate(-45deg);
+        }
+
+        @media (max-width: 768px) {
+            .course-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <section class="hero-section">
+        <div class="main-content" style="margin-bottom: 0;">
+            <div class="nav-bar">
+                <a href="javascript:history.back()" class="back-link">
+                    <i class="fas fa-chevron-left"></i> Dashboard
+                </a>
+            </div>
+            <h1>Knowledge Center</h1>
+            <p>Welcome back! You have <strong>{{ courses|length }}</strong> active courses.</p>
+        </div>
+    </section>
+
+    <main class="main-content">
+        <div class="course-grid">
+            {% for course in courses %}
+            <div class="course-card">
+                <a href="{% url 'CoursePageStudent' StudentID course.0 %}">
+                    <div class="card-banner">
+                        <img src="{% static 'Images/' %}{{ course.3 }}" 
+                            onerror="this.onerror=null; this.src='https://ui-avatars.com/api/?name={{ course.1 }}&background=3282b8&color=fff&size=400';" 
+                            alt="{{ course.1 }}">
+                        <span class="course-level-badge">Lvl {{ course.2|default:"1" }}</span>
+                    </div>
+                    
+                    <div class="card-body">
+                        <span class="course-id-label">Course ID: {{ course.0 }}</span>
+                        <h2 class="course-name">{{ course.1 }}</h2>
+                        
+                        <div class="card-footer">
+                            <span><i class="far fa-file-alt"></i> View Materials</span>
+                            <div class="enter-btn">
+                                <i class="fas fa-arrow-right"></i>
+                            </div>
+                        </div>
+                    </div>
+                </a>
+            </div>
+            {% empty %}
+            <div style="text-align: center; grid-column: 1/-1; padding: 100px 0;">
+                <i class="fas fa-search" style="font-size: 3rem; color: #ccc;"></i>
+                <h3 style="color: #999;">No courses found for your profile.</h3>
+            </div>
+            {% endfor %}
+        </div>
+    </main>
+
+</body>
+</html>

@@ -1,0 +1,268 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Instructor Information | Portal</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            --primary: #0f4c75;
+            --secondary: #3282b8;
+            --accent: #bbe1fa;
+            --text-dark: #1e293b;
+            --text-light: #64748b;
+            --white: #ffffff;
+            --bg: #f8fafc;
+            --shadow: 0 10px 30px rgba(15, 76, 117, 0.1);
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background: var(--bg);
+            color: var(--text-dark);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        /* Top Navigation with Back Button */
+        .top-nav {
+            max-width: 900px;
+            margin: 0 auto 20px auto;
+            display: flex;
+            justify-content: flex-start;
+        }
+
+        .btn-back {
+            text-decoration: none;
+            color: var(--primary);
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            transition: 0.3s;
+            padding: 12px 20px;
+            border-radius: 12px;
+            background: var(--white);
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+        }
+
+        .btn-back:hover {
+            background: var(--primary);
+            color: var(--white);
+            transform: translateX(-5px);
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: var(--white);
+            border-radius: 24px;
+            box-shadow: var(--shadow);
+            overflow: hidden;
+            animation: slideUp 0.6s ease-out;
+        }
+
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Header Gradient */
+        .header {
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: var(--white);
+            padding: 50px 20px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 2rem;
+            font-weight: 800;
+            letter-spacing: -0.5px;
+        }
+
+        /* Profile Layout */
+        .profile-content {
+            padding: 40px;
+        }
+
+        .profile-main {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 30px;
+            margin-bottom: 40px;
+        }
+
+        @media (min-width: 768px) {
+            .profile-main {
+                flex-direction: row;
+                text-align: left;
+            }
+        }
+
+        .profile-img {
+            width: 160px;
+            height: 160px;
+            border-radius: 30px; /* Modern squircle */
+            object-fit: cover;
+            border: 5px solid var(--white);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+            background: #f1f5f9;
+        }
+
+        /* Information Grid */
+        .info-grid {
+            flex: 1;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 20px;
+            width: 100%;
+        }
+
+        .info-card {
+            background: #f8fafc;
+            padding: 15px 20px;
+            border-radius: 16px;
+            border: 1px solid #f1f5f9;
+            transition: 0.3s;
+        }
+
+        .info-card:hover {
+            background: var(--accent);
+            transform: translateY(-3px);
+        }
+
+        .info-card label {
+            display: block;
+            font-size: 0.75rem;
+            color: var(--text-light);
+            text-transform: uppercase;
+            font-weight: 800;
+            margin-bottom: 6px;
+        }
+
+        .info-card span {
+            font-size: 1.05rem;
+            font-weight: 700;
+            color: var(--primary);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .info-card i {
+            color: var(--secondary);
+            font-size: 1.1rem;
+        }
+
+        /* Detailed List */
+        .details-box {
+            border-top: 1px solid #f1f5f9;
+            padding-top: 30px;
+        }
+
+        .details-box h3 {
+            font-size: 1.2rem;
+            color: var(--primary);
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .details-list {
+            list-style: none;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 15px;
+        }
+
+        .details-list li {
+            background: var(--white);
+            border: 1px solid #f1f5f9;
+            padding: 16px 20px;
+            border-radius: 12px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .details-list li strong {
+            color: var(--text-light);
+            font-weight: 500;
+        }
+
+        .details-list li span {
+            color: var(--primary);
+            font-weight: 800;
+        }
+    </style>
+</head>
+<body>
+
+    {% for TeacherInfo in TeacherRecord %}
+    <div class="top-nav">
+        <a href="javascript:history.back()" class="btn-back">
+            <i class="fas fa-chevron-left"></i>
+            Back to Dashboard
+        </a>
+    </div>
+
+    <div class="container">
+        <div class="header">
+            <h1>Academic Profile</h1>
+        </div>
+
+        <div class="profile-content">
+            <div class="profile-main">
+                <img src="data:image/jpeg;base64,{{ TeacherInfo.TeacherImage }}" 
+                     class="profile-img"
+                     onerror="this.src='https://ui-avatars.com/api/?name={{ TeacherInfo.TeacherName }}&background=0f4c75&color=fff&size=200';" 
+                     alt="Profile Photo">
+
+                <div class="info-grid">
+                    <div class="info-card">
+                        <label>Full Name</label>
+                        <span><i class="fas fa-user-tie"></i> Dr. {{ TeacherInfo.TeacherName }}</span>
+                    </div>
+                    <div class="info-card">
+                        <label>Instructor ID</label>
+                        <span><i class="fas fa-fingerprint"></i> {{ TeacherInfo.TeacherID }}</span>
+                    </div>
+                    <div class="info-card">
+                        <label>Gender Identity</label>
+                        <span><i class="fas fa-venus-mars"></i> {{ TeacherInfo.Gender }}</span>
+                    </div>
+                    <div class="info-card">
+                        <label>Current Age</label>
+                        <span><i class="fas fa-birthday-cake"></i> {{ TeacherInfo.Age }} Years</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="details-box">
+                <h3><i class="fas fa-shield-alt"></i> Administrative Information</h3>
+                <ul class="details-list">
+                    <li>
+                        <strong>National ID Card</strong>
+                        <span>{{ TeacherInfo.NationalID }}</span>
+                    </li>
+                    <li>
+                        <strong>Primary Department</strong>
+                        <span>Information Technology</span>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+
+</body>
+</html>

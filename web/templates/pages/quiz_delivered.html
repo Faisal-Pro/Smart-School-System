@@ -1,0 +1,331 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="icon" type="image/x-icon" href="{% static 'Images/School Logo.jpg' %}">
+    <title>Quiz Review | {{ quiz_number }}</title>
+    
+    <style>
+        :root {
+            --primary: #0f172a;
+            --accent: #3b82f6;
+            --success: #10b981;
+            --danger: #ef4444;
+            --bg-canvas: #f8fafc;
+            --white: #ffffff;
+            --text-main: #1e293b;
+            --text-muted: #64748b;
+            --radius: 16px;
+            --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { 
+            font-family: 'Plus Jakarta Sans', sans-serif; 
+            background-color: var(--bg-canvas); 
+            color: var(--text-main); 
+            line-height: 1.6;
+        }
+
+        /* Top Navigation */
+        .navbar {
+            background: var(--white);
+            padding: 15px 5%;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+
+        .nav-left { display: flex; align-items: center; gap: 20px; }
+        .back-btn {
+            text-decoration: none;
+            color: var(--text-main);
+            background: #f1f5f9;
+            padding: 8px 16px;
+            border-radius: 10px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            display: flex;
+            align-items: center; gap: 8px;
+            transition: 0.2s;
+        }
+        .back-btn:hover { background: #e2e8f0; color: var(--accent); }
+
+        /* Main Container */
+        .container { max-width: 900px; margin: 40px auto; padding: 0 20px; }
+
+        /* Quiz Selector Header */
+        .quiz-header {
+            background: var(--white);
+            padding: 25px;
+            border-radius: var(--radius);
+            margin-bottom: 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: var(--shadow);
+            border: 1px solid #f1f5f9;
+        }
+
+        .quiz-header h1 { font-size: 1.5rem; font-weight: 800; color: var(--primary); }
+
+        select {
+            padding: 10px 15px;
+            border-radius: 10px;
+            border: 1px solid #e2e8f0;
+            font-family: inherit;
+            font-weight: 600;
+            background: #fcfdfe;
+            cursor: pointer;
+            outline: none;
+        }
+
+        /* Student Card */
+        .card { 
+            background: var(--white); 
+            border-radius: 24px; 
+            padding: 30px; 
+            margin-bottom: 40px; 
+            box-shadow: var(--shadow);
+            border: 1px solid #f1f5f9;
+        }
+
+        .header-row { 
+            display: flex; 
+            justify-content: space-between; 
+            align-items: flex-start; 
+            border-bottom: 1px solid #f1f5f9; 
+            padding-bottom: 20px; 
+            margin-bottom: 25px; 
+        }
+
+        .score-badge { 
+            background: var(--primary); 
+            color: white; 
+            padding: 12px 20px; 
+            border-radius: 12px; 
+            font-weight: 800; 
+            font-size: 1rem;
+            text-align: center;
+        }
+
+        /* Question Box */
+        .q-box { 
+            border: 1px solid #e2e8f0; 
+            border-radius: 16px; 
+            padding: 20px; 
+            margin-top: 20px; 
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); 
+        }
+
+        .answer-text {
+            background: #f8fafc;
+            padding: 15px;
+            border-radius: 12px;
+            margin: 15px 0;
+            font-size: 0.95rem;
+            border-left: 4px solid #cbd5e1;
+            color: var(--text-main);
+        }
+
+        /* Grading Buttons */
+        .grading-actions { display: flex; gap: 10px; align-items: center; margin-top: 15px; }
+
+        .btn-grade {
+            padding: 8px 16px;
+            border-radius: 8px;
+            border: none;
+            cursor: pointer;
+            font-weight: 700;
+            font-size: 0.85rem;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            transition: 0.2s;
+        }
+
+        .btn-correct { background: #ecfdf5; color: var(--success); }
+        .btn-correct:hover { background: var(--success); color: white; }
+
+        .btn-wrong { background: #fef2f2; color: var(--danger); }
+        .btn-wrong:hover { background: var(--danger); color: white; }
+
+        .status-badge { font-weight: 700; font-size: 0.8rem; margin-left: auto; text-transform: uppercase; }
+
+        /* Submit Button */
+        .btn-submit { 
+            background: var(--accent); 
+            color: white; 
+            width: 100%; 
+            margin-top: 30px; 
+            padding: 16px; 
+            border-radius: 12px;
+            border: none;
+            font-weight: 800;
+            cursor: pointer;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            transition: 0.2s;
+        }
+        .btn-submit:hover { background: #2563eb; transform: translateY(-2px); box-shadow: 0 10px 15px -3px rgba(59, 130, 246, 0.3); }
+
+    </style>
+</head>
+<body>
+
+<nav class="navbar">
+    <div class="nav-left">
+        <a href="javascript:history.back()" class="back-btn">
+            <i class="fas fa-arrow-left"></i> Dashboard
+        </a>
+        <div style="font-size: 0.85rem; font-weight: 700; color: var(--text-muted); letter-spacing: 1px;">GRADING PANEL</div>
+    </div>
+</nav>
+
+<div class="container">
+    
+    <div class="quiz-header">
+        <div>
+            <h1>Quiz Review</h1>
+            <p style="color: var(--text-muted); font-size: 0.9rem;">Reviewing submissions for Quiz #{{ quiz_number }}</p>
+        </div>
+        <div>
+            <select onchange="location.href='?quiz_id=' + this.value">
+                {% for q in all_quizzes %}
+                    <option value="{{ q.id }}" {% if q.id == current_quiz_id %}selected{% endif %}>
+                        Switch to Quiz #{{ q.number }}
+                    </option>
+                {% endfor %}
+            </select>
+        </div>
+    </div>
+
+    {% for sid, data in students.items %}
+    <div class="card" id="card-{{ sid }}">
+        <div class="header-row">
+            <div>
+                <h2 style="font-size: 1.4rem; font-weight: 800;">{{ data.name }}</h2>
+                <span style="color: var(--text-muted); font-size: 0.85rem; font-weight: 600;">STUDENT ID: {{ sid }}</span>
+            </div>
+            <div class="score-badge">
+                <span style="font-size: 0.7rem; display: block; opacity: 0.8; margin-bottom: 2px;">CURRENT SCORE</span>
+                <span id="total-{{ sid }}">{{ data.current_total }}</span> / {{ data.max_total }}
+            </div>
+        </div>
+        
+        {% for qid, qinfo in questions.items %}
+        <div class="q-box" id="qbox-{{ sid }}-{{ qid }}">
+            <p style="font-weight: 700;">{{ qinfo.text }} 
+                <span style="color: var(--accent); font-size: 0.8rem; margin-left: 8px;">({{ qinfo.marks }} pts)</span>
+            </p>
+            
+            {% for q_id, ans_data in data.answers.items %}
+                {% if q_id == qid %}
+                    <div class="answer-text">
+                        <span style="font-size: 0.7rem; font-weight: 800; color: var(--text-muted); display: block; margin-bottom: 5px;">STUDENT ANSWER:</span>
+                        {{ ans_data.display }}
+                    </div>
+                    
+                    <div class="grading-actions">
+                        <button class="btn-grade btn-correct" onclick="updateMark('{{ sid }}', '{{ qid }}', {{ qinfo.marks }})">
+                            <i class="fas fa-check-circle"></i> Correct
+                        </button>
+                        <button class="btn-grade btn-wrong" onclick="updateMark('{{ sid }}', '{{ qid }}', 0)">
+                            <i class="fas fa-times-circle"></i> Wrong
+                        </button>
+                        
+                        <span class="status-badge" id="badge-{{ sid }}-{{ qid }}">
+                            {% if ans_data.current_marks > 0 %}
+                                <span style="color: var(--success)"><i class="fas fa-check"></i> Graded</span>
+                            {% else %}
+                                <span style="color: var(--text-muted)">Pending Review</span>
+                            {% endif %}
+                        </span>
+                    </div>
+                {% endif %}
+            {% endfor %}
+        </div>
+        {% endfor %}
+
+        <button class="btn-submit" onclick="submitGrades('{{ sid }}')">
+            <i class="fas fa-save"></i> Save {{ data.name|truncatewords:1|cut:"..." }}'s Results
+        </button>
+    </div>
+    {% endfor %}
+</div>
+
+<script>
+    const pendingGrades = {};
+
+    // Initialize state
+    {% for sid, data in students.items %}
+        pendingGrades['{{ sid }}'] = {};
+        {% for qid, ans in data.answers.items %}
+            {% if qid in questions %}
+                pendingGrades['{{ sid }}']['{{ qid }}'] = {{ ans.current_marks|default:0 }};
+            {% endif %}
+        {% endfor %}
+    {% endfor %}
+
+    function updateMark(sid, qid, points) {
+        const oldVal = pendingGrades[sid][qid] || 0;
+        const diff = points - oldVal;
+        
+        pendingGrades[sid][qid] = points;
+
+        // Update Score Display
+        const totalEl = document.getElementById(`total-${sid}`);
+        let currentTotal = parseInt(totalEl.innerText) || 0;
+        totalEl.innerText = currentTotal + diff;
+
+        // Visual Feedback
+        const box = document.getElementById(`qbox-${sid}-${qid}`);
+        const badge = document.getElementById(`badge-${sid}-${qid}`);
+        
+        if (points > 0) {
+            box.style.borderColor = "var(--success)";
+            box.style.background = "#f0fdf4";
+            badge.innerHTML = `<span style="color: var(--success)"><i class="fas fa-check"></i> Marked Correct</span>`;
+        } else {
+            box.style.borderColor = "var(--danger)";
+            box.style.background = "#fef2f2";
+            badge.innerHTML = `<span style="color: var(--danger)"><i class="fas fa-times"></i> Marked Wrong</span>`;
+        }
+    }
+
+    function submitGrades(sid) {
+        fetch("{% url 'confirm_grades' %}", {
+            method: "POST",
+            headers: { 
+                "Content-Type": "application/json", 
+                "X-CSRFToken": "{{ csrf_token }}" 
+            },
+            body: JSON.stringify({
+                studentId: sid,
+                grades: pendingGrades[sid]
+            })
+        })
+        .then(res => res.json())
+        .then(data => {
+            if (data.message) {
+                const card = document.getElementById(`card-${sid}`);
+                card.style.borderColor = "var(--success)";
+                card.style.boxShadow = "0 0 20px rgba(16, 185, 129, 0.15)";
+                alert("Grades finalized for student!");
+            } else {
+                alert("Error: " + data.error);
+            }
+        });
+    }
+</script>
+
+</body>
+</html>

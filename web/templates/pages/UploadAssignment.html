@@ -1,0 +1,296 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="icon" type="image/x-icon" href="{% static 'Images/School Logo.jpg' %}">
+    <title>Upload Homework | Instructor Portal</title>
+    
+    <style>
+        :root {
+            --primary: #0f172a;
+            --accent: #3b82f6;
+            --accent-soft: #eff6ff;
+            --bg-canvas: #f8fafc;
+            --white: #ffffff;
+            --text-main: #1e293b;
+            --text-muted: #64748b;
+            --radius: 16px;
+            --shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.05);
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { 
+            font-family: 'Plus Jakarta Sans', sans-serif; 
+            background-color: var(--bg-canvas); 
+            color: var(--text-main);
+            display: flex;
+            min-height: 100vh;
+        }
+
+        /* Sidebar Styling */
+        .sidebar { width: 280px; height: 100vh; background: var(--primary); color: #fff; position: fixed; z-index: 1000; }
+        .sidebar-content { padding: 40px 20px; }
+        
+        /* Main Layout */
+        .main-wrapper { flex: 1; margin-left: 280px; padding: 40px; }
+        .content-container { max-width: 800px; margin: 0 auto; }
+
+        /* Navigation Header (Go Back) */
+        .nav-top {
+            display: flex;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .btn-back {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            text-decoration: none;
+            color: var(--text-muted);
+            font-weight: 600;
+            font-size: 0.9rem;
+            transition: 0.2s;
+            padding: 8px 12px;
+            border-radius: 10px;
+            background: transparent;
+        }
+
+        .btn-back:hover {
+            color: var(--accent);
+            background: var(--accent-soft);
+        }
+
+        /* Header Area */
+        .page-header { margin-bottom: 30px; }
+        .page-header h1 { font-size: 1.8rem; font-weight: 800; color: var(--primary); }
+        .page-header p { color: var(--text-muted); margin-top: 5px; }
+
+        /* Form Card */
+        .upload-card {
+            background: var(--white);
+            padding: 40px;
+            border-radius: 24px;
+            box-shadow: var(--shadow);
+            border: 1px solid #f1f5f9;
+        }
+
+        .form-group { margin-bottom: 25px; }
+        label { display: block; font-weight: 700; font-size: 0.9rem; margin-bottom: 8px; color: var(--primary); }
+
+        /* Custom File Upload Box */
+        .file-drop-area {
+            border: 2px dashed #e2e8f0;
+            border-radius: var(--radius);
+            padding: 40px;
+            text-align: center;
+            transition: 0.3s;
+            background: #fcfdfe;
+            cursor: pointer;
+        }
+        .file-drop-area:hover { border-color: var(--accent); background: var(--accent-soft); }
+        .file-drop-area i { font-size: 2.5rem; color: var(--accent); margin-bottom: 15px; }
+        .file-name-display { font-size: 0.85rem; font-weight: 600; color: var(--accent); margin-top: 10px; display: none; }
+
+        /* Input Styling */
+        input[type="number"], input[type="date"], textarea, select {
+            width: 100%;
+            padding: 12px 16px;
+            border-radius: 12px;
+            border: 1px solid #e2e8f0;
+            font-family: inherit;
+            font-size: 0.95rem;
+            transition: 0.2s;
+            outline: none;
+        }
+        input:focus, textarea:focus, select:focus { border-color: var(--accent); box-shadow: 0 0 0 4px var(--accent-soft); }
+
+        /* Time Grid */
+        .time-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
+
+        /* Submit Button */
+        .btn-submit {
+            width: 100%;
+            background: var(--accent);
+            color: white;
+            border: none;
+            padding: 16px;
+            border-radius: 12px;
+            font-weight: 800;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+        .btn-submit:hover { background: #2563eb; transform: translateY(-2px); box-shadow: 0 10px 15px -3px rgba(59, 130, 246, 0.3); }
+
+        /* Status Toast */
+        #successMessage {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            background: #10b981;
+            color: white;
+            padding: 16px 24px;
+            border-radius: 12px;
+            font-weight: 700;
+            box-shadow: 0 10px 15px rgba(0,0,0,0.1);
+            display: none;
+            animation: slideUp 0.4s ease-out;
+        }
+
+        @keyframes slideUp { from { transform: translateY(100px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+    </style>
+</head>
+<body>
+
+    <aside class="sidebar">
+        <div class="sidebar-content">
+            <div style="text-align: center; margin-bottom: 40px;">
+                <img src="{% static 'Images/School Logo.jpg' %}" style="width: 80px; height: 80px; border-radius: 50%; border: 3px solid var(--accent);">
+                <h3 style="margin-top: 15px; font-size: 0.9rem; letter-spacing: 1px;">INSTRUCTOR PANEL</h3>
+            </div>
+        </div>
+    </aside>
+
+    <div class="main-wrapper">
+        <div class="content-container">
+            <nav class="nav-top">
+                <a href="javascript:history.back()" class="btn-back">
+                    <i class="fas fa-arrow-left"></i>
+                    Back to Course
+                </a>
+            </nav>
+
+            <header class="page-header">
+                <h1>Create Assignment</h1>
+                <p>Upload new homework material and set submission deadlines.</p>
+            </header>
+
+            <div class="upload-card">
+                <form id="uploadForm" enctype="multipart/form-data">
+                    {% csrf_token %}
+                    
+                    <div class="form-group">
+                        <label>HomeWork Document (PDF Only)</label>
+                        <div class="file-drop-area" id="dropArea">
+                            <i class="fas fa-file-pdf"></i>
+                            <p style="font-weight: 600; color: var(--text-main);">Click to browse or drag PDF here</p>
+                            <p style="font-size: 0.8rem; color: var(--text-muted);">Max file size: 10MB</p>
+                            <div class="file-name-display" id="fileNameDisplay"></div>
+                            <input type="file" name="fileInput" id="fileInput" accept="application/pdf" required style="display: none;">
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="TotalMark">Maximum Points</label>
+                        <input type="number" id="TotalMark" name="TotalMark" placeholder="e.g. 100" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="description">Assignment Description</label>
+                        <textarea id="description" name="description" rows="4" placeholder="Briefly describe the tasks..." required></textarea>
+                    </div>
+
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+                        <div class="form-group">
+                            <label for="deadlineDate">Due Date</label>
+                            <input type="date" id="deadlineDate" name="deadlineDate" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Due Time</label>
+                            <div class="time-grid">
+                                <select id="deadlineHour" name="deadlineHour" required>
+                                    <option value="">Hour</option>
+                                </select>
+                                <select id="deadlineMinute" name="deadlineMinute" required>
+                                    <option value="">Min</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+
+                    <button type="submit" class="btn-submit">
+                        <i class="fas fa-cloud-upload-alt"></i> Publish Assignment
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <div id="successMessage">
+        <i class="fas fa-check-circle"></i> Assignment Published Successfully!
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Populate Time Selects
+            const hourSelect = document.getElementById('deadlineHour');
+            const minuteSelect = document.getElementById('deadlineMinute');
+
+            for (let h = 0; h < 24; h++) {
+                let opt = new Option(h.toString().padStart(2, '0'), h);
+                hourSelect.add(opt);
+            }
+            for (let m = 0; m < 60; m += 5) {
+                let opt = new Option(m.toString().padStart(2, '0'), m);
+                minuteSelect.add(opt);
+            }
+
+            const dropArea = document.getElementById('dropArea');
+            const fileInput = document.getElementById('fileInput');
+            const fileDisplay = document.getElementById('fileNameDisplay');
+
+            dropArea.addEventListener('click', () => fileInput.click());
+
+            fileInput.addEventListener('change', function() {
+                if (this.files[0]) {
+                    fileDisplay.innerText = "Selected: " + this.files[0].name;
+                    fileDisplay.style.display = "block";
+                    dropArea.style.borderColor = "var(--accent)";
+                }
+            });
+
+            document.getElementById('uploadForm').addEventListener('submit', function(e) {
+                e.preventDefault();
+                const btn = e.target.querySelector('button');
+                btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Uploading...';
+                btn.disabled = true;
+
+                const formData = new FormData(this);
+                
+                fetch("{% url 'upload_assignment' TeacherID CourseID %}", {
+                    method: 'POST',
+                    body: formData
+                })
+                .then(res => res.json())
+                .then(data => {
+                    if (data.success) {
+                        const msg = document.getElementById('successMessage');
+                        msg.style.display = 'block';
+                        setTimeout(() => { msg.style.display = 'none'; }, 4000);
+                        this.reset();
+                        fileDisplay.style.display = "none";
+                        btn.innerHTML = '<i class="fas fa-cloud-upload-alt"></i> Publish Assignment';
+                        btn.disabled = false;
+                    } else {
+                        alert('Error uploading assignment.');
+                        btn.disabled = false;
+                    }
+                })
+                .catch(err => {
+                    console.error(err);
+                    btn.disabled = false;
+                });
+            });
+        });
+    </script>
+</body>
+</html>

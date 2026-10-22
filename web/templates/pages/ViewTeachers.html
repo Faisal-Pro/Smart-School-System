@@ -1,0 +1,289 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Instructor Directory | Admin Portal</title>
+    
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            --primary-blue: #3282b8;
+            --dark-steel: #1b262c;
+            --navy-accent: #0f4c75;
+            --white: #ffffff;
+            --text-dark: #33475b;
+            --text-muted: #64748b;
+        }
+
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background-color: var(--dark-steel);
+            margin: 0;
+            padding: 40px;
+            color: var(--text-dark);
+        }
+
+        .container {
+            max-width: 1250px;
+            margin: 0 auto;
+        }
+
+        /* --- Header Section --- */
+        .page-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            background: var(--white);
+            padding: 20px 30px;
+            border-radius: 16px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.3);
+            border-top: 5px solid var(--primary-blue);
+        }
+
+        .header-title h1 {
+            font-size: 24px;
+            color: var(--navy-accent);
+            margin: 0;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .btn-dashboard {
+            text-decoration: none;
+            background: var(--primary-blue);
+            color: white;
+            padding: 10px 18px;
+            border-radius: 10px;
+            font-weight: 600;
+            font-size: 14px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: 0.3s;
+        }
+
+        .btn-dashboard:hover {
+            background: var(--navy-accent);
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(50, 130, 184, 0.3);
+        }
+
+        /* --- Table Styling --- */
+        .table-wrapper {
+            background: var(--white);
+            border-radius: 16px;
+            overflow: hidden;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.4);
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            text-align: left;
+        }
+
+        thead th {
+            background-color: var(--navy-accent);
+            color: var(--white);
+            padding: 18px 20px;
+            font-weight: 600;
+            text-transform: uppercase;
+            font-size: 11px;
+            letter-spacing: 1px;
+        }
+
+        tbody tr {
+            border-bottom: 1px solid #edf2f7;
+            transition: 0.2s;
+        }
+
+        tbody tr:hover {
+            background-color: #f8fafc;
+        }
+
+        td {
+            padding: 15px 20px;
+            font-size: 14px;
+            vertical-align: middle;
+        }
+
+        /* --- Instructor Elements --- */
+        .instructor-id {
+            color: var(--primary-blue);
+            font-weight: 700;
+            font-family: monospace;
+        }
+
+        .instructor-img {
+            width: 48px;
+            height: 48px;
+            border-radius: 12px;
+            object-fit: cover;
+            border: 2px solid var(--primary-blue);
+            padding: 2px;
+            background: #fff;
+        }
+
+        .course-badge {
+            background: #e1effe;
+            color: var(--navy-accent);
+            padding: 5px 12px;
+            border-radius: 6px;
+            font-size: 12px;
+            font-weight: 700;
+            border: 1px solid rgba(50, 130, 184, 0.2);
+        }
+
+        /* Badge for National ID */
+        .national-id-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            background: #f1f5f9;
+            color: #475569;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-family: 'Courier New', Courier, monospace;
+            font-weight: 600;
+            font-size: 13px;
+            border: 1px solid #e2e8f0;
+        }
+
+        /* --- Action Buttons --- */
+        .actions {
+            display: flex;
+            gap: 8px;
+        }
+
+        .btn-action {
+            width: 38px;
+            height: 38px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 10px;
+            text-decoration: none;
+            transition: 0.3s;
+        }
+
+        .btn-edit { background: rgba(50, 130, 184, 0.1); color: var(--primary-blue); }
+        .btn-edit:hover { background: var(--primary-blue); color: white; }
+
+        .btn-delete { background: rgba(217, 83, 79, 0.1); color: #d9534f; }
+        .btn-delete:hover { background: #d9534f; color: white; }
+
+        .alert-success {
+            background: #27ae60; color: white; padding: 15px 25px;
+            border-radius: 12px; margin-bottom: 25px; font-weight: 600;
+            box-shadow: 0 4px 12px rgba(39, 174, 96, 0.2);
+        }
+
+        @media (max-width: 768px) {
+            body { padding: 15px; }
+            .page-header { flex-direction: column; gap: 15px; text-align: center; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <div class="page-header">
+        <div class="header-title">
+            <h1><i class="fas fa-chalkboard-teacher"></i> Instructor Directory</h1>
+        </div>
+
+        <a href="{% url 'DirectAdminPage' %}" class="btn-dashboard">
+            <i class="fas fa-arrow-left"></i> Back to Dashboard
+        </a>
+    </div>
+
+    {% if messages %}
+        {% for message in messages %}
+            <div class="alert-success">
+                <i class="fas fa-check-circle"></i> {{ message }}
+            </div>
+        {% endfor %}
+    {% endif %}
+
+    <div class="table-wrapper">
+        <table>
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Profile</th>
+                    <th>Instructor Name</th>
+                    <th>National ID</th> <th>Personal Info</th>
+                    <th>Assigned Course</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for teacher in teachers %}
+                <tr>
+                    <td class="instructor-id">#{{ teacher.Teacher_Id }}</td>
+                    <td>
+                        {% if teacher.Teacher_Image %}
+                            <img src="{% static 'Images/' %}{{ teacher.Teacher_Image }}" class="instructor-img" alt="Teacher">
+                        {% else %}
+                            <div class="instructor-img" style="display:flex; align-items:center; justify-content:center; background:#f1f5f9;">
+                                <i class="fas fa-user-tie" style="color:#94a3b8"></i>
+                            </div>
+                        {% endif %}
+                    </td>
+                    <td>
+                        <div style="font-weight: 700; color: var(--navy-accent);">{{ teacher.Teacher_Name }}</div>
+                    </td>
+                    
+                    <td>
+                        <div class="national-id-badge">
+                            <i class="fas fa-id-card" style="font-size: 11px; opacity: 0.7;"></i>
+                            {{ teacher.Teacher_NationalID|default:"Not Set" }}
+                        </div>
+                    </td>
+
+                    <td>
+                        <div style="font-size: 13px; color: var(--text-muted);">
+                            <i class="fas fa-venus-mars"></i> {{ teacher.Teacher_Gender }} <br>
+                            <i class="fas fa-calendar-day"></i> {{ teacher.Teacher_Age }} Years
+                        </div>
+                    </td>
+                    <td>
+                        <div style="display: flex; flex-direction: column; gap: 4px;">
+                            <span class="course-badge">{{ teacher.Course_Name }}</span>
+                            <small style="color: #94a3b8; font-size: 10px; margin-left: 5px;">COURSE ID: {{ teacher.Course_ID }}</small>
+                        </div>
+                    </td>
+                    <td>
+                        <div class="actions">
+                            <a href="{% url 'UpdateTeacher' t_id=teacher.Teacher_Id %}" class="btn-action btn-edit" title="Edit Profile">
+                                <i class="fas fa-user-pen"></i>
+                            </a>
+                            <a href="{% url 'delete_teacher' t_id=teacher.Teacher_Id %}" 
+                               onclick="return confirm('Permanently remove {{ teacher.Teacher_Name }}?');" 
+                               class="btn-action btn-delete" title="Delete Instructor">
+                                <i class="fas fa-trash-can"></i>
+                            </a>
+                        </div>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="7" style="text-align: center; padding: 60px; color: var(--text-muted);">
+                        <i class="fas fa-users-slash fa-3x" style="opacity: 0.3; margin-bottom: 15px;"></i>
+                        <p>No instructors found in the database.</p>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+</body>
+</html>

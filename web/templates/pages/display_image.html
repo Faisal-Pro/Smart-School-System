@@ -1,0 +1,241 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link rel="icon" type="image/x-icon" href="{% static 'Images/School Logo.jpg' %}">
+    <title>School Management System Dashboard</title>
+    <style>
+        /* Global Styles */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: Arial, sans-serif;
+        }
+
+        /* Smooth Page Load */
+        body {
+            display: flex;
+            flex-direction: column;
+            background: linear-gradient(135deg, #82b4d1, #b3d9ff);
+            animation: fadeIn 1.5s ease-in-out;
+        }
+
+        /* Sidebar */
+        .sidebar {
+            width: 250px;
+            height: 100vh;
+            background: linear-gradient(135deg, #0f4c75, #3282b8);
+            color: #fff;
+            position: fixed;
+            top: 0;
+            left: 0;
+            transition: transform 0.5s ease-in-out;
+        }
+
+        .sidebar:hover {
+            transform: scale(1.02);
+        }
+
+        .sidebar .logo {
+            text-align: center;
+            padding: 20px 0;
+            background-color: #3282b8;
+        }
+
+        .sidebar .logo img {
+            height: 50px;
+            width: 50px;
+            border-radius: 50%;
+        }
+
+        .sidebar nav ul {
+            list-style-type: none;
+            padding: 0;
+        }
+
+        .sidebar nav ul li {
+            padding: 8px 20px;
+        }
+
+        .sidebar nav ul li a {
+            text-decoration: none;
+            color: #fff;
+            display: block;
+            padding: 15px;
+            transition: background 0.3s ease-in-out;
+        }
+
+        .sidebar nav ul li a:hover {
+            background-color: #51a6e0;
+            transform: scale(1.05);
+        }
+
+        /* Main Content */
+        .main-content {
+            margin-left: 250px;
+            padding: 20px;
+            width: calc(100% - 250px);
+            background: transparent;
+        }
+
+        .upload-assignment {
+            background: linear-gradient(135deg, #82b4d1, #b3d9ff);
+            padding: 90px;
+            border-radius: 20px;
+            box-shadow: 0 5px 10px rgba(0, 0, 0, 0.2);
+            max-width: 700px;
+            margin: 30px auto;
+            animation: slideIn 1.5s ease-in-out;
+            transition: transform 0.3s ease-in-out;
+        }
+
+        .upload-assignment:hover {
+            transform: scale(1.02);
+        }
+
+        .upload-assignment h1 {
+            color: #0f4c75;
+            text-align: center;
+        }
+
+        .upload-assignment form {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .upload-assignment label {
+            font-weight: bold;
+            color: #0f4c75;
+        }
+
+        .upload-assignment input[type="file"],
+        .upload-assignment textarea,
+        .upload-assignment input[type="number"],
+        .upload-assignment input[type="date"] {
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            font-size: 16px;
+        }
+
+        .file-upload-icon {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 50px;
+            height: 50px;
+            background-color: #3282b8;
+            color: white;
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 24px;
+            transition: transform 0.3s ease-in-out, background-color 0.3s;
+            animation: pulse 1.5s infinite alternate;
+        }
+
+        .file-upload-icon:hover {
+            transform: scale(1.1);
+            background-color: #0f4c75;
+        }
+
+        .file-name {
+            margin-top: 10px;
+            color: #0f4c75;
+            font-style: italic;
+        }
+
+        .upload-assignment button {
+            padding: 10px;
+            background-color: #3282b8;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: transform 0.3s ease-in-out, background-color 0.3s;
+        }
+
+        .upload-assignment button:hover {
+            background-color: #0f4c75;
+            transform: scale(1.05);
+        }
+
+        /* Animations */
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(50px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes pulse {
+            from {
+                transform: scale(1);
+            }
+            to {
+                transform: scale(1.1);
+            }
+        }
+    </style>
+</head>
+<body>
+    
+    <div class="main-content">
+        <div class="upload-assignment">
+            <h1 class="page-title">Upload HomeWork</h1>
+            <form id="uploadForm" enctype="multipart/form-data">
+                {% csrf_token %}
+                <label for="fileInput">HomeWork PDF</label>
+                <input type="file" name="fileInput" id="fileInput" accept="application/pdf" required style="display: none;">
+                <div class="file-upload-icon" id="browseButton">
+                    <i class="fas fa-plus"></i>
+                </div>
+                <div class="file-name" id="fileNameDisplay">No file selected</div>
+
+                <label for="TotalMark">Mark</label>
+                <input type="number" id="TotalMark" name="TotalMark" required>
+
+                <label for="description">Description</label>
+                <textarea id="description" name="description" rows="6" required></textarea>
+
+                <label for="deadlineDate">Deadline Date</label>
+                <input type="date" id="deadlineDate" name="deadlineDate" required>
+                
+                <button type="submit">Upload HomeWork</button>
+                <div id="successMessage" class="success-message" style="display: none;">HomeWork uploaded successfully!</div>
+            </form>
+        </div>  
+    </div>
+
+    <script>
+        document.getElementById('browseButton').addEventListener('click', function() {
+            document.getElementById('fileInput').click();
+        });
+
+        document.getElementById('fileInput').addEventListener('change', function() {
+            const fileName = this.files[0] ? this.files[0].name : 'No file selected';
+            document.getElementById('fileNameDisplay').textContent = fileName;
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,274 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Instructor Portal | School Management</title>
+    
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="icon" type="image/x-icon" href="{% static 'Images/School Logo.jpg' %}">
+
+    <style>
+        :root {
+            --primary: #0f4c75;
+            --secondary: #3282b8;
+            --accent: #bbe1fa;
+            --bg-light: #f8fafc;
+            --white: #ffffff;
+            --text-main: #1e293b;
+            --text-muted: #64748b;
+            --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background-color: var(--bg-light);
+            color: var(--text-main);
+            display: flex;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        /* === SIDEBAR === */
+        .sidebar {
+            width: 280px;
+            background-color: var(--primary);
+            color: white;
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+            position: fixed;
+            left: 0; top: 0;
+            z-index: 1000;
+            transition: var(--transition);
+        }
+
+        .sidebar.hidden { transform: translateX(-100%); }
+
+        .profile-section {
+            padding: 40px 20px;
+            text-align: center;
+            background: linear-gradient(to bottom, #0d4164, var(--primary));
+        }
+
+        .profile-section img {
+            width: 90px; height: 90px;
+            border-radius: 20px;
+            object-fit: cover;
+            border: 3px solid var(--secondary);
+            margin-bottom: 15px;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.2);
+        }
+
+        .profile-section h2 { font-size: 1.1rem; font-weight: 700; color: var(--accent); }
+
+        nav { padding: 20px; flex-grow: 1; }
+        nav ul { list-style: none; }
+        nav ul li a {
+            display: flex; align-items: center; gap: 12px;
+            color: #d1d5db; text-decoration: none;
+            padding: 14px 18px; border-radius: 12px;
+            margin-bottom: 8px; transition: var(--transition);
+            font-weight: 500;
+        }
+
+        nav ul li a:hover, nav ul li a.active {
+            background-color: rgba(255,255,255,0.1);
+            color: white; transform: translateX(5px);
+        }
+
+        .notification-badge {
+            background: #ef4444; color: white;
+            font-size: 0.7rem; font-weight: 800;
+            padding: 2px 8px; border-radius: 20px;
+            margin-left: auto;
+        }
+
+        /* === MAIN CONTENT === */
+        .main-wrapper { flex: 1; margin-left: 280px; display: flex; transition: var(--transition); }
+        .main-wrapper.full-width { margin-left: 0; }
+        .content-area { flex: 1; padding: 40px; max-width: 1200px; }
+
+        .top-header {
+            display: flex; justify-content: space-between;
+            align-items: center; margin-bottom: 40px;
+        }
+
+        .toggle-btn {
+            background: var(--white); border: none;
+            width: 45px; height: 45px; border-radius: 12px;
+            cursor: pointer; color: var(--primary);
+            box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1);
+            display: flex; align-items: center; justify-content: center;
+        }
+
+        /* === COURSE GRID === */
+        .section-title { font-size: 1.5rem; font-weight: 800; margin-bottom: 25px; display: flex; align-items: center; gap: 10px; }
+        .course-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 25px; }
+
+        .course-link { text-decoration: none; color: inherit; display: block; }
+        
+        .course-card {
+            background: var(--white); border-radius: 20px;
+            overflow: hidden; box-shadow: 0 4px 20px rgba(0,0,0,0.05);
+            transition: var(--transition); border: 1px solid #f1f5f9;
+            height: 100%;
+        }
+
+        .course-card:hover { transform: translateY(-10px); box-shadow: 0 20px 25px -5px rgba(0,0,0,0.1); }
+        .course-img { height: 180px; width: 100%; object-fit: cover; }
+        .course-info { padding: 20px; }
+        .course-info h3 { font-size: 1.1rem; font-weight: 700; color: var(--primary); margin-bottom: 8px; }
+        .course-info p { color: var(--text-muted); font-size: 0.8rem; font-weight: 800; text-transform: uppercase; }
+
+        /* === RIGHT SIDEBAR === */
+        .calendar-sidebar { width: 340px; background: var(--white); border-left: 1px solid #e2e8f0; padding: 40px 25px; height: 100vh; position: sticky; top: 0; }
+        .calendar-widget { background: var(--primary); border-radius: 20px; padding: 20px; color: white; margin-bottom: 30px; }
+        .calendar-header { text-align: center; margin-bottom: 20px; font-weight: 700; }
+        .weekdays { display: grid; grid-template-columns: repeat(7, 1fr); text-align: center; font-size: 0.7rem; opacity: 0.6; }
+        .calendar-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 8px; }
+        .calendar-grid div { aspect-ratio: 1; display: flex; align-items: center; justify-content: center; font-size: 0.85rem; border-radius: 8px; }
+        .current-day { background: var(--accent) !important; color: var(--primary); font-weight: 800; }
+        .event-item { padding: 15px; background: var(--bg-light); border-radius: 12px; margin-bottom: 10px; border-left: 4px solid var(--secondary); }
+
+        @media (max-width: 1100px) { .calendar-sidebar { display: none; } .sidebar { transform: translateX(-100%); } .main-wrapper { margin-left: 0; } }
+    </style>
+</head>
+<body>
+
+    {% for Information in TeacherRecord %}
+    <aside id="sidebar" class="sidebar">
+        <div class="profile-section">
+            <img src="data:image/jpeg;base64,{{ Information.TeacherImage }}" alt="{{ Information.TeacherName }}">
+            <h2>{{ Information.TeacherName }}</h2>
+        </div>
+        
+        <nav>
+            <ul>
+                <li><a href="#" class="active"><i class="fas fa-th-large"></i> Dashboard</a></li>
+                <li><a href="{% url 'TeacherInformation' Information.TeacherID %}"><i class="fas fa-user-circle"></i> Profile</a></li>
+                <li><a href="{% url 'TeacherSchedule' Information.TeacherID %}"><i class="fas fa-calendar-days"></i> Schedule</a></li>
+                <li>
+                    <a href="{% url 'announcements' Information.TeacherID %}">
+                        <i class="fas fa-bell"></i> Announcements
+                        {% if AnnouncementNum > 0 %}
+                            <span class="notification-badge">{{ AnnouncementNum }}</span>
+                        {% endif %}
+                    </a>
+                </li>
+                <div class="course-grid">
+                <li>
+                    <a href="{% url 'materials_view' Information.TeacherID CourseRecord.0.CourseID %}">
+                        <i class="fas fa-book"></i> Course Streamline
+                    </a>
+                </li>
+                </div>
+            </ul>
+        </nav>
+
+        <div style="padding: 20px;">
+            <a href="{% url 'MainPage' %}" style="color: #fca5a5; text-decoration: none; font-weight: 700; font-size: 0.9rem; display: flex; align-items: center; gap: 10px;">
+                <i class="fas fa-power-off"></i> Sign Out
+            </a>
+        </div>
+    </aside>
+
+    <div class="main-wrapper" id="main-wrapper">
+        <main class="content-area">
+            <header class="top-header">
+                <button class="toggle-btn" id="menu-toggle">
+                    <i class="fas fa-bars-staggered"></i>
+                </button>
+                <div style="text-align: right;">
+                    <h1 style="font-weight: 800; color: var(--primary);">Instructor Portal</h1>
+                    <p style="color: var(--text-muted); font-size: 0.9rem;">Welcome back, {{ Information.TeacherName }}</p>
+                </div>
+            </header>
+
+            <section id="course-section">
+                <h3 class="section-title"><i class="fas fa-graduation-cap" style="color: var(--secondary);"></i> Assigned Courses</h3>
+                
+                <div class="course-grid">
+                {% for Record in CourseRecord %}
+                    <div class="course-card" style="cursor: default; pointer-events: none;">
+                        <img src="{{ Record.CourseImage }}" 
+                            class="course-img"
+                            onerror="this.onerror=null; this.src='https://ui-avatars.com/api/?name={{ Record.CourseName }}&background=3282b8&color=fff';" 
+                            alt="Course">
+                        <div class="course-info">
+                            <h3>{{ Record.CourseName }}</h3>
+                            <p>CODE: {{ Record.CourseID }}</p>
+                        </div>
+                    </div>
+                {% empty %}
+                    <div style="grid-column: 1/-1; text-align: center; padding: 50px; background: white; border-radius: 20px;">
+                        <i class="fas fa-folder-open fa-3x" style="color: var(--accent); margin-bottom: 15px;"></i>
+                        <p style="color: var(--text-muted);">No courses have been assigned to your profile yet.</p>
+                    </div>
+                {% endfor %}
+                </div>
+            </section>
+        </main>
+
+        <aside class="calendar-sidebar">
+            <div class="calendar-widget">
+                <h3 id="calendar-month-year" class="calendar-header"></h3>
+                <div class="weekdays">
+                    <div>S</div><div>M</div><div>T</div><div>W</div><div>T</div><div>F</div><div>S</div>
+                </div>
+                <div class="calendar-grid" id="calendar-grid"></div>
+            </div>
+
+            <div class="events-section">
+                <h3 style="margin-bottom: 15px; font-weight: 800;"><i class="fas fa-bolt" style="color: #fbbf24;"></i> Key Events</h3>
+                <ul class="event-list">
+                    <li class="event-item"><strong>Final Exams</strong><br><small>Starts in 12 days</small></li>
+                    <li class="event-item" style="border-color: #10b981;"><strong>Faculty Meeting</strong><br><small>Tomorrow at 10:00 AM</small></li>
+                </ul>
+            </div>
+        </aside>
+    </div>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            const toggle = document.getElementById("menu-toggle");
+            const sidebar = document.getElementById("sidebar");
+            const wrapper = document.getElementById("main-wrapper");
+
+            toggle.addEventListener("click", () => {
+                sidebar.classList.toggle("hidden");
+                wrapper.classList.toggle("full-width");
+            });
+
+            function populateCalendar() {
+                const grid = document.getElementById("calendar-grid");
+                const header = document.getElementById("calendar-month-year");
+                const now = new Date();
+                const year = now.getFullYear();
+                const month = now.getMonth();
+                const today = now.getDate();
+                const monthNames = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+
+                header.textContent = monthNames[month];
+                const firstDay = new Date(year, month, 1).getDay();
+                const daysInMonth = new Date(year, month + 1, 0).getDate();
+
+                grid.innerHTML = '';
+                for (let i = 0; i < firstDay; i++) { grid.appendChild(document.createElement('div')); }
+                for (let d = 1; d <= daysInMonth; d++) {
+                    const el = document.createElement('div');
+                    el.textContent = d;
+                    if (d === today) el.classList.add('current-day');
+                    grid.appendChild(el);
+                }
+            }
+            populateCalendar();
+        });
+    </script>
+    {% endfor %}
+</body>
+</html>

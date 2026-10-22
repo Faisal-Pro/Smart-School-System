@@ -1,0 +1,303 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Add Parent Record | Admin Portal</title>
+    
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700&display=swap" rel="stylesheet">
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary-blue: #3282b8;
+            --dark-steel: #1b262c;
+            --navy-deep: #0f4c75;
+            --white: #ffffff;
+            --bg-muted: #f8fafc;
+            --border-soft: #e2e8f0;
+            --text-main: #1e293b;
+        }
+
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background-color: var(--dark-steel);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        /* === DASHBOARD BUTTON === */
+        .dashboard-nav {
+            position: absolute;
+            top: 30px;
+            left: 30px;
+        }
+
+        .btn-dashboard {
+            text-decoration: none;
+            background: rgba(255, 255, 255, 0.1);
+            color: var(--white);
+            padding: 12px 20px;
+            border-radius: 12px;
+            font-weight: 600;
+            font-size: 14px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            transition: 0.3s ease;
+        }
+
+        .btn-dashboard:hover {
+            background: var(--primary-blue);
+            transform: translateX(5px);
+        }
+
+        /* === FORM CARD === */
+        .add-parent-card {
+            background: var(--white);
+            width: 100%;
+            max-width: 500px;
+            padding: 40px;
+            border-radius: 24px;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+            text-align: center;
+            animation: cardEntrance 0.5s ease-out;
+        }
+
+        @keyframes cardEntrance {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .header-section img {
+            width: 65px;
+            height: 65px;
+            border-radius: 50%;
+            border: 3px solid var(--bg-muted);
+            margin-bottom: 15px;
+            object-fit: cover;
+        }
+
+        .header-section h1 {
+            font-size: 24px;
+            color: var(--dark-steel);
+            font-weight: 800;
+            margin-bottom: 30px;
+            letter-spacing: -0.5px;
+        }
+
+        /* === INPUT STYLING === */
+        .input-group {
+            margin-bottom: 20px;
+            text-align: left;
+        }
+
+        .input-group label {
+            display: block;
+            font-weight: 700;
+            font-size: 12px;
+            color: var(--text-main);
+            margin-bottom: 8px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        input {
+            width: 100%;
+            padding: 14px 16px;
+            border-radius: 12px;
+            border: 2px solid var(--border-soft);
+            background: var(--bg-muted);
+            font-size: 15px;
+            color: var(--text-main);
+            transition: 0.2s;
+        }
+
+        input:focus {
+            outline: none;
+            border-color: var(--primary-blue);
+            background: white;
+            box-shadow: 0 0 0 4px rgba(50, 130, 184, 0.1);
+        }
+
+        /* === FILE UPLOAD === */
+        .file-upload-wrapper {
+            background: var(--bg-muted);
+            border: 2px dashed var(--border-soft);
+            border-radius: 12px;
+            padding: 15px;
+            text-align: center;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+
+        .file-upload-wrapper:hover {
+            border-color: var(--primary-blue);
+            background: #f0f7ff;
+        }
+
+        .file-upload-wrapper i {
+            font-size: 24px;
+            color: var(--primary-blue);
+            margin-bottom: 5px;
+        }
+
+        #parent_image { display: none; }
+
+        .file-name {
+            display: block;
+            margin-top: 5px;
+            font-size: 12px;
+            color: var(--navy-deep);
+            font-weight: 600;
+        }
+
+        /* === BUTTONS === */
+        .submit-btn {
+            width: 100%;
+            padding: 16px;
+            background: var(--primary-blue);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-weight: 700;
+            font-size: 16px;
+            cursor: pointer;
+            transition: 0.3s;
+            margin-top: 10px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .submit-btn:hover {
+            background: var(--navy-deep);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(15, 76, 117, 0.3);
+        }
+
+        /* === MESSAGES === */
+        .alert {
+            margin-top: 20px;
+            padding: 14px;
+            border-radius: 12px;
+            font-size: 14px;
+            font-weight: 600;
+            background-color: #dcfce7;
+            color: #166534;
+            border: 1px solid #bbf7d0;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="dashboard-nav">
+        <a href="{% url 'DirectAdminPage' %}" class="btn-dashboard">
+            <i class="fas fa-th-large"></i> Dashboard
+        </a>
+    </div>
+
+    <div class="add-parent-card">
+        <div class="header-section">
+            <img src="{% static 'Images/School logo.jpg' %}" alt="School Logo">
+            <h1>Register New Parent</h1>
+        </div>
+
+        <form id="add-student-form" method="post" action="{% url 'add_parent' %}" enctype="multipart/form-data">
+            {% csrf_token %}
+            
+            <div class="input-group">
+                <label for="parent_name">Full Name</label>
+                <input type="text" id="parent_name" name="parent_name" placeholder="Enter parent's full name" required>
+            </div>
+
+            <div class="input-group">
+                <label for="parent_national_id">National ID</label>
+                <input type="text" id="parent_national_id" name="parent_national_id" placeholder="Enter 14-digit National ID" required>
+            </div>
+            
+            <div style="display: flex; gap: 15px;">
+                <div class="input-group" style="flex: 1;">
+                    <label for="parent_id">System Parent ID</label>
+                    <input type="number" id="parent_id" name="parent_id" value="{{ LastRecord }}" readonly>
+                </div>
+
+                <div class="input-group" style="flex: 1;">
+                    <label for="student_id">Student ID</label>
+                    <input type="number" id="student_id" name="student_id" placeholder="ID No." required>
+                </div>
+            </div>
+
+            <div class="input-group">
+                <label>Parent Profile Photo</label>
+                <label for="parent_image" class="file-upload-wrapper">
+                    <i class="fas fa-cloud-upload-alt"></i>
+                    <p style="font-size: 13px; color: #64748b;">Click to upload image</p>
+                    <span class="file-name" id="file-name-display">No file chosen</span>
+                </label>
+                <input type="file" id="parent_image" name="parent_image" accept="image/*" onchange="showStudentFileName()">
+            </div>
+
+            <button type="submit" class="submit-btn">
+                <i class="fas fa-user-plus"></i> Add Parent Record
+            </button>
+        </form>
+
+        <div id="message-container"></div>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script>
+        function showStudentFileName() {
+            const fileInput = document.getElementById('parent_image');
+            const display = document.getElementById('file-name-display');
+            if (fileInput.files.length > 0) {
+                display.textContent = fileInput.files[0].name;
+            }
+        }
+
+        $(document).ready(function() {
+            $('#add-student-form').on('submit', function(event) {
+                event.preventDefault();
+                const $btn = $('.submit-btn');
+                $btn.prop('disabled', true).html('<i class="fas fa-spinner fa-spin"></i> Processing...');
+
+                $.ajax({
+                    url: $(this).attr('action'),
+                    type: 'POST',
+                    data: new FormData(this),
+                    processData: false,
+                    contentType: false,
+                    success: function(response) {
+                        $('#message-container').html('<div class="alert">Parent record added successfully</div>');
+                        $('#add-student-form')[0].reset();
+                        $('#file-name-display').text('No file chosen');
+                        $btn.prop('disabled', false).html('<i class="fas fa-user-plus"></i> Add Parent Record');
+                        
+                        setTimeout(function() {
+                            $('#message-container').fadeOut(function() { $(this).empty().show(); });
+                        }, 4000);
+                    },
+                    error: function(xhr, status, error) {
+                        alert('An error occurred: ' + error);
+                        $btn.prop('disabled', false).html('<i class="fas fa-user-plus"></i> Add Parent Record');
+                    }
+                });
+            });
+        });
+    </script>
+</body>
+</html>

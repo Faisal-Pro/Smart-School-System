@@ -1,0 +1,332 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link rel="icon" type="image/x-icon" href="{% static 'Images/School Logo.jpg' %}">
+    <title>Update Material</title>
+    <style>
+        /* Basic styles */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: Arial, sans-serif;
+        }
+
+        body {
+            display: flex;
+            flex-direction: column;
+            background-color: #d8e3eb;
+        }
+
+        .sidebar {
+            width: 250px;
+            height: 100vh;
+            background-color: #0f4c75;
+            color: #fff;
+            position: fixed;
+            top: 0;
+            left: 0;
+        }
+
+        .sidebar .logo {
+            text-align: center;
+            padding: 20px 0;
+            background-color: #3282b8;
+        }
+
+        .sidebar .logo img {
+            height: 50px;
+        }
+
+        .sidebar nav ul {
+            list-style-type: none;
+            padding: 0;
+        }
+
+        .sidebar nav ul li {
+            padding: 26px 20px;
+            text-align: left;
+        }
+
+        .sidebar nav ul li a {
+            text-decoration: none;
+            color: #fff;
+            display: block;
+        }
+
+        .main-content {
+            margin-left: 150px;
+            padding: 20px;
+            width: calc(100% - 250px);
+        }
+
+        .header {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+            background-color: #82b4d1;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .header h1 {
+            font-size: 28px;
+            color: #0f4c75;
+            margin-bottom: 10px;
+        }
+
+        .form-container {
+            background-color: #82b4d1;
+            padding: 30px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            border-radius: 12px;
+            max-width: 700px;
+            margin: 30px auto;
+            font-size: 16px;
+        }
+
+        .form-container h2 {
+            text-align: center;
+            color: #0f4c75;
+            margin-bottom: 25px;
+            font-size: 24px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            color: #555;
+            font-weight: bold;
+        }
+
+        .form-group textarea,
+        .form-group select {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            font-size: 16px;
+        }
+
+        .form-group textarea {
+            resize: vertical;
+            height: 120px;
+        }
+
+        /* Custom file input */
+        .file-input-wrapper {
+            display: flex;
+            align-items: center;
+            position: relative;
+        }
+
+        .file-input-wrapper input[type="file"] {
+            display: none;
+        }
+
+        .file-icon {
+            font-size: 24px;
+            color: #3282b8;
+            cursor: pointer;
+            margin-right: 10px;
+        }
+
+        .file-icon:hover + .hover-text {
+            display: inline-block;
+        }
+
+        .hover-text {
+            display: none;
+            font-size: 14px;
+            color: #555;
+            background-color: #e8e8e8;
+            padding: 4px 8px;
+            border-radius: 4px;
+            position: absolute;
+            left: 35px;
+            top: -2px;
+        }
+
+        .file-name {
+            font-size: 14px;
+            color: #555;
+            margin-left: 10px;
+        }
+
+        .form-group button {
+            display: block;
+            width: 100%;
+            padding: 12px;
+            background-color: #3282b8;
+            border: none;
+            border-radius: 6px;
+            color: #fff;
+            font-size: 18px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+
+        .form-group button:hover {
+            background-color: #0f4c75;
+        }
+
+        .logo-container {
+            display: flex;
+            justify-content: center; /* Center the image horizontally */
+            margin-bottom: 20px; /* Space below the image */
+        }
+
+        .logo-container img {
+            width: 80px; /* Set desired width */
+            height: 80px; /* Set height to match width for a circular look */
+            border-radius: 50%; /* Make the image circular */
+            object-fit: cover; /* Maintain aspect ratio */
+        }
+
+        #upload-message {
+            display: none; /* Hidden by default */
+            background-color: #4CAF50; /* Green background */
+            color: white;
+            padding: 15px;
+            text-align: center;
+            border-radius: 5px;
+            position: relative;
+            width: 100%;
+            margin-top: 15px;
+            font-size: 16px;
+        }
+
+    </style>
+</head>
+<body>
+    {% for R1 in Record1 %}
+    {% for R2 in Record2 %}
+    {% for Content in CourseContent %}
+
+    <div class="main-content">
+        <div class="header">
+            <div class="logo-container">
+                <img src="{% static 'Images/School Logo.jpg' %}" alt="School Logo">
+            </div>
+            <h1>Update Material</h1>
+        </div>
+
+
+
+        <div class="form-container">
+            <h2>Material Information</h2>
+            <form id="upload-form" method="post" enctype="multipart/form-data">
+                <div class="form-group">
+                    <label for="description">Description</label>
+                    <textarea id="description" name="description" required>{{ Content.1 }}</textarea>
+                </div>
+                <div class="form-group">
+                    <label for="media-type">Media Type</label>
+                    <select id="media-type" name="media-type" required>
+                        <option value="{{ Content.2 }}">{{ Content.2 }}</option>
+                        <option value="pdf">PDF</option>
+                        <option value="video">Video</option>
+                        <option value="image">Image</option>
+                        <option value="audio">Audio</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Upload Media</label>
+                    <div class="file-input-wrapper">
+                        <i class="fas fa-plus-circle file-icon" onclick="document.getElementById('media-file').click()"></i>
+                        <span class="hover-text">Select media</span>
+                        <input type="file" id="media-file" name="media-file" onchange="displayFileName(this)">
+                        <span id="file-name" class="file-name"></span>
+                    </div>
+                </div>
+                <div class="form-group">
+                    {% csrf_token %}
+                    <button type="submit">Update</button>
+                </div>
+                <div id="upload-message"></div>
+            </form>
+        </div>
+
+
+    </div>
+
+
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script>
+        // Display file name when selected
+        function displayFileName(input) {
+            const fileName = input.files.length > 0 ? input.files[0].name : "";
+            document.getElementById("file-name").textContent = fileName;
+        }
+
+        // Handle form submission via AJAX
+// Handle form submission via AJAX
+        $("#upload-form").on("submit", function(event) {
+            event.preventDefault(); // Prevent the default form submission
+
+            // Create a FormData object to handle file uploads
+            var formData = new FormData(this);
+
+            // Send the AJAX request
+            $.ajax({
+                url: "{% url 'UpdateMaterial' R1.1 R2.0 Content.0 %}",  // Make sure the URL is correctly replaced with dynamic values
+                type: "POST",
+                data: formData,
+                processData: false, // Important for sending files
+                contentType: false, // Important for sending files
+                success: function(response) {
+                    // Handle success
+                    console.log(response); // You can log or display success message
+                    var successMessage = "Material updated successfully!";
+
+                    // Show success message in the widget
+                    $("#upload-message")
+                        .text(successMessage)
+                        .css({
+                            "background-color": "#4CAF50",
+                            "color": "white",
+                            "padding": "15px",
+                            "text-align": "center",
+                            "border-radius": "5px",
+                            "position": "relative",
+                            "width": "100%",
+                            "font-size": "16px"
+                        })
+                        .show();
+
+                    // Hide the success message after 5 seconds
+                    setTimeout(function() {
+                        $("#upload-message").fadeOut();
+                    }, 1000);
+                },
+                error: function(xhr, status, error) {
+                    // Handle error
+                    console.error(xhr.responseText);
+                    $("#upload-message")
+                        .text("Error updating material. Please try again.")
+                        .css("background-color", "#f44336")
+                        .show();
+
+                    // Hide the error message after 5 seconds
+                    setTimeout(function() {
+                        $("#upload-message").fadeOut();
+                    }, 5000);
+                }
+            });
+        });
+
+    </script>
+
+        {% endfor %}
+        {% endfor %}
+        {% endfor %}
+</body>
+</html>

@@ -1,0 +1,299 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Post Announcement | Admin Portal</title>
+    
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            --primary-blue: #3282b8;
+            --dark-steel: #1b262c;
+            --navy-deep: #0f4c75;
+            --white: #ffffff;
+            --bg-muted: #f8fafc;
+            --border-soft: #e2e8f0;
+            --text-main: #1e293b;
+        }
+
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background-color: var(--dark-steel);
+            margin: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 40px 20px;
+        }
+
+        /* === DASHBOARD BUTTON === */
+        .dashboard-nav {
+            position: fixed;
+            top: 25px;
+            left: 25px;
+            z-index: 1000;
+        }
+
+        .btn-dashboard {
+            text-decoration: none;
+            background: rgba(255, 255, 255, 0.1);
+            color: var(--white);
+            padding: 12px 20px;
+            border-radius: 12px;
+            font-weight: 600;
+            font-size: 14px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            transition: 0.3s;
+        }
+
+        .btn-dashboard:hover {
+            background: var(--primary-blue);
+            transform: translateX(5px);
+        }
+
+        /* === FORM CARD === */
+        .announcement-card {
+            background: var(--white);
+            width: 100%;
+            max-width: 650px;
+            padding: 40px;
+            border-radius: 24px;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+            animation: slideUp 0.5s ease-out;
+        }
+
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .card-header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .card-header i {
+            font-size: 40px;
+            color: var(--primary-blue);
+            margin-bottom: 15px;
+        }
+
+        .card-header h1 {
+            color: var(--dark-steel);
+            font-size: 26px;
+            font-weight: 800;
+            letter-spacing: -0.5px;
+        }
+
+        /* === FORM STYLES === */
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            font-weight: 700;
+            font-size: 13px;
+            color: var(--text-main);
+            margin-bottom: 8px;
+            text-transform: uppercase;
+        }
+
+        .form-group input[type="text"], 
+        .form-group textarea {
+            width: 100%;
+            padding: 14px;
+            border-radius: 12px;
+            border: 2px solid var(--border-soft);
+            background: var(--bg-muted);
+            font-size: 15px;
+            transition: 0.2s;
+        }
+
+        .form-group textarea {
+            height: 120px;
+            resize: vertical;
+        }
+
+        input:focus, textarea:focus {
+            outline: none;
+            border-color: var(--primary-blue);
+            background: #fff;
+        }
+
+        /* === UPLOAD BOXES === */
+        .upload-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .file-drop-zone {
+            border: 2px dashed var(--border-soft);
+            background: var(--bg-muted);
+            padding: 20px;
+            border-radius: 15px;
+            text-align: center;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+
+        .file-drop-zone:hover {
+            border-color: var(--primary-blue);
+            background: #f0f7ff;
+        }
+
+        .file-drop-zone i {
+            font-size: 24px;
+            color: var(--primary-blue);
+            margin-bottom: 8px;
+            display: block;
+        }
+
+        .file-drop-zone span {
+            font-size: 12px;
+            font-weight: 600;
+            color: #64748b;
+        }
+
+        .filename-preview {
+            font-size: 11px;
+            color: var(--navy-deep);
+            margin-top: 5px;
+            display: block;
+            word-break: break-all;
+        }
+
+        /* === SUBMIT BUTTON === */
+        .submit-btn {
+            width: 100%;
+            padding: 16px;
+            background: var(--primary-blue);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-weight: 700;
+            font-size: 16px;
+            cursor: pointer;
+            transition: 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        .submit-btn:hover {
+            background: var(--navy-deep);
+            box-shadow: 0 10px 15px -3px rgba(15, 76, 117, 0.3);
+            transform: translateY(-2px);
+        }
+
+        #responseMessage {
+            text-align: center;
+            margin-top: 15px;
+            font-weight: 600;
+            font-size: 14px;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="dashboard-nav">
+        <a href="{% url 'DirectAdminPage' %}" class="btn-dashboard">
+            <i class="fas fa-th-large"></i> Dashboard
+        </a>
+    </div>
+
+    <div class="announcement-card">
+        <div class="card-header">
+            <i class="fas fa-bullhorn"></i>
+            <h1>Post Announcement</h1>
+        </div>
+
+        <form id="announcementForm" enctype="multipart/form-data">
+            {% csrf_token %}
+            
+            <div class="form-group">
+                <label for="publisher_name">Publisher Name / Department</label>
+                <input type="text" id="publisher_name" name="publisher_name" placeholder="e.g. Administration Office" required>
+            </div>
+
+            <div class="upload-grid">
+                <div class="file-drop-zone" onclick="document.getElementById('pdf_file').click()">
+                    <i class="fas fa-file-pdf"></i>
+                    <span>Attach PDF Document</span>
+                    <input type="file" id="pdf_file" name="pdf_file" accept="application/pdf" style="display:none">
+                    <span id="pdfFileName" class="filename-preview"></span>
+                </div>
+
+                <div class="file-drop-zone" onclick="document.getElementById('video_file').click()">
+                    <i class="fas fa-video"></i>
+                    <span>Attach Media / Video</span>
+                    <input type="file" id="video_file" name="video_file" accept="video/*" style="display:none">
+                    <span id="videoFileName" class="filename-preview"></span>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="description">Announcement Message</label>
+                <textarea id="description" name="description" placeholder="Write the details of your announcement here..." required></textarea>
+            </div>
+
+            <button type="button" class="submit-btn" id="submitBtn">
+                <i class="fas fa-paper-plane"></i> Publish Now
+            </button>
+        </form>
+        
+        <p id="responseMessage"></p>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script>
+        // Update file names on selection
+        document.getElementById('pdf_file').addEventListener('change', function () {
+            document.getElementById('pdfFileName').textContent = this.files[0]?.name || '';
+        });
+
+        document.getElementById('video_file').addEventListener('change', function () {
+            document.getElementById('videoFileName').textContent = this.files[0]?.name || '';
+        });
+
+        $('#submitBtn').on('click', function () {
+            const $btn = $(this);
+            const formData = new FormData(document.getElementById('announcementForm'));
+            
+            $btn.prop('disabled', true).html('<i class="fas fa-spinner fa-spin"></i> Publishing...');
+
+            $.ajax({
+                url: "{% url 'Addannouncements' %}",
+                method: "POST",
+                data: formData,
+                processData: false,
+                contentType: false,
+                success: function (response) {
+                    $('#responseMessage').text('Announcement published successfully!').css('color', '#166534');
+                    $('#announcementForm')[0].reset();
+                    $('.filename-preview').text('');
+                    $btn.prop('disabled', false).html('<i class="fas fa-paper-plane"></i> Publish Now');
+                    
+                    setTimeout(() => { $('#responseMessage').fadeOut(); }, 4000);
+                },
+                error: function () {
+                    $('#responseMessage').text('Failed to publish. Please try again.').css('color', '#991b1b');
+                    $btn.prop('disabled', false).html('<i class="fas fa-paper-plane"></i> Publish Now');
+                }
+            });
+        });
+    </script>
+</body>
+</html>
