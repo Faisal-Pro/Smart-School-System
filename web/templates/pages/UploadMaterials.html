@@ -1,0 +1,226 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <title>Upload Course Material</title>
+    <style>
+        :root {
+            --primary: #0f172a;
+            --brand: #3b82f6;
+            --bg: #f8fafc;
+            --white: #ffffff;
+        }
+
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background-color: var(--bg);
+            color: #1e293b;
+            margin: 0;
+            padding: 40px 20px;
+            display: flex;
+            justify-content: center;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 650px;
+            animation: slideUp 0.6s ease-out;
+        }
+
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .header img {
+            height: 70px;
+            margin-bottom: 15px;
+            border-radius: 15px;
+        }
+
+        .header h1 {
+            font-size: 1.8rem;
+            color: var(--primary);
+            font-weight: 800;
+        }
+
+        .form-card {
+            background: var(--white);
+            padding: 40px;
+            border-radius: 24px;
+            box-shadow: 0 10px 25px -5px rgba(0,0,0,0.05);
+            border: 1px solid #e2e8f0;
+        }
+
+        .form-group { margin-bottom: 25px; }
+
+        label {
+            display: block;
+            font-weight: 700;
+            margin-bottom: 10px;
+            font-size: 0.9rem;
+            color: #475569;
+        }
+
+        textarea, select {
+            width: 100%;
+            padding: 14px;
+            border: 2px solid #f1f5f9;
+            border-radius: 12px;
+            font-family: inherit;
+            font-size: 1rem;
+            transition: 0.3s;
+        }
+
+        textarea:focus, select:focus {
+            outline: none;
+            border-color: var(--brand);
+            background: #f0f7ff;
+        }
+
+        .file-upload-zone {
+            border: 2px dashed #cbd5e1;
+            padding: 30px;
+            border-radius: 16px;
+            text-align: center;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+
+        .file-upload-zone:hover {
+            border-color: var(--brand);
+            background: #f8fafc;
+        }
+
+        .btn-upload {
+            width: 100%;
+            padding: 16px;
+            background: var(--brand);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-size: 1rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: 0.3s;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .btn-upload:hover {
+            background: #2563eb;
+            transform: translateY(-2px);
+            box-shadow: 0 10px 15px -3px rgba(59, 130, 246, 0.3);
+        }
+
+        #upload-message {
+            margin-top: 20px;
+            padding: 15px;
+            border-radius: 10px;
+            display: none;
+            font-weight: 600;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <div class="header">
+        <img src="{% static 'Images/School Logo.jpg' %}" alt="Logo">
+        <h1>Upload Material</h1>
+        <p style="color: #64748b;">Course ID: {{ course_id }}</p>
+    </div>
+
+    <div class="form-card">
+        <form id="upload-form">
+            <div class="form-group">
+                <label>Material Description</label>
+                <textarea name="description" placeholder="Explain what this material is about..." required></textarea>
+            </div>
+
+            <div class="form-group">
+                <label>Content Type</label>
+                <select name="media-type" required>
+                    <option value="pdf">PDF Document</option>
+                    <option value="video">Video Lecture</option>
+                    <option value="image">Diagram / Image</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label>Attachment</label>
+                <div class="file-upload-zone" onclick="document.getElementById('media-file').click()">
+                    <i class="fas fa-cloud-upload-alt" style="font-size: 2rem; color: var(--brand); margin-bottom: 10px;"></i>
+                    <p id="file-name" style="margin: 0; color: #64748b;">Click to select file</p>
+                    <input type="file" id="media-file" name="media-file" hidden onchange="updateFileName(this)">
+                </div>
+            </div>
+
+            {% csrf_token %}
+            <button type="button" class="btn-upload" onclick="submitForm()">
+                <i class="fas fa-paper-plane"></i> Publish to Stream
+            </button>
+        </form>
+        <div id="upload-message"></div>
+    </div>
+</div>
+
+<script>
+    function updateFileName(input) {
+        const name = input.files[0] ? input.files[0].name : "Click to select file";
+        document.getElementById('file-name').innerText = name;
+    }
+
+    async function submitForm() {
+        const form = document.getElementById('upload-form');
+        const formData = new FormData(form);
+        const msg = document.getElementById('upload-message');
+        
+        // Pass the IDs directly from the context we set in the view
+        const t_id = "{{ teacher_id }}";
+        const c_id = "{{ course_id }}";
+
+        try {
+            // Updated fetch logic to handle URL generation safely
+            const response = await fetch(`/UploadMaterial/${t_id}/${c_id}/`, {
+                method: 'POST',
+                headers: { 'X-CSRFToken': '{{ csrf_token }}' },
+                body: formData
+            });
+
+            const result = await response.json();
+            
+            msg.style.display = 'block';
+            if (result.status === "success") {
+                msg.style.background = '#dcfce7';
+                msg.style.color = '#166534';
+                msg.innerText = "Material published successfully!";
+                form.reset();
+                document.getElementById('file-name').innerText = "Click to select file";
+            } else {
+                msg.style.background = '#fee2e2';
+                msg.style.color = '#991b1b';
+                msg.innerText = result.message || "Upload failed.";
+            }
+        } catch (error) {
+            msg.style.display = 'block';
+            msg.style.background = '#fee2e2';
+            msg.innerText = "Connection error. Please try again.";
+        }
+    }
+</script>
+
+</body>
+</html>

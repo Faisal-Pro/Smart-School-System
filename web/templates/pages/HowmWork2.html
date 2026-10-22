@@ -1,0 +1,332 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link rel="icon" type="image/x-icon" href="{% static 'Images/School Logo.jpg' %}">
+    <title>School Management System Dashboard</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: Arial, sans-serif;
+        }
+    
+        body {
+            display: flex;
+            flex-direction: column;
+        }
+    
+        .sidebar {
+            width: 250px;
+            height: 100vh;
+            background-color: #0f4c75;
+            color: #fff;
+            position: fixed;
+            top: 0;
+            left: 0;
+        }
+    
+        .sidebar .logo {
+            text-align: center;
+            padding: 20px 0;
+            background-color: #3282b8;
+        }
+    
+        .sidebar .logo img {
+            height: 50px;
+            width: 50px;
+            border-radius: 50%;
+        }
+    
+        .sidebar nav ul {
+            list-style-type: none;
+            padding: 0;
+        }
+    
+        .sidebar nav ul li {
+            padding: 17px 20px;
+            text-align: left;
+        }
+    
+        .sidebar nav ul li a {
+            text-decoration: none;
+            color: #fff;
+            display: block;
+            padding: 15px;
+        }
+    
+        .sidebar nav ul li a:hover {
+            background-color: #3282b8;
+        }
+    
+        .main-content {
+            margin-left: 250px;
+            padding: 20px;
+            width: calc(100% - 250px);
+        }
+    
+        .header {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+            background-color: #82b4d1;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+    
+        .header h1 {
+            font-size: 24px;
+            color: #0f4c75;
+            margin-bottom: 10px;
+        }
+    
+        .header .date-time {
+            font-size: 18px;
+            color: #555;
+        }
+    
+ 
+        .assignment-card {
+            width: 100%;
+            max-width: 700px;
+            background-color: #fff;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            margin: 15px 0;
+            margin-left: 300px;
+            overflow: hidden;
+            padding: 15px;
+        }
+
+        .assignment-header {
+            background-color: #3282b8;
+            color: #fff;
+            padding: 15px;
+            font-size: 20px;
+            font-weight: bold;
+            text-align: center;
+            border-radius: 8px 8px 0 0;
+        }
+
+        .assignment-content {
+            padding: 15px;
+        }
+
+      
+        .page-title {
+            font-size: 28px;
+            color: #0f4c75;
+            margin-bottom: 20px;
+            margin-left: 550px;
+        }
+    
+    
+    
+        .logo-container {
+            display: flex;
+            justify-content: center; /* Center the image horizontally */
+            margin-bottom: 20px; /* Space below the image */
+        }
+
+        .logo-container img {
+            width: 80px; /* Set desired width */
+            height: 80px; /* Set height to match width for a circular look */
+            border-radius: 50%; /* Make the image circular */
+            object-fit: cover; /* Maintain aspect ratio */
+        }
+
+
+
+        .publisher-info {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            margin-bottom: 10px;
+            color: #0f4c75;
+
+        }
+
+        .publisher-info img {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            margin-bottom: 5px;
+        }
+
+        .publisher-details .name,
+        .publisher-details .date {
+            color: #0f4c75;
+            font-weight: bold;
+            margin-bottom: 3px;
+        }
+
+        .description {
+            margin-bottom: 15px;
+            color: #333;
+        }
+
+        .upload-container {
+            display: flex;
+            align-items: center;
+            margin-top: 15px;
+        }
+
+        .deadline-container {
+            display: flex;
+            align-items: center;
+            margin-top: 35px;
+        }
+
+        .upload-container input[type="file"] {
+            display: none;
+        }
+
+        .upload-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background-color: #3282b8;
+            color: white;
+            font-size: 24px;
+            text-align: center;
+            line-height: 40px;
+            cursor: pointer;
+            margin-right: 10px;
+        }
+
+        .submit-button {
+            padding: 8px 15px;
+            background-color: #0f4c75;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        .submit-button:hover {
+            background-color: #3282b8;
+        }
+
+    </style>
+    
+    
+</head>
+<body>
+    
+    
+    {% for StudentInfo in StudentRecord %}
+        <div class="sidebar">
+            <div class="logo">
+                <img src="data:image/jpeg;base64,{{ StudentInfo.StudentImage }}" alt="Publisher Photo" >
+
+                <h1>{{ StudentInfo.StudentName }}</h1>
+
+            </div>
+            <nav>
+                <ul>
+                    <li><a href="#"><i class="fas fa-tachometer-alt"></i> Dashboard</a></li>
+                    <li><a href="#"><i class="fas fa-bullhorn"></i> Announcements</a></li>
+                    <li><a href="#"><i class="fas fa-calendar-check"></i> Attendance</a></li>
+                    <li><a href="#"><i class="fas fa-question-circle"></i> Quiz</a></li>
+                    <li><a href="#"><i class="fas fa-file-alt"></i> Exam</a></li>
+                    <li><a href="{% url 'HomeWork' StudentInfo.CourseID StudentInfo.StudentID %} "><i class="fas fa-book"></i> Homework</a></li>
+                    <li><a href="#"><i class="fas fa-graduation-cap"></i> Grade</a></li>
+                    <li><a href="#"><i class="fas fa-comments"></i> Public Chat</a></li>
+                </ul>
+            </nav>
+        </div>
+        
+        {% endfor %}
+        <div class="main-content">
+            <h1 class="page-title">HomeWorks</h1>
+            {% for assignment in assignments %}
+                <div class="assignment-card">
+                    <div class="assignment-header">HomeWork {{ assignment.Assignement_Number }}</div>
+                    <div class="assignment-content">
+                        <div class="publisher-info">
+                            {% if assignment.PublisherImage %}
+                                <img src="data:image/jpeg;base64,{{ assignment.PublisherImage }}" alt="Publisher Photo">
+                            {% endif %}
+                            <p class="name">Publisher: </p>
+                            <p class="date">Date: {{ assignment.DateOfPublish }}</p>
+                        </div>
+                        <pre>{{ assignment.Description }}</pre>
+                        <div class="deadline-container">
+                            <p><strong>Deadline Date:</strong> {{ assignment.Deadline_Date }}</p>
+                            {% if assignment.Deadline_Passed %}
+                                <p style="color: red; font-weight: bold;">Deadline has passed</p>
+                            {% endif %}
+                        </div>
+        
+                        {% if assignment.File_Content %}
+                            <p><a href="data:application/pdf;base64,{{ assignment.File_Content }}" target="_blank">View PDF</a></p>
+                        {% else %}
+                            <p>No PDF available</p>
+                        {% endif %}
+        
+                        <div class="upload-container">
+                            <label for="file-upload-{{ assignment.Assignement_Number }}" class="upload-icon"
+                                   style="{% if assignment.Deadline_Passed %}pointer-events: none; opacity: 0.6;{% endif %}">+</label>
+                            <input id="file-upload-{{ assignment.Assignement_Number }}" type="file" name="submission"
+                                   {% if assignment.Deadline_Passed %}disabled{% endif %} 
+                                   onchange="displayFileName(this, {{ assignment.Assignement_Number }})">
+                                   <button class="submit-button" 
+                                   onclick="submitFile({{ assignment.Assignement_Number }}, {{ assignment.StudentID }}, {{ assignment.CourseID }})"
+                                   {% if assignment.Deadline_Passed %}disabled style="opacity: 0.6;"{% endif %}>
+                               Submit
+                           </button>
+                        </div>
+                        <p id="file-name-{{ assignment.Assignement_Number }}" class="file-name" style="color: #0f4c75; font-weight: bold; margin-top: 10px;"></p>                    
+                    </div>
+                </div>
+            {% empty %}
+                <p>No assignments found.</p>
+            {% endfor %}
+        </div>
+
+
+<script>
+    // Update the date and time every second
+    function updateDateTime() {
+        const now = new Date();
+        document.getElementById('dateTime').textContent = now.toLocaleString();
+    }
+    setInterval(updateDateTime, 1000);
+    updateDateTime();
+
+
+    function openModal(src) {
+    const modal = document.getElementById("imageModal");
+    const modalImage = document.getElementById("modalImage");
+    modal.style.display = "block";
+    modalImage.src = src;
+}
+
+function closeModal() {
+    const modal = document.getElementById("imageModal");
+    modal.style.display = "none";
+}
+
+function openPdfModal(src) {
+    const pdfModal = document.getElementById("pdfModal");
+    const pdfContent = document.getElementById("pdfContent");
+    pdfModal.style.display = "block";
+    pdfContent.src = src; // Set the source for the iframe to display the PDF
+}
+
+
+function closePdfModal() {
+    const pdfModal = document.getElementById("pdfModal");
+    pdfModal.style.display = "none";
+    const pdfContent = document.getElementById("pdfContent");
+    pdfContent.src = ""; // Clear the source to stop the PDF
+}
+
+
+</script>
+</body>
+</html>

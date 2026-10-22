@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    <title>Teacher Schedule</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: linear-gradient(to bottom, #648ee9, #648ee9);
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            color: white;
+        }
+
+        .schedule-container {
+            background-color: rgba(255, 255, 255, 0.95);
+            color: #333;
+            border-radius: 12px;
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.2);
+            width: 90%;
+            max-width: 900px;
+            padding: 20px;
+            animation: slideIn 1s ease-in-out;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(50px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        h1 {
+            text-align: center;
+            color: #ff7e5f;
+            margin-bottom: 20px;
+        }
+
+        .teacher-info {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .teacher-info img {
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            border: 4px solid #ff7e5f;
+            object-fit: cover;
+            margin-bottom: 10px;
+        }
+
+        .teacher-info .name {
+            font-size: 20px;
+            font-weight: bold;
+        }
+
+        .teacher-info .subject {
+            font-size: 18px;
+            color: #666;
+        }
+
+        .schedule-table {
+            width: 100%;
+            border-collapse: collapse;
+            animation: fadeIn 1s ease-in-out;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+            to {
+                opacity: 1;
+            }
+        }
+
+        .schedule-table th, .schedule-table td {
+            padding: 15px;
+            text-align: center;
+            border: 1px solid #ddd;
+        }
+
+        .schedule-table th {
+            background-color: #ff7e5f;
+            color: white;
+        }
+
+        .schedule-table tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+
+        .schedule-table tr:hover {
+            background-color: #ffe0c2;
+        }
+
+        .back-btn {
+            display: block;
+            margin: 20px auto 0;
+            padding: 10px 25px;
+            background-color: #ff7e5f;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            font-size: 16px;
+            text-align: center;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        .back-btn:hover {
+            background-color: #feb47b;
+        }
+    </style>
+</head>
+<body>
+{% for Teacher in TeacherRecord %}
+
+    <div class="schedule-container">
+        <!-- Teacher Info -->
+        <div class="teacher-info">
+            <img src="data:image/jpeg;base64,{{ Teacher.TeacherImage }}" alt="Publisher Photo" class="publisher-photo">
+            <div class="name">Mr. {{ Teacher.TeacherName }}</div>
+            <div class="subject">Subject: Mathematics</div>
+        </div>
+
+        <!-- Schedule Table -->
+        <h1>Class Schedule</h1>
+        <table class="schedule-table">
+            <thead>
+                <tr>
+                    <th>Class</th>
+                    <th>Day</th>
+                    <th>Time</th>
+                    <th>Room</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>Class A</td>
+                    <td>Monday</td>
+                    <td>8:00 AM - 9:00 AM</td>
+                    <td> A-12</td>
+                </tr>
+                <tr>
+                    <td>Class B</td>
+                    <td>Tuesday</td>
+                    <td>9:00 AM - 10:00 AM</td>
+                    <td> B-12</td>
+                </tr>
+                <tr>
+                    <td>Class C</td>
+                    <td>Wednesday</td>
+                    <td>10:00 AM - 11:00 AM</td>
+                    <td> C-12</td>
+                </tr>
+                <tr>
+                    <td>Class D</td>
+                    <td>Thursday</td>
+                    <td>11:00 AM - 12:00 PM</td>
+                    <td> D-12</td>
+                </tr>
+            </tbody>
+        </table>
+
+    </div>
+
+    <script>
+        const backButton = document.querySelector('.back-btn');
+        backButton.addEventListener('click', () => {
+            alert('Returning to Dashboard!');
+            window.location.href = '/dashboard'; 
+        });
+    </script>
+{% endfor %}
+
+</body>
+</html>

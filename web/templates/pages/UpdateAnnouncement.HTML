@@ -1,0 +1,169 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Edit Announcement</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    <style>
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: linear-gradient(135deg, #0f4c75, #3282b8);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            padding: 20px;
+        }
+
+        .form-container {
+            background-color: #f8f9fa;
+            padding: 40px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            width: 100%;
+            max-width: 600px;
+            animation: slideUp 0.5s ease-out;
+        }
+
+        @keyframes slideUp {
+            from { transform: translateY(20px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+
+        h1 {
+            color: #0f4c75;
+            text-align: center;
+            margin-bottom: 30px;
+            font-size: 28px;
+        }
+
+        .input-group {
+            margin-bottom: 20px;
+        }
+
+        .input-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #333;
+        }
+
+        .input-group input[type="text"], 
+        .input-group textarea {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 14px;
+            transition: border-color 0.3s;
+        }
+
+        .input-group input:focus, 
+        .input-group textarea:focus {
+            border-color: #3282b8;
+            outline: none;
+        }
+
+        .current-data-info {
+            background: #eef2f7;
+            padding: 10px;
+            border-radius: 6px;
+            font-size: 12px;
+            color: #555;
+            margin-top: 5px;
+            border-left: 4px solid #0f4c75;
+        }
+
+        .btn-container {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            margin-top: 30px;
+        }
+
+        .save-btn {
+            background-color: #0f4c75;
+            color: white;
+            padding: 14px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: bold;
+            transition: background 0.3s;
+        }
+
+        .save-btn:hover {
+            background-color: #1b6b99;
+        }
+
+        .cancel-btn {
+            text-align: center;
+            text-decoration: none;
+            color: #666;
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        .cancel-btn:hover {
+            color: #d9534f;
+            text-decoration: underline;
+        }
+
+        .file-hint {
+            font-size: 11px;
+            color: #888;
+            margin-top: 4px;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="form-container">
+        <h1><i class="fas fa-edit"></i> Edit Announcement</h1>
+        
+        <form method="POST" enctype="multipart/form-data">
+            {% csrf_token %}
+
+            <div class="input-group">
+                <label>Publisher Name</label>
+                <input type="text" name="publisher" value="{{ announcement.publisher }}" required>
+            </div>
+
+            <div class="input-group">
+                <label>Announcement Description</label>
+                <textarea name="content" rows="6" required>{{ announcement.content }}</textarea>
+            </div>
+
+            <div class="input-group">
+                <label>Update PDF Document</label>
+                <input type="file" name="pdf_file" accept="application/pdf">
+                <div class="current-data-info">
+                    <i class="fas fa-file-pdf"></i> 
+                    {% if announcement.has_pdf %} Current file is stored. Uploading a new one will replace it. {% else %} No PDF currently attached. {% endif %}
+                </div>
+            </div>
+
+            <div class="input-group">
+                <label>Update Video Clip</label>
+                <input type="file" name="video_file" accept="video/mp4,video/x-m4v,video/*">
+                <div class="current-data-info">
+                    <i class="fas fa-video"></i> 
+                    {% if announcement.has_video %} Current video is stored. Uploading a new one will replace it. {% else %} No video currently attached. {% endif %}
+                </div>
+            </div>
+
+            <div class="btn-container">
+                <button type="submit" class="save-btn">
+                    <i class="fas fa-save"></i> Update Announcement
+                </button>
+                <a href="{% url 'announcement_list2' %}" class="cancel-btn">Discard changes and go back</a>
+            </div>
+        </form>
+    </div>
+
+</body>
+</html>

@@ -1,0 +1,248 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="icon" type="image/x-icon" href="{% static 'Images/School Logo.jpg' %}">
+    <title>Enrolled Students | {{ CourseRecord.0.1 }}</title>
+    
+    <style>
+        :root {
+            --primary-dark: #0f172a;
+            --accent: #3b82f6;
+            --bg-canvas: #f8fafc;
+            --white: #ffffff;
+            --text-main: #1e293b;
+            --text-muted: #64748b;
+            --radius: 16px;
+            --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -2px rgba(0, 0, 0, 0.05);
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { 
+            font-family: 'Plus Jakarta Sans', sans-serif; 
+            background-color: var(--bg-canvas); 
+            color: var(--text-main); 
+            display: block; 
+            min-height: 100vh;
+        }
+
+        /* Top Navigation Bar */
+        .navbar {
+            background: var(--white);
+            padding: 15px 5%;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+
+        .nav-left { display: flex; align-items: center; gap: 20px; }
+        
+        .back-btn {
+            text-decoration: none;
+            color: var(--text-main);
+            background: #f1f5f9;
+            padding: 8px 16px;
+            border-radius: 10px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            transition: 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .back-btn:hover { background: #e2e8f0; color: var(--accent); }
+
+        .breadcrumb {
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        .breadcrumb span { color: var(--accent); }
+
+        /* Main Content */
+        .container { 
+            max-width: 1200px; 
+            margin: 40px auto; 
+            padding: 0 20px; 
+        }
+
+        .header-section { 
+            display: flex; 
+            justify-content: space-between; 
+            align-items: flex-end; 
+            margin-bottom: 30px; 
+            padding-bottom: 20px;
+            border-bottom: 1px solid #e2e8f0;
+        }
+
+        .header-section h1 { font-size: 2rem; font-weight: 800; color: var(--primary-dark); }
+
+        .search-box { position: relative; width: 350px; }
+        .search-box input { 
+            width: 100%; 
+            padding: 12px 15px 12px 45px; 
+            border-radius: 12px; 
+            border: 1px solid #e2e8f0; 
+            outline: none; 
+            font-family: inherit;
+            transition: 0.3s; 
+        }
+        .search-box input:focus { border-color: var(--accent); box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.1); }
+        .search-box i { position: absolute; left: 18px; top: 50%; transform: translateY(-50%); color: var(--text-muted); }
+
+        /* Student Grid */
+        .student-grid { 
+            display: grid; 
+            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); 
+            gap: 25px; 
+        }
+        
+        .student-card { 
+            background: var(--white); 
+            border-radius: var(--radius); 
+            padding: 24px; 
+            display: flex; 
+            align-items: center; 
+            gap: 20px; 
+            box-shadow: var(--shadow); 
+            border: 1px solid rgba(226, 232, 240, 0.5);
+            transition: 0.3s cubic-bezier(0.4, 0, 0.2, 1); 
+        }
+        .student-card:hover { 
+            transform: translateY(-5px); 
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.05);
+            border-color: var(--accent);
+        }
+
+        .student-image { 
+            width: 90px; 
+            height: 90px; 
+            border-radius: 18px; 
+            object-fit: cover; 
+            background: #f1f5f9;
+            border: 2px solid #fff;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+        }
+        
+        .student-info h3 { font-size: 1.1rem; font-weight: 700; margin-bottom: 6px; color: var(--primary-dark); }
+        .student-info p { font-size: 0.9rem; color: var(--text-muted); margin: 3px 0; }
+        
+        .badge { 
+            display: inline-block; 
+            padding: 5px 12px; 
+            border-radius: 8px; 
+            font-size: 0.75rem; 
+            font-weight: 800; 
+            background: #eff6ff; 
+            color: var(--accent); 
+            margin-top: 10px;
+            text-transform: uppercase;
+        }
+
+        .no-data { 
+            grid-column: 1 / -1; 
+            text-align: center; 
+            padding: 100px 20px; 
+            background: white; 
+            border-radius: 24px; 
+            color: var(--text-muted); 
+            border: 2px dashed #e2e8f0;
+        }
+
+        @media (max-width: 768px) {
+            .header-section { flex-direction: column; align-items: flex-start; gap: 20px; }
+            .search-box { width: 100%; }
+        }
+    </style>
+</head>
+<body>
+
+    <nav class="navbar">
+        <div class="nav-left">
+            <a href="javascript:history.back()" class="back-btn">
+                <i class="fas fa-arrow-left"></i> Back
+            </a>
+            <div class="breadcrumb">
+                Management / <span>View Students</span>
+            </div>
+        </div>
+        
+        {% for Teacher in TeacherRecords %}
+        <div style="display: flex; align-items: center; gap: 12px;">
+            <span style="font-weight: 700; font-size: 0.9rem; color: var(--primary-dark);">Dr. {{ Teacher.TeacherName }}</span>
+            <img src="data:image/jpeg;base64,{{ Teacher.TeacherImage }}" alt="Instructor" style="width: 40px; height: 40px; border-radius: 50%; object-fit: cover; border: 2px solid var(--accent);">
+        </div>
+        {% endfor %}
+    </nav>
+
+    <main class="container">
+        
+        <div class="header-section">
+            <div>
+                {% for Course in CourseRecord %}
+                <h1>Enrolled Students</h1>
+                <p style="color: var(--text-muted); margin-top: 5px;">Showing all students currently in <strong>{{ Course.1 }}</strong></p>
+                {% endfor %}
+            </div>
+            
+            <div class="search-box">
+                <i class="fas fa-search"></i>
+                <input type="text" id="studentSearch" placeholder="Search by name, ID, or grade..." onkeyup="filterStudents()">
+            </div>
+        </div>
+
+        <div class="student-grid" id="studentGrid">
+            {% for StudentRecord in StudentRecords %}
+            <div class="student-card">
+                <img src="data:image/jpeg;base64,{{ StudentRecord.StudentImage }}" 
+                     alt="Student" 
+                     class="student-image"
+                     onerror="this.src='https://ui-avatars.com/api/?name={{ StudentRecord.StudentName }}&background=3b82f6&color=fff&bold=true';">
+                
+                <div class="student-info">
+                    <h3 class="student-name">{{ StudentRecord.StudentName }}</h3>
+                    <p><strong>ID:</strong> {{ StudentRecord.StudentID }}</p>
+                    <p><i class="fas fa-circle" style="color: #22c55e; font-size: 8px; vertical-align: middle;"></i> Active Enrollment</p>
+                    <span class="badge">Grade {{ StudentRecord.StudentLevel }}</span>
+                </div>
+            </div>
+            {% empty %}
+            <div class="no-data">
+                <i class="fas fa-users-slash fa-4x" style="margin-bottom: 20px; opacity: 0.3; color: var(--accent);"></i>
+                <h3>No Students Found</h3>
+                <p>There are currently no students enrolled in this course section.</p>
+            </div>
+            {% endfor %}
+        </div>
+    </main>
+
+    <script>
+        function filterStudents() {
+            let input = document.getElementById('studentSearch').value.toLowerCase();
+            let cards = document.getElementsByClassName('student-card');
+            let hasResults = false;
+            
+            for (let i = 0; i < cards.length; i++) {
+                let text = cards[i].innerText.toLowerCase();
+                
+                if (text.includes(input)) {
+                    cards[i].style.display = "flex";
+                    hasResults = true;
+                } else {
+                    cards[i].style.display = "none";
+                }
+            }
+        }
+    </script>
+</body>
+</html>

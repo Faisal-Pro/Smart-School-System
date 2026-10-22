@@ -1,0 +1,334 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Add Instructor | Admin Portal</title>
+    
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            --primary-blue: #3282b8;
+            --dark-steel: #1b262c;
+            --navy-deep: #0f4c75;
+            --white: #ffffff;
+            --bg-muted: #f8fafc;
+            --border-soft: #e2e8f0;
+            --text-main: #1e293b;
+        }
+
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background-color: var(--dark-steel);
+            margin: 0;
+            padding: 40px 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        /* === DASHBOARD BUTTON === */
+        .dashboard-nav {
+            position: fixed;
+            top: 30px;
+            left: 30px;
+            z-index: 100;
+        }
+
+        .btn-dashboard {
+            text-decoration: none;
+            background: rgba(255, 255, 255, 0.1);
+            color: var(--white);
+            padding: 12px 20px;
+            border-radius: 12px;
+            font-weight: 600;
+            font-size: 14px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            transition: 0.3s;
+        }
+
+        .btn-dashboard:hover {
+            background: var(--primary-blue);
+            transform: translateX(5px);
+        }
+
+        /* === FORM CARD === */
+        .instructor-card {
+            background: var(--white);
+            width: 100%;
+            max-width: 550px;
+            padding: 45px;
+            border-radius: 24px;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+            animation: cardSlide 0.6s ease-out;
+        }
+
+        @keyframes cardSlide {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .header-section {
+            text-align: center;
+            margin-bottom: 35px;
+        }
+
+        .header-section img {
+            width: 70px;
+            height: 70px;
+            border-radius: 50%;
+            border: 3px solid var(--bg-muted);
+            margin-bottom: 15px;
+        }
+
+        .header-section h1 {
+            font-size: 26px;
+            color: var(--dark-steel);
+            font-weight: 800;
+            margin: 0;
+            letter-spacing: -0.5px;
+        }
+
+        /* === FORM INPUTS === */
+        .input-group {
+            margin-bottom: 20px;
+        }
+
+        .input-group label {
+            display: block;
+            font-weight: 700;
+            font-size: 13px;
+            color: var(--text-main);
+            margin-bottom: 8px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        input, select {
+            width: 100%;
+            padding: 14px 16px;
+            border-radius: 12px;
+            border: 2px solid var(--border-soft);
+            background: var(--bg-muted);
+            font-size: 15px;
+            transition: 0.3s;
+            box-sizing: border-box;
+            color: var(--text-main);
+        }
+
+        input:focus, select:focus {
+            outline: none;
+            border-color: var(--primary-blue);
+            background: white;
+            box-shadow: 0 0 0 4px rgba(50, 130, 184, 0.1);
+        }
+
+        input[readonly] {
+            background: #f1f5f9;
+            cursor: not-allowed;
+            border-color: #cbd5e1;
+        }
+
+        /* === UPLOAD ZONE === */
+        .upload-zone {
+            background: var(--bg-muted);
+            border: 2px dashed var(--border-soft);
+            border-radius: 12px;
+            padding: 20px;
+            text-align: center;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+
+        .upload-zone:hover {
+            border-color: var(--primary-blue);
+            background: #f0f7ff;
+        }
+
+        .upload-zone i { font-size: 28px; color: var(--primary-blue); margin-bottom: 5px; }
+        .file-name { display: block; font-size: 13px; color: #64748b; font-weight: 500; }
+
+        /* === SUBMIT BUTTON === */
+        .submit-btn {
+            width: 100%;
+            padding: 18px;
+            background: var(--primary-blue);
+            color: white;
+            border: none;
+            border-radius: 14px;
+            font-size: 17px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: 0.3s;
+            margin-top: 10px;
+        }
+
+        .submit-btn:hover {
+            background: var(--navy-deep);
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(50, 130, 184, 0.3);
+        }
+
+        #response-msg {
+            margin-top: 20px;
+            padding: 15px;
+            border-radius: 12px;
+            text-align: center;
+            font-weight: 600;
+            display: none;
+        }
+
+        @media (max-width: 600px) {
+            .dashboard-nav { position: absolute; top: 15px; left: 15px; }
+            .instructor-card { padding: 30px 20px; margin-top: 50px; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="dashboard-nav">
+        <a href="{% url 'DirectAdminPage' %}" class="btn-dashboard">
+            <i class="fas fa-th-large"></i> Dashboard
+        </a>
+    </div>
+
+    <div class="instructor-card">
+        <div class="header-section">
+            <img src="{% static 'Images/School logo.jpg' %}" alt="Logo">
+            <h1>Add New Instructor</h1>
+        </div>
+
+        <form id="add-instructor-form" method="post" action="{% url 'SaveTeacher' %}" enctype="multipart/form-data">
+            {% csrf_token %}
+            
+            <div class="input-group">
+                <label>Full Name</label>
+                <input type="text" name="teacher_name" placeholder="Enter Instructor Name" required>
+            </div>
+
+            <div class="input-group">
+                <label>National ID / Social Security</label>
+                <div style="display: flex; gap: 10px;">
+                    <input type="text" name="national_id" id="national_id" placeholder="Enter 14-digit ID" maxlength="14" required>
+                    <button type="button" onclick="verifyID()" style="width: 60px; background: var(--dark-steel); color: white; border: none; border-radius: 12px; cursor: pointer;">
+                        <i class="fas fa-id-card"></i>
+                    </button>
+                </div>
+                <small id="id-status" style="font-size: 11px; margin-top: 5px; display: block;"></small>
+            </div>
+
+            <div class="input-group">
+                <label>Instructor ID (System Generated)</label>
+                <input type="number" name="teacher_id" value="{{ LastRecord }}">
+            </div>
+
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+                <div class="input-group">
+                    <label>Age</label>
+                    <input type="number" name="teacher_age" placeholder="Age" required>
+                </div>
+                <div class="input-group">
+                    <label>Gender</label>
+                    <select name="teacher_gender">
+                        <option value="Male">Male</option>
+                        <option value="Female">Female</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="input-group">
+                <label>Assign Primary Course</label>
+                <select name="teacher_course" required>
+                    <option value="" disabled selected>Select a Course</option>
+                    {% for course in courses %}
+                        <option value="{{ course.name }}">{{ course.name }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <div class="input-group">
+                <label>Profile Image</label>
+                <div class="upload-zone" onclick="document.getElementById('teacher_image').click()">
+                    <i class="fas fa-camera-retro"></i>
+                    <span class="file-name" id="file-label">Click to upload photo</span>
+                    <input type="file" id="teacher_image" name="teacher_image" hidden accept="image/*" onchange="showFileName()">
+                </div>
+            </div>
+
+            <button type="submit" class="submit-btn" id="submit-btn">
+                <i class="fas fa-user-plus"></i> Create Instructor Record
+            </button>
+        </form>
+
+        <div id="response-msg"></div>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script>
+        // National ID Verification function
+        function verifyID() {
+            const idInput = document.getElementById('national_id');
+            const status = document.getElementById('id-status');
+            
+            if (idInput.value.length === 14) {
+                status.textContent = "✓ Format Valid";
+                status.style.color = "green";
+                idInput.style.borderColor = "green";
+            } else {
+                status.textContent = "× ID must be 14 digits";
+                status.style.color = "red";
+                idInput.style.borderColor = "red";
+            }
+        }
+
+        function showFileName() {
+            const fileInput = document.getElementById('teacher_image');
+            const label = document.getElementById('file-label');
+            label.textContent = fileInput.files.length > 0 ? fileInput.files[0].name : "Click to upload photo";
+            label.style.color = "var(--primary-blue)";
+        }
+
+        $(document).ready(function() {
+            $('#add-instructor-form').on('submit', function(event) {
+                event.preventDefault();
+                const submitBtn = $('#submit-btn');
+                const msgBox = $('#response-msg');
+                const csrftoken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+
+                submitBtn.prop('disabled', true).html('<i class="fas fa-circle-notch fa-spin"></i> Saving...');
+
+                $.ajax({
+                    url: $(this).attr('action'),
+                    type: 'POST',
+                    headers: {'X-CSRFToken': csrftoken},
+                    data: new FormData(this),
+                    processData: false,
+                    contentType: false,
+                    success: function(response) {
+                        msgBox.css({'background': '#dcfce7', 'color': '#166534', 'display': 'block'})
+                              .html('<i class="fas fa-check-circle"></i> Instructor Added Successfully!');
+                        
+                        $('#add-instructor-form')[0].reset();
+                        $('#file-label').text('Click to upload photo');
+                        
+                        setTimeout(() => { window.location.reload(); }, 2000);
+                    },
+                    error: function(xhr) {
+                        submitBtn.prop('disabled', false).html('<i class="fas fa-user-plus"></i> Create Instructor Record');
+                        msgBox.css({'background': '#fee2e2', 'color': '#991b1b', 'display': 'block'})
+                              .text('Error: Could not save record.');
+                    }
+                });
+            });
+        });
+    </script>
+</body>
+</html>

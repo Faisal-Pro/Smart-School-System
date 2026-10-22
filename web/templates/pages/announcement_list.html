@@ -1,0 +1,350 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Announcements | Admin Portal</title>
+    
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            --primary: #3282b8;
+            --primary-light: #bbe1fa;
+            --navy: #0f4c75;
+            --dark: #1b262c;
+            --white: #ffffff;
+            --slate-50: #f8fafc;
+            --slate-100: #f1f5f9;
+            --slate-200: #e2e8f0;
+            --slate-600: #475569;
+            --slate-900: #0f172a;
+            --shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.04), 0 4px 6px -2px rgba(0, 0, 0, 0.02);
+        }
+
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background-color: var(--slate-100);
+            background-image: radial-gradient(circle at 2px 2px, var(--slate-200) 1px, transparent 0);
+            background-size: 40px 40px;
+            color: var(--slate-900);
+            margin: 0;
+            min-height: 100vh;
+        }
+
+        /* === MODERN NAVIGATION === */
+        .nav-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 5%;
+            background: rgba(255, 255, 255, 0.8);
+            backdrop-filter: blur(12px);
+            border-bottom: 1px solid var(--slate-200);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+
+        .nav-left { display: flex; align-items: center; gap: 20px; }
+
+        .btn-back {
+            text-decoration: none;
+            color: var(--slate-600);
+            font-weight: 700;
+            font-size: 14px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px 16px;
+            border-radius: 12px;
+            background: var(--white);
+            border: 1px solid var(--slate-200);
+            transition: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .btn-back:hover {
+            color: var(--primary);
+            border-color: var(--primary);
+            transform: translateX(-4px);
+            box-shadow: 0 4px 12px rgba(50, 130, 184, 0.15);
+        }
+
+        /* === FEED LAYOUT === */
+        .feed-container {
+            max-width: 800px;
+            margin: 40px auto;
+            padding: 0 20px;
+        }
+
+        .page-intro {
+            margin-bottom: 40px;
+            text-align: center;
+        }
+
+        .page-intro h1 {
+            font-size: 32px;
+            font-weight: 800;
+            letter-spacing: -0.5px;
+            margin-bottom: 8px;
+            color: var(--slate-900);
+        }
+
+        .page-intro p { color: var(--slate-600); font-weight: 500; }
+
+        /* === POST CARDS === */
+        .post-card {
+            background: var(--white);
+            border-radius: 24px;
+            margin-bottom: 30px;
+            box-shadow: var(--shadow);
+            border: 1px solid var(--white);
+            overflow: hidden;
+            transition: all 0.4s ease;
+            position: relative;
+        }
+
+        .post-card:hover {
+            transform: translateY(-4px) scale(1.01);
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.05);
+            border-color: var(--primary-light);
+        }
+
+        .post-card::before {
+            content: '';
+            position: absolute;
+            left: 0; top: 0; bottom: 0;
+            width: 6px;
+            background: var(--primary);
+            border-radius: 6px 0 0 6px;
+        }
+
+        .post-content-wrap { padding: 30px; }
+
+        .post-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 20px;
+        }
+
+        .user-meta {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .avatar-box {
+            width: 54px;
+            height: 54px;
+            border-radius: 16px;
+            object-fit: cover;
+            background: var(--slate-100);
+            border: 2px solid var(--white);
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            color: var(--primary);
+        }
+
+        .name-stack h4 {
+            margin: 0;
+            font-size: 16px;
+            font-weight: 800;
+            color: var(--slate-900);
+        }
+
+        .name-stack span {
+            font-size: 13px;
+            color: var(--slate-600);
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            margin-top: 2px;
+        }
+
+        .admin-tools {
+            display: flex;
+            gap: 8px;
+            background: var(--slate-50);
+            padding: 6px;
+            border-radius: 12px;
+        }
+
+        .tool-link {
+            width: 36px;
+            height: 36px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-decoration: none;
+            color: var(--slate-600);
+            transition: 0.2s;
+        }
+
+        .tool-link:hover { background: var(--white); color: var(--primary); box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
+        .tool-link.delete:hover { color: #ef4444; }
+
+        .post-body {
+            font-size: 16px;
+            line-height: 1.8;
+            color: #334155;
+            margin: 0 0 25px 0;
+        }
+
+        .attachment-grid {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            padding-top: 20px;
+            border-top: 1px solid var(--slate-100);
+        }
+
+        .pdf-card {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background: #fffafa;
+            border: 1px solid #fee2e2;
+            padding: 15px 20px;
+            border-radius: 16px;
+            text-decoration: none;
+            transition: 0.2s;
+        }
+
+        .pdf-card:hover { background: #fef2f2; border-color: #fecaca; }
+        .pdf-info { display: flex; align-items: center; gap: 12px; color: #b91c1c; font-weight: 700; font-size: 14px; }
+
+        .video-wrapper {
+            border-radius: 18px;
+            overflow: hidden;
+            border: 1px solid var(--slate-200);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+        }
+
+        video { width: 100%; display: block; background: #000; }
+
+        .empty-feed {
+            text-align: center;
+            padding: 100px 20px;
+            background: var(--white);
+            border-radius: 30px;
+            border: 2px dashed var(--slate-200);
+        }
+
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @media (max-width: 600px) {
+            .nav-header { padding: 10px 20px; }
+            .post-content-wrap { padding: 20px; }
+            .post-header { flex-direction: column; gap: 15px; }
+            .admin-tools { width: 100%; justify-content: space-around; }
+        }
+    </style>
+</head>
+<body>
+
+    <nav class="nav-header">
+        <div class="nav-left">
+            <a href="javascript:history.back()" class="btn-back">
+                <i class="fas fa-chevron-left"></i>
+                <span>Dashboard</span>
+            </a>
+            <img src="{% static 'Images/School Logo.jpg' %}" height="40" style="border-radius: 8px;">
+        </div>
+        <div class="nav-right">
+            <div id="date-display" style="font-size: 13px; font-weight: 700; color: var(--slate-600);"></div>
+        </div>
+    </nav>
+
+    <div class="feed-container">
+        <header class="page-intro">
+            <h1>Official Feed</h1>
+            <p>Stay updated with the latest institutional announcements</p>
+        </header>
+
+        {% for announcement in announcements %}
+        <article class="post-card" style="animation: slideUp 0.6s ease backwards calc({{ forloop.counter0 }} * 0.1s)">
+            <div class="post-content-wrap">
+                <header class="post-header">
+                    <div class="user-meta">
+                        {% if announcement.publisher_image %}
+                            <img src="data:image/jpeg;base64,{{ announcement.publisher_image }}" class="avatar-box">
+                        {% else %}
+                            <div class="avatar-box">
+                                <i class="fas fa-shield-alt"></i>
+                            </div>
+                        {% endif %}
+                        <div class="name-stack">
+                            <h4>{{ announcement.publisher }}</h4>
+                            <span><i class="far fa-clock"></i> {{ announcement.publish_date }}</span>
+                        </div>
+                    </div>
+
+                    <div class="admin-tools">
+                        <a href="{% url 'update_announcement' announcement.id %}" class="tool-link" title="Edit Post">
+                            <i class="fas fa-pen-nib"></i>
+                        </a>
+                        <a href="{% url 'delete_announcement' announcement.id %}" 
+                           class="tool-link delete" 
+                           onclick="return confirm('Archive this announcement?')" 
+                           title="Remove Post">
+                            <i class="fas fa-trash-alt"></i>
+                        </a>
+                    </div>
+                </header>
+
+                <div class="post-body">
+                    {{ announcement.content|safe }}
+                </div>
+
+                {% if announcement.pdf_file or announcement.video_file %}
+                <footer class="attachment-grid">
+                    {% if announcement.pdf_file %}
+                    <a href="data:application/pdf;base64,{{ announcement.pdf_file }}" class="pdf-card" target="_blank" download="Document.pdf">
+                        <div class="pdf-info">
+                            <i class="fas fa-file-pdf fa-2x"></i>
+                            <span>View / Download PDF</span>
+                        </div>
+                        <i class="fas fa-external-link-alt" style="color: #cbd5e1;"></i>
+                    </a>
+                    {% endif %}
+
+                    {% if announcement.video_file %}
+                    <div class="video-wrapper">
+                        <video controls>
+                            <source src="data:video/mp4;base64,{{ announcement.video_file }}" type="video/mp4">
+                            Your browser does not support the video tag.
+                        </video>
+                    </div>
+                    {% endif %}
+                </footer>
+                {% endif %}
+            </div>
+        </article>
+        {% empty %}
+        <div class="empty-feed">
+            <div style="background: var(--slate-100); width: 80px; height: 80px; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 20px;">
+                <i class="fas fa-bullhorn fa-2x" style="color: var(--slate-200);"></i>
+            </div>
+            <h3>No announcements yet</h3>
+            <p>When administrators post updates, they will appear here in your feed.</p>
+        </div>
+        {% endfor %}
+    </div>
+
+    <script>
+        const options = { weekday: 'long', month: 'short', day: 'numeric' };
+        document.getElementById('date-display').innerText = new Date().toLocaleDateString('en-US', options);
+    </script>
+
+</body>
+</html>

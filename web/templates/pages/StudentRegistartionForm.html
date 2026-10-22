@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Student Registration Form</title>
+    <style>
+        /* Reset some default browser styles */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: Arial, sans-serif;
+        }
+
+        /* Background and page styling */
+        body {
+            background-color: #f4f4f4;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* Header section with background image */
+        .header {
+            width: 100%;
+            height: 300px;
+            background-image: url('https://example.com/school-building.jpg'); /* Replace with your image */
+            background-size: cover;
+            background-position: center;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: #fff;
+        }
+
+        .header h1 {
+            background-color: rgba(0, 0, 0, 0.5);
+            padding: 15px 30px;
+            border-radius: 8px;
+            font-size: 2em;
+        }
+
+        /* Form container styling */
+        .form-container {
+            background-color: #0A3C6E;
+            max-width: 600px;
+            width: 90%;
+            padding: 40px;
+            border-radius: 10px;
+            color: #fff;
+            margin-top: -50px;
+        }
+
+        .form-container h2 {
+            text-align: left;
+            font-size: 1.5em;
+            margin-bottom: 20px;
+            font-weight: bold;
+        }
+
+        /* Form group styling for layout */
+        .form-group {
+            display: flex;
+            gap: 20px;
+            margin-bottom: 15px;
+        }
+
+        .form-group-half {
+            flex: 1;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+
+        .form-group input[type="text"],
+        .form-group input[type="date"] {
+            width: 100%;
+            padding: 10px;
+            border: none;
+            border-radius: 5px;
+            box-sizing: border-box;
+            font-size: 1em;
+        }
+
+        /* Textarea styling for additional information */
+        .form-group-full textarea {
+            width: 100%;
+            padding: 10px;
+            border: none;
+            border-radius: 5px;
+            box-sizing: border-box;
+            font-size: 1em;
+            resize: vertical;
+            height: 80px;
+            background-color: #204d82;
+            color: #fff;
+        }
+
+        /* File upload styling */
+        .form-group-file {
+            border: 2px dashed #d1d9e0;
+            padding: 20px;
+            text-align: center;
+            color: #d1d9e0;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        .form-group-file:hover {
+            border-color: #fff;
+            color: #fff;
+        }
+
+        /* Button styling */
+        .submit-button {
+            width: 100%;
+            padding: 12px;
+            background-color: #FFD700;
+            color: #0A3C6E;
+            border: none;
+            border-radius: 5px;
+            font-weight: bold;
+            font-size: 1em;
+            cursor: pointer;
+            margin-top: 20px;
+        }
+
+        .submit-button:hover {
+            background-color: #e6c200;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Background Image Header -->
+    <div class="header">
+        <h1>Student Registration Form</h1>
+    </div>
+
+    <!-- Form Container -->
+    <div class="form-container">
+        <h2>Personal Information</h2>
+        <form id="registrationForm">
+            <!-- First and Last Name fields -->
+            <div class="form-group">
+                <div class="form-group-half">
+                    <label for="firstName">First Name</label>
+                    <input type="text" id="firstName" name="firstName" required>
+                </div>
+                <div class="form-group-half">
+                    <label for="lastName">Last Name</label>
+                    <input type="text" id="lastName" name="lastName" required>
+                </div>
+            </div>
+
+            <!-- Date of Birth and Nationality fields -->
+            <div class="form-group">
+                <div class="form-group-half">
+                    <label for="dob">Date of Birth</label>
+                    <input type="date" id="dob" name="dob" required>
+                </div>
+                <div class="form-group-half">
+                    <label for="nationality">Nationality</label>
+                    <input type="text" id="nationality" name="nationality" required>
+                </div>
+            </div>
+
+            <!-- Gender selection -->
+            <div class="form-group">
+                <label>Gender</label>
+                <div class="form-group-radio">
+                    <label><input type="radio" name="gender" value="Female" required> Female</label>
+                    <label><input type="radio" name="gender" value="Male"> Male</label>
+                    <label><input type="radio" name="gender" value="Other"> Other</label>
+                </div>
+            </div>
+
+            <!-- Additional Information section -->
+            <h2>Additional Information</h2>
+            <div class="form-group form-group-full">
+                <label for="skills">Additional Skills or Certifications</label>
+                <textarea id="skills" name="skills"></textarea>
+            </div>
+
+            <div class="form-group form-group-full">
+                <label for="disabilities">Disabilities or Special Needs</label>
+                <textarea id="disabilities" name="disabilities"></textarea>
+            </div>
+
+            <div class="form-group form-group-full">
+                <label for="photo">Passport-sized Photo Upload</label>
+                <div class="form-group-file" onclick="document.getElementById('photo').click()">
+                    <span>Choose file or drop here</span>
+                    <input type="file" id="photo" name="photo" style="display: none;">
+                </div>
+            </div>
+
+            <!-- Submit button -->
+            <button type="button" class="submit-button" onclick="submitForm()">Submit</button>
+        </form>
+    </div>
+
+    <script>
+        // JavaScript to handle form submission
+        function submitForm() {
+            const form = document.getElementById('registrationForm');
+            if (form.checkValidity()) {
+                alert('Registration successful!');
+            } else {
+                alert('Please fill all required fields.');
+            }
+        }
+    </script>
+
+</body>
+</html>

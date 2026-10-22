@@ -1,0 +1,236 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Biometric Enrollment</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            --primary: #0f4c75;
+            --secondary: #3282b8;
+            --accent: #bbe1fa;
+            --success: #22c55e;
+            --bg: #f8fafc;
+        }
+
+        body { 
+            font-family: 'Plus Jakarta Sans', sans-serif; 
+            background: var(--bg); 
+            display: flex; 
+            justify-content: center; 
+            align-items: center; 
+            height: 100vh; 
+            margin: 0; 
+        }
+
+        .registration-card { 
+            background: white; 
+            padding: 40px; 
+            border-radius: 32px; 
+            box-shadow: 0 20px 50px rgba(15, 76, 117, 0.1); 
+            text-align: center; 
+            width: 100%;
+            max-width: 450px; 
+            position: relative;
+        }
+
+        h2 { color: var(--primary); font-weight: 700; margin-bottom: 10px; }
+        .sub-text { color: #64748b; font-size: 0.9rem; margin-bottom: 30px; }
+
+        /* CIRCULAR VIDEO CONTAINER */
+        .camera-wrapper {
+            position: relative;
+            width: 280px;
+            height: 280px;
+            margin: 0 auto 30px;
+        }
+
+        #video { 
+            width: 100%; 
+            height: 100%; 
+            border-radius: 50%; 
+            object-fit: cover; 
+            background: #000; 
+            transform: scaleX(-1);
+            border: 6px solid #f1f5f9;
+        }
+
+        /* SVG PROGRESS RING */
+        .progress-ring {
+            position: absolute;
+            top: -10px;
+            left: -10px;
+            transform: rotate(-90deg);
+            pointer-events: none;
+        }
+
+        .progress-ring__circle {
+            transition: stroke-dashoffset 0.35s;
+            transform-origin: 50% 50%;
+            stroke: var(--secondary);
+        }
+
+        /* CAPTURE ANIMATION LASER */
+        .scan-line {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            border: 2px solid var(--secondary);
+            animation: pulse 2s infinite;
+            display: none;
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); opacity: 1; }
+            100% { transform: scale(1.1); opacity: 0; }
+        }
+
+        .instruction-pill {
+            background: #f0f9ff;
+            color: #0369a1;
+            padding: 12px 20px;
+            border-radius: 16px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 25px;
+            border: 1px solid #e0f2fe;
+        }
+
+        .btn-start { 
+            background: var(--primary); 
+            color: white; 
+            padding: 16px 40px; 
+            border: none; 
+            border-radius: 16px; 
+            cursor: pointer; 
+            font-weight: 700; 
+            font-size: 1rem;
+            transition: all 0.3s;
+            width: 100%;
+        }
+
+        .btn-start:hover { background: var(--secondary); transform: translateY(-2px); }
+
+        #status { font-weight: 600; color: var(--primary); margin-top: 10px; }
+    </style>
+</head>
+<body>
+
+    <div class="registration-card">
+        <h2>Face Enrollment</h2>
+        <p class="sub-text">We use biometrics to keep your account secure.</p>
+
+        <div class="instruction-pill" id="guide-box">
+            <i class="fas fa-video"></i>
+            <span id="guide-text">Ready to begin? Position your face in the circle.</span>
+        </div>
+
+        <div class="camera-wrapper">
+            <video id="video" autoplay muted playsinline></video>
+            <div class="scan-line" id="laser"></div>
+            
+            <svg class="progress-ring" width="300" height="300">
+                <circle class="progress-ring__circle"
+                    stroke-width="8"
+                    stroke-linecap="round"
+                    fill="transparent"
+                    r="140"
+                    cx="150"
+                    cy="150"
+                    stroke-dasharray="879.64"
+                    stroke-dashoffset="879.64"/>
+            </svg>
+        </div>
+
+        <canvas id="canvas" style="display:none;"></canvas>
+        
+        <p id="status">0% Complete</p>
+        <button id="startBtn" class="btn-start">Start Enrollment</button>
+    </div>
+
+    <script>
+        const video = document.getElementById('video');
+        const canvas = document.getElementById('canvas');
+        const startBtn = document.getElementById('startBtn');
+        const status = document.getElementById('status');
+        const laser = document.getElementById('laser');
+        const guideText = document.getElementById('guide-text');
+        const circle = document.querySelector('.progress-ring__circle');
+        
+        const circumference = 140 * 2 * Math.PI;
+        let count = 0;
+        const totalPhotos = 100;
+
+        // Initialize Progress Ring
+        circle.style.strokeDasharray = `${circumference} ${circumference}`;
+
+        function setProgress(percent) {
+            const offset = circumference - (percent / 100 * circumference);
+            circle.style.strokeDashoffset = offset;
+        }
+
+        // Camera Access
+        navigator.mediaDevices.getUserMedia({ video: { width: 400, height: 400, facingMode: "user" } })
+            .then(stream => { video.srcObject = stream; })
+            .catch(err => { 
+                guideText.innerText = "Camera access denied.";
+                startBtn.disabled = true;
+            });
+
+        startBtn.onclick = () => {
+            startBtn.style.display = 'none';
+            laser.style.display = 'block';
+            guideText.innerText = "Slowly rotate your head in a circle...";
+            captureFrames();
+        };
+
+        function captureFrames() {
+            if (count >= totalPhotos) {
+                laser.style.display = 'none';
+                guideText.innerText = "Enrollment successful!";
+                status.innerText = "Redirecting...";
+                circle.style.stroke = "var(--success)";
+                setTimeout(() => { 
+                    window.location.href = "{% url 'StudentDashboard' StudentID %}"; 
+                }, 1500);
+                return;
+            }
+
+            const context = canvas.getContext('2d');
+            canvas.width = 400;
+            canvas.height = 400;
+            context.drawImage(video, 0, 0, 400, 400);
+
+            const imageData = canvas.toDataURL('image/jpeg', 0.8);
+
+            fetch("{% url 'CaptureFrame' StudentID %}", {
+                method: "POST",
+                headers: { "X-CSRFToken": "{{ csrf_token }}", "Content-Type": "application/json" },
+                body: JSON.stringify({ image: imageData, count: count })
+            })
+            .then(() => {
+                count++;
+                const percentage = Math.floor((count / totalPhotos) * 100);
+                setProgress(percentage);
+                status.innerText = `${percentage}% Complete`;
+                
+                // Update instructions based on progress
+                if(percentage === 30) guideText.innerText = "Tilt your head up and down...";
+                if(percentage === 60) guideText.innerText = "Almost there! Keep moving...";
+
+                setTimeout(captureFrames, 80); 
+            });
+        }
+    </script>
+</body>
+</html>

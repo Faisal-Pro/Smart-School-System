@@ -1,0 +1,306 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Secure Portal Login</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary: #0f4c75;
+            --secondary: #3282b8;
+            --dark: #1b262c;
+            --light: #bbe1fa;
+            --success: #27ae60;
+            --error: #e74c3c;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            margin: 0;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background: linear-gradient(135deg, rgba(15, 76, 117, 0.9), rgba(27, 38, 44, 0.95)), url("{% static 'Images/Hall.jpg' %}") no-repeat center center;
+            background-size: cover;
+        }
+
+        .login-card {
+            background: #ffffff;
+            border-radius: 24px;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+            width: 100%;
+            max-width: 420px;
+            padding: 40px;
+            position: relative;
+            overflow: hidden;
+            transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        #camera-container {
+            display: none;
+            position: relative;
+            width: 220px;
+            height: 220px;
+            margin: 0 auto 30px;
+            border-radius: 50%;
+            overflow: hidden;
+            border: 4px solid var(--secondary);
+            box-shadow: 0 0 20px rgba(50, 130, 184, 0.3);
+            background: #000;
+        }
+
+        #video {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transform: scaleX(-1);
+        }
+
+        .laser-line {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 4px;
+            background: linear-gradient(to bottom, transparent, var(--secondary), transparent);
+            box-shadow: 0 0 15px var(--secondary);
+            z-index: 10;
+            animation: scan 2s linear infinite;
+            display: none;
+        }
+
+        @keyframes scan {
+            0% { top: 0; }
+            50% { top: 100%; }
+            100% { top: 0; }
+        }
+
+        .logo-container { width: 70px; margin: 0 auto 20px; }
+        .logo-container img { width: 100%; border-radius: 12px; }
+        
+        h2 { color: var(--dark); font-size: 1.75rem; margin-bottom: 8px; font-weight: 700; text-align: center; }
+        p.subtitle { color: #64748b; font-size: 0.95rem; margin-bottom: 30px; text-align: center; }
+
+        .input-group { text-align: left; margin-bottom: 20px; }
+        .input-group label { display: block; font-size: 0.85rem; font-weight: 600; margin-bottom: 8px; color: var(--dark); }
+        
+        input {
+            width: 100%;
+            padding: 14px 16px;
+            border: 2px solid #e2e8f0;
+            border-radius: 12px;
+            font-size: 1rem;
+            transition: all 0.3s;
+            box-sizing: border-box;
+        }
+
+        input:focus {
+            border-color: var(--secondary);
+            outline: none;
+            box-shadow: 0 0 0 4px rgba(50, 130, 184, 0.1);
+        }
+
+        .btn-login {
+            background: var(--primary);
+            color: white;
+            border: none;
+            width: 100%;
+            padding: 16px;
+            border-radius: 12px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: 0.3s;
+            margin-top: 10px;
+        }
+
+        .btn-login:hover { background: var(--dark); transform: translateY(-2px); }
+
+        .divider {
+            display: flex;
+            align-items: center;
+            margin: 25px 0;
+            color: #94a3b8;
+            font-size: 0.8rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .divider::before, .divider::after { content: ""; flex: 1; height: 1px; background: #e2e8f0; }
+        .divider:not(:empty)::before { margin-right: 15px; }
+        .divider:not(:empty)::after { margin-left: 15px; }
+
+        .btn-face {
+            background: #fff;
+            color: var(--primary);
+            border: 2px solid var(--primary);
+            width: 100%;
+            padding: 14px;
+            border-radius: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            transition: 0.3s;
+        }
+
+        .btn-face:hover { background: #f8fafc; border-color: var(--secondary); color: var(--secondary); }
+
+        .status-badge {
+            display: block;
+            text-align: center;
+            padding: 10px 16px;
+            border-radius: 20px;
+            background: #f1f5f9;
+            color: var(--secondary);
+            font-size: 0.85rem;
+            font-weight: 600;
+            margin: 15px auto;
+            width: fit-content;
+        }
+    </style>
+</head>
+<body>
+    <div class="login-card" id="card">
+        <div class="logo-container">
+            <img src="{% static 'Images/School Logo.jpg' %}" alt="Logo">
+        </div>
+
+        <div id="content-container">
+            <div id="text-header">
+                <h2>Welcome Back</h2>
+                <p class="subtitle">Enter your ID to use Face Verification</p>
+            </div>
+
+            <div id="face-section" style="display: none;">
+                <div id="camera-container" style="display: block;">
+                    <video id="video" autoplay playsinline></video>
+                    <div class="laser-line" id="laser"></div>
+                    <canvas id="canvas" style="display:none;" width="640" height="480"></canvas>
+                </div>
+                <div class="status-badge" id="face-status">Initializing Biometrics...</div>
+            </div>
+
+            <div id="form-section">
+                <form action="{% url 'StudentLogIn2' %}" method="POST">
+                    {% csrf_token %}
+                    <div class="input-group">
+                        <label>Student ID</label>
+                        <input type="text" name="id" id="student_id_input" placeholder="ID Number" required>
+                    </div>
+                    <div id="password-group" class="input-group">
+                        <label>Password</label>
+                        <input type="password" name="password" placeholder="••••••••" required>
+                    </div>
+                    <button type="submit" id="submit-btn" class="btn-login">Sign In</button>
+                </form>
+            </div>
+
+            <div class="divider">Or secure access</div>
+
+            <button type="button" id="toggle-face" class="btn-face">
+                <i class="fas fa-face-smile"></i>
+                <span id="btn-text">Use Face ID</span>
+            </button>
+        </div>
+
+        <a href="/" style="display:block; margin-top:30px; color:#94a3b8; text-decoration:none; font-size:0.85rem; font-weight:500; text-align: center;">
+            <i class="fas fa-arrow-left"></i> Back to Home
+        </a>
+    </div>
+
+    <script>
+        const toggleBtn = document.getElementById('toggle-face');
+        const btnText = document.getElementById('btn-text');
+        const formSection = document.getElementById('form-section');
+        const passwordGroup = document.getElementById('password-group');
+        const submitBtn = document.getElementById('submit-btn');
+        const faceSection = document.getElementById('face-section');
+        const laser = document.getElementById('laser');
+        const faceStatus = document.getElementById('face-status');
+        const video = document.getElementById('video');
+        const canvas = document.getElementById('canvas');
+        const studentIdInput = document.getElementById('student_id_input');
+        
+        let isFaceMode = false;
+        let scanInterval;
+        let stream = null;
+
+        toggleBtn.addEventListener('click', async () => {
+            if (!isFaceMode) {
+                if (!studentIdInput.value) {
+                    alert("Please enter your Student ID first so we know who to verify.");
+                    return;
+                }
+                isFaceMode = true;
+                passwordGroup.style.display = 'none';
+                submitBtn.style.display = 'none';
+                faceSection.style.display = 'block';
+                laser.style.display = 'block';
+                btnText.innerText = "Use Password Instead";
+                try {
+                    stream = await navigator.mediaDevices.getUserMedia({ video: true });
+                    video.srcObject = stream;
+                    faceStatus.innerText = "Scanning Face...";
+                    startScanning();
+                } catch (err) {
+                    alert("Camera blocked. Please enable permissions.");
+                    resetUI();
+                }
+            } else {
+                resetUI();
+            }
+        });
+
+        function resetUI() {
+            isFaceMode = false;
+            if(stream) stream.getTracks().forEach(track => track.stop());
+            passwordGroup.style.display = 'block';
+            submitBtn.style.display = 'block';
+            faceSection.style.display = 'none';
+            laser.style.display = 'none';
+            btnText.innerText = "Use Face ID";
+            clearInterval(scanInterval);
+        }
+
+        function startScanning() {
+            scanInterval = setInterval(() => {
+                const context = canvas.getContext('2d');
+                context.drawImage(video, 0, 0, canvas.width, canvas.height);
+                const imageData = canvas.toDataURL('image/jpeg');
+                fetch("{% url 'StudentLogIn' %}", {
+                    method: 'POST',
+                    headers: {
+                        'X-CSRFToken': '{{ csrf_token }}',
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                    },
+                    body: `image=${encodeURIComponent(imageData)}&student_id=${encodeURIComponent(studentIdInput.value)}`
+                })
+                .then(res => res.json())
+                .then(data => {
+                    if (data.status === 'success') {
+                        clearInterval(scanInterval);
+                        faceStatus.innerText = "Identity Verified!";
+                        faceStatus.style.background = "#dcfce7";
+                        faceStatus.style.color = "#166534";
+                        laser.style.display = 'none';
+                        setTimeout(() => {
+                            window.location.href = "/StudentDashboard/" + data.sid + "/";
+                        }, 800);
+                    } else if (data.status === 'not_recognized') {
+                        faceStatus.innerText = "Face not matched. Try again.";
+                        faceStatus.style.color = "#e74c3c";
+                    }
+                });
+            }, 2000);
+        }
+    </script>
+</body>
+</html>

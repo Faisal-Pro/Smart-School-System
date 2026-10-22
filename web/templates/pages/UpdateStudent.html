@@ -1,0 +1,297 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Update Student | Admin Portal</title>
+    
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            --identity-blue: #3282b8;
+            --dark-steel: #1b262c;
+            --white: #ffffff;
+            --border-light: #e2e8f0;
+            --text-main: #1e293b;
+            --text-muted: #64748b;
+        }
+
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background-color: var(--dark-steel);
+            margin: 0;
+            padding: 40px 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        .update-wrapper {
+            width: 100%;
+            max-width: 900px;
+            background: var(--white);
+            border-radius: 24px;
+            overflow: hidden;
+            display: flex;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+        }
+
+        .profile-side {
+            width: 35%;
+            background: linear-gradient(180deg, var(--identity-blue), #0f4c75);
+            padding: 40px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            color: var(--white);
+        }
+
+        .profile-side img {
+            width: 140px;
+            height: 140px;
+            border-radius: 50%;
+            border: 5px solid rgba(255,255,255,0.2);
+            object-fit: cover;
+            margin-bottom: 20px;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.2);
+        }
+
+        .profile-side h2 { margin: 10px 0 5px 0; font-size: 20px; }
+        .profile-side p { opacity: 0.8; font-size: 14px; margin-bottom: 30px; }
+
+        .id-pill {
+            background: rgba(255,255,255,0.1);
+            padding: 5px 15px;
+            border-radius: 50px;
+            font-size: 12px;
+            font-weight: 700;
+            letter-spacing: 1px;
+        }
+
+        .form-side {
+            width: 65%;
+            padding: 40px 50px;
+            background: #fff;
+        }
+
+        .form-side h1 {
+            font-size: 24px;
+            color: var(--dark-steel);
+            margin-bottom: 30px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .input-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+
+        .full { grid-column: span 2; }
+
+        .field-group label {
+            display: block;
+            font-size: 11px;
+            font-weight: 800;
+            color: var(--text-muted);
+            margin-bottom: 8px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        input, select {
+            width: 100%;
+            padding: 12px 16px;
+            border-radius: 10px;
+            border: 2px solid #f1f5f9;
+            background: #f8fafc;
+            font-size: 14px;
+            transition: 0.3s;
+            box-sizing: border-box;
+        }
+
+        input:focus {
+            border-color: var(--identity-blue);
+            background: #fff;
+            outline: none;
+            box-shadow: 0 0 0 4px rgba(50, 130, 184, 0.1);
+        }
+
+        .course-manager {
+            margin-top: 30px;
+            padding: 20px;
+            background: #f8fafc;
+            border-radius: 15px;
+            border: 1px solid #edf2f7;
+        }
+
+        .course-chip {
+            display: inline-flex;
+            align-items: center;
+            background: var(--white);
+            border: 1px solid var(--border-light);
+            padding: 6px 12px;
+            border-radius: 8px;
+            margin: 4px;
+            font-size: 13px;
+            font-weight: 600;
+        }
+
+        .btn-del-mini {
+            color: #ef4444;
+            margin-left: 8px;
+            cursor: pointer;
+            border: none;
+            background: none;
+        }
+
+        .action-footer {
+            margin-top: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .save-btn {
+            background: var(--identity-blue);
+            color: white;
+            padding: 14px 30px;
+            border: none;
+            border-radius: 12px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: 0.3s;
+            box-shadow: 0 10px 15px -3px rgba(50, 130, 184, 0.3);
+        }
+
+        .save-btn:hover {
+            transform: translateY(-2px);
+            filter: brightness(1.1);
+        }
+
+        .cancel-link {
+            color: var(--text-muted);
+            text-decoration: none;
+            font-size: 14px;
+            font-weight: 600;
+        }
+
+        @media (max-width: 800px) {
+            .update-wrapper { flex-direction: column; }
+            .profile-side, .form-side { width: 100%; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="update-wrapper">
+        <div class="profile-side">
+            {% if student.Student_Image %}
+                <img src="{% static 'Images/' %}{{ student.Student_Image }}" alt="Profile">
+            {% else %}
+                <img src="{% static 'Images/default_user.jpg' %}" alt="Default">
+            {% endif %}
+            <span class="id-pill">STUDENT #{{ student.Student_ID }}</span>
+            <h2>{{ student.Student_Name }}</h2>
+            <p>Grade {{ student.Student_Level }} Student</p>
+        </div>
+
+        <div class="form-side">
+            <h1><i class="fa-solid fa-user-gear" style="color: var(--identity-blue)"></i> Update Record</h1>
+            
+            <form method="post" enctype="multipart/form-data">
+                {% csrf_token %}
+                
+                <div class="input-grid">
+                    <div class="field-group full">
+                        <label>Full Name</label>
+                        <input type="text" name="student_name" value="{{ student.Student_Name }}" required>
+                    </div>
+
+                    <div class="field-group">
+                        <label>National ID</label>
+                        <input type="text" name="student_nationalid" value="{{ student.Student_NationalID }}" required>
+                    </div>
+
+                    <div class="field-group">
+                        <label>Age</label>
+                        <input type="number" name="student_age" value="{{ student.Student_Age }}" required>
+                    </div>
+
+                    <div class="field-group">
+                        <label>Historical CGPA</label>
+                        <input type="number" name="student_cgpa" step="0.01" min="0" max="4" value="{{ student.student_cgpa }}" required>
+                    </div>
+
+                    <div class="field-group">
+                        <label>Academic Entry Year</label>
+                        <input type="number" name="entry_year" value="{{ student.entry_year }}" required>
+                    </div>
+
+                    <div class="field-group">
+                        <label>Academic Level</label>
+                        <select name="student_level">
+                            {% for i in levels %}
+                                <option value="{{ i }}" {% if student.Student_Level|stringformat:"s" == i|stringformat:"s" %}selected{% endif %}>
+                                    Grade {{ i }}
+                                </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+
+                    <div class="field-group">
+                        <label>Gender</label>
+                        <select name="student_gender">
+                            <option value="Male" {% if student.Student_Gender == 'Male' %}selected{% endif %}>Male</option>
+                            <option value="Female" {% if student.Student_Gender == 'Female' %}selected{% endif %}>Female</option>
+                        </select>
+                    </div>
+
+                    <div class="field-group full">
+                        <label>Update Profile Photo</label>
+                        <input type="file" name="student_image">
+                    </div>
+                </div>
+
+                <div class="course-manager">
+                    <label style="display:block; font-size: 11px; font-weight: 800; color: var(--identity-blue); margin-bottom: 15px;">ENROLLED COURSES</label>
+                    <div class="course-list">
+                        {% for course in current_courses %}
+                        <div class="course-chip">
+                            {{ course.name }}
+                            <button type="submit" name="remove_course_id" value="{{ course.id }}" class="btn-del-mini" onclick="return confirm('Remove course?')">
+                                <i class="fa-solid fa-xmark"></i>
+                            </button>
+                        </div>
+                        {% empty %}
+                        <span style="font-size: 13px; color: var(--text-muted)">No courses assigned.</span>
+                        {% endfor %}
+                    </div>
+                    
+                    <div class="field-group" style="margin-top: 15px;">
+                        <select name="new_course_id" style="border: 2px dashed #cbd5e1; background: transparent;">
+                            <option value="">+ Enroll in new course...</option>
+                            {% for course in all_courses %}
+                                <option value="{{ course.id }}">{{ course.name }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                </div>
+
+                <div class="action-footer">
+                    <a href="{% url 'view_students' %}" class="cancel-link">Discard Changes</a>
+                    <button type="submit" class="save-btn">Save Changes</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+</body>
+</html>

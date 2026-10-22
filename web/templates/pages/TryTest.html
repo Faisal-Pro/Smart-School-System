@@ -1,0 +1,371 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>School Management System</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background-color: #0f4c75;
+            color: white;
+            padding: 20px 20px;
+        }
+        nav .logo {
+            font-size: 24px;
+            font-weight: bold;
+            font-family: 'Georgia', serif; /* Different font style */
+        }
+        nav ul {
+            list-style: none;
+            display: flex;
+            margin: 0;
+            padding: 0;
+        }
+        nav ul li {
+            margin: 0 50px;
+            position: relative;
+        }
+        nav ul li a {
+            color: white;
+            text-decoration: none;
+            padding: 5px 10px;
+            transition: background 0.3s ease;
+            font-family: 'Verdana', sans-serif; /* Different font style */
+        }
+        nav ul li a:hover {
+            background: rgba(255, 255, 255, 0.3);
+            border-radius: 5px;
+        }
+        .menu-toggle {
+            display: none;
+            font-size: 24px;
+            background: none;
+            border: none;
+            color: white;
+            cursor: pointer;
+        }
+        .hero {
+            position: relative;
+            height: 100vh;
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            padding: 20px;
+            overflow: hidden;
+        }
+        .hero:before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-size: cover;
+            background-position: center;
+            animation: slide 30s linear infinite;
+            z-index: -1;
+        }
+        .hero-content {
+            position: relative;
+            z-index: 1;
+        }
+        .hero h1 {
+            font-size: 48px;
+            margin: 0;
+        }
+        .hero p {
+            font-size: 24px;
+            margin-top: 10px;
+        }
+        .container {
+            padding: 20px 15px;
+        }
+        .section {
+            margin-bottom: 40px;
+        }
+        .section h2 {
+            font-size: 32px;
+            margin-bottom: 20px;
+        }
+        .announcements, .events, .contact {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
+        }
+        .widget {
+            flex: 1 1 calc(33.333% - 20px);
+            padding: 20px;
+            margin: 10px;
+            border: 1px solid #bdc3c7;
+            border-radius: 5px;
+            background-color: #ecf0f1;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            min-width: 250px;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        .widget:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+        }
+        @media (max-width: 768px) {
+            .hero h1 {
+                font-size: 36px;
+            }
+            .hero p {
+                font-size: 18px;
+            }
+            .widget {
+                flex: 1 1 100%;
+                margin: 10px 0;
+            }
+            nav ul {
+                display: none;
+                flex-direction: column;
+                width: 100%;
+                background: #0f4c75;
+                position: absolute;
+                top: 60px;
+                left: 0;
+                padding: 0;
+            }
+            nav ul.active {
+                display: flex;
+            }
+            .menu-toggle {
+                display: block;
+            }
+            nav ul li {
+                margin: 10px 0;
+                text-align: center;
+            }
+            nav ul li a {
+                padding: 10px;
+            }
+        }
+        /* Dropdown menu styles */
+        nav ul li .dropdown {
+            display: none;
+            position: absolute;
+            background-color: #0f4c75;
+            top: 100%;
+            left: 0;
+            min-width: 150px;
+            z-index: 1000;
+        }
+        nav ul li:hover .dropdown {
+            display: block;
+        }
+        nav ul li .dropdown a {
+            padding: 10px;
+            display: block;
+            white-space: nowrap;
+        }
+        @keyframes slide {
+            0% { background-image: url("{% static 'Images/Hall.jpg' %}"); background-position: 0% 0; }
+            25% { background-image: url("{% static 'Images/Class.jpg' %}"); background-position: 100% 0; }
+            50% { background-image: url("{% static 'Images/ClassRoom.jpg' %}"); background-position: 200% 0; }
+            75% { background-image: url("{% static 'Images/ClassRoom2.jpg' %}"); background-position: 300% 0; }
+            100% { background-image: url("{% static 'Images/Hall.jpg' %}"); background-position: 400% 0; }
+        }
+        /* Footer styles */
+        footer {
+            background-color: #111;
+            color: #ccc;
+            padding: 20px 0;
+        }
+        .footer-content {
+            display: flex;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+        .footer-logo {
+            flex: 1 1 250px;
+            margin-bottom: 20px;
+        }
+        .footer-logo h3, .footer-logo address {
+            margin: 0;
+            padding: 0;
+        }
+        .footer-logo address a {
+            color: #ccc;
+            text-decoration: none;
+        }
+        .footer-links {
+            flex: 1 1 250px;
+            margin-bottom: 20px;
+            margin-left: 670px; 
+        }
+        .footer-links h4 {
+            margin-bottom: 10px;
+        }
+        .footer-links ul {
+            list-style: none;
+            padding: 0;
+        }
+        .footer-links ul li {
+            margin-bottom: 10px;
+        }
+        .footer-links ul li a {
+            color: #ccc;
+            text-decoration: none;
+            transition: color 0.3s;
+        }
+        .footer-links ul li a:hover {
+            color: #fff;
+        }
+        .footer-partners {
+            flex: 1 1 100%;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+        .footer-partners img {
+            max-width: 100px;
+            margin: 0 10px;
+            vertical-align: middle;
+        }
+        .footer-bottom {
+            text-align: center;
+            padding: 10px 20px;
+            border-top: 1px solid #444;
+        }
+        .footer-social {
+            text-align: center;
+            margin-top: 10px;
+        }
+        .footer-social a {
+            margin: 0 10px;
+            color: #ccc;
+            text-decoration: none;
+            font-size: 20px;
+        }
+        .footer-location {
+            text-align: center;
+            margin-top: 20px;
+        }
+        .footer-location iframe {
+            border: 0;
+            width: 100%;
+            height: 300px;
+        }
+    </style>
+</head>
+<body>
+    <nav>
+        <div class="logo">School Management</div>
+        <button class="menu-toggle" aria-label="Toggle menu">&#9776;</button>
+        <ul>
+            <li><a href="#home">Home</a></li>
+            <li><a href="#announcements">Announcements</a></li>
+            <li><a href="#events">Events</a></li>
+            <li><a href="#contact">Contact</a></li>
+            <li><a href="#Registration">Registration</a></li>
+            <li>
+                <a href="#LogIn">LogIn</a>
+                <div class="dropdown">
+                    <a href="{% url 'Try' %}">Student Login</a>
+                    <a href="#">Teacher Login</a>
+                    <a href="#">Parent Login</a>
+                    <a href="#">Admin Login</a>
+                </div>
+            </li>
+        </ul>
+    </nav>
+    <div class="hero" id="home">
+        <div class="hero-content">
+            <h1>Welcome to Our School</h1>
+            <p>Providing quality education since 1990</p>
+        </div>
+    </div>
+    <div class="container">
+        <div class="section" id="announcements">
+            <h2>Latest Announcements</h2>
+            <div class="announcements">
+                <!-- Add announcement widgets here -->
+                <div class="widget">
+                    <h3>Announcement Title</h3>
+                    <p>Details about the announcement...</p>
+                </div>
+                <!-- Repeat as necessary -->
+            </div>
+        </div>
+        <div class="section" id="events">
+            <h2>Upcoming Events</h2>
+            <div class="events">
+                <!-- Add event widgets here -->
+                <div class="widget">
+                    <h3>Event Title</h3>
+                    <p>Details about the event...</p>
+                </div>
+                <!-- Repeat as necessary -->
+            </div>
+        </div>
+        <div class="section" id="contact">
+            <h2>Contact Us</h2>
+            <div class="contact">
+                <!-- Add contact widgets here -->
+                <div class="widget">
+                    <h3>Contact Information</h3>
+                    <p>Details about how to contact the school...</p>
+                </div>
+                <!-- Repeat as necessary -->
+            </div>
+        </div>
+    </div>
+    <footer>
+        <div class="footer-content">
+            <div class="footer-logo">
+                <h3>School Management</h3>
+                <address>
+                    Box 35300<br>
+                    1810 Campus Way NE<br>
+                    Bothell, WA 98011-8246<br>
+                    <a href="tel:+1-2534-4456-345">+1-2534-4456-345</a><br>
+                    <a href="mailto:Info@School.edu">admin@School Management.edu</a>
+                </address>
+            </div>
+            <div class="footer-links">
+                <h4>Quick Links</h4>
+                <ul>
+                    <li><a href="#home">Home</a></li>
+                    <li><a href="#announcements">Announcements</a></li>
+                    <li><a href="#events">Events</a></li>
+                    <li><a href="#contact">Contact</a></li>
+                    <li><a href="#Registration">Registration</a></li>
+                </ul>
+            </div>
+
+        </div>
+        <div class="footer-bottom">
+            &copy; 2024 School Management. All rights reserved.
+        </div>
+
+        <div class="footer-location">
+            <h4>Our Location</h4>
+            <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3153.019735290734!2d-122.1937273846815!3d37.77492967975844!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x808f7e2ae3a45cd3%3A0xa56d77d9e71ff9e3!2s1810%20Campus%20Way%20NE%2C%20Bothell%2C%20WA%2098011%2C%20USA!5e0!3m2!1sen!2s!4v1615355971190!5m2!1sen!2s" allowfullscreen="" loading="lazy"></iframe>
+        </div>
+    </footer>
+    <script>
+        const menuToggle = document.querySelector('.menu-toggle');
+        const navLinks = document.querySelector('nav ul');
+
+        menuToggle.addEventListener('click', () => {
+            navLinks.classList.toggle('active');
+        });
+    </script>
+</body>
+</html>

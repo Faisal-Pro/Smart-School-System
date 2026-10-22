@@ -1,0 +1,308 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Academic Grades | {{ CourseName }}</title>
+    
+    <link rel="icon" type="image/x-icon" href="{% static 'Images/School Logo.jpg' %}">
+    
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            --primary: #0f4c75;
+            --secondary: #3282b8;
+            --dark: #1b262c;
+            --bg: #f8fafc;
+            --success: #27ae60;
+            --warning: #f39c12;
+            --danger: #e74c3c;
+            --white: #ffffff;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Plus Jakarta Sans', sans-serif; }
+
+        body { 
+            background-color: var(--bg); 
+            color: #1e293b; 
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        /* --- Navbar --- */
+        .navbar {
+            width: 100%;
+            background-color: var(--primary);
+            padding: 15px 5%;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            color: white;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+
+        .navbar-brand {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-weight: 800;
+        }
+
+        /* --- Content Container --- */
+        .main-container {
+            width: 90%;
+            max-width: 950px;
+            margin: 40px 0;
+        }
+
+        /* --- Top Action Bar --- */
+        .top-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+        }
+
+        .btn-back {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            text-decoration: none;
+            color: var(--primary);
+            font-weight: 700;
+            background: white;
+            padding: 10px 20px;
+            border-radius: 12px;
+            border: 1px solid #e2e8f0;
+            transition: 0.3s;
+        }
+
+        .btn-back:hover { background: var(--primary); color: white; transform: translateX(-5px); }
+
+        /* --- Profile Header Card --- */
+        .profile-header {
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            border-radius: 24px;
+            padding: 40px;
+            color: white;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 40px;
+            box-shadow: 0 20px 40px rgba(15, 76, 117, 0.15);
+        }
+
+        .student-info { display: flex; align-items: center; gap: 25px; }
+        .student-info img {
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            border: 4px solid rgba(255,255,255,0.2);
+            object-fit: cover;
+        }
+
+        .course-badge {
+            background: rgba(255,255,255,0.15);
+            padding: 15px 25px;
+            border-radius: 18px;
+            text-align: right;
+            border: 1px solid rgba(255,255,255,0.2);
+        }
+
+        /* --- Table Styling --- */
+        .grades-card {
+            background: white;
+            border-radius: 24px;
+            padding: 30px;
+            border: 1px solid #e2e8f0;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.02);
+        }
+
+        .section-title {
+            font-size: 1.25rem;
+            font-weight: 800;
+            color: var(--primary);
+            margin-bottom: 25px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .grades-table {
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 0 12px;
+        }
+
+        .grades-table th {
+            text-align: left;
+            padding: 0 20px 10px;
+            color: #94a3b8;
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .grades-table td {
+            background: #f8fafc;
+            padding: 20px;
+            color: #1e293b;
+            transition: 0.2s;
+        }
+
+        .grades-table tr:hover td { background: #f1f5f9; }
+
+        .grades-table td:first-child { border-radius: 16px 0 0 16px; font-weight: 700; }
+        .grades-table td:last-child { border-radius: 0 16px 16px 0; text-align: right; }
+
+        .marks-container { display: flex; align-items: baseline; justify-content: center; gap: 4px; }
+        .obtained { font-size: 1.2rem; font-weight: 800; color: var(--primary); }
+        .total { color: #94a3b8; font-weight: 600; font-size: 0.9rem; }
+
+        /* --- Dynamic Badge Classes --- */
+        .perf-badge {
+            display: inline-block;
+            padding: 6px 16px;
+            border-radius: 100px;
+            font-size: 0.75rem;
+            font-weight: 800;
+            text-transform: uppercase;
+        }
+
+        @media (max-width: 768px) {
+            .profile-header { flex-direction: column; text-align: center; gap: 30px; padding: 30px; }
+            .course-badge { text-align: center; width: 100%; }
+            .grades-table th:nth-child(2), .grades-table td:nth-child(2) { display: none; } /* Hide marks col on small mobile */
+        }
+    </style>
+</head>
+<body>
+
+    <nav class="navbar">
+        <div class="navbar-brand">
+            <img src="{% static 'Images/School Logo.jpg' %}" alt="Logo" style="width: 35px; border-radius: 5px; margin-right: 10px;">
+            <span>Student Academic Portal</span>
+        </div>
+        <div style="font-size: 0.85rem; font-weight: 600;">Academic Year 2025</div>
+    </nav>
+
+    <div class="main-container">
+        
+        <div class="top-bar">
+            <a href="javascript:history.back()" class="btn-back">
+                <i class="fas fa-chevron-left"></i> Back to Dashboard
+            </a>
+            <span style="color: #64748b; font-weight: 600;"><i class="fas fa-user-graduate"></i> My Results</span>
+        </div>
+
+        <div class="profile-header">
+            <div class="student-info">
+                {% if StudentRecord.0.StudentImage %}
+                    <img src="data:image/jpeg;base64,{{ StudentRecord.0.StudentImage }}" alt="Student">
+                {% else %}
+                    <img src="https://ui-avatars.com/api/?name={{ StudentRecord.0.StudentName }}&background=fff&color=0f4c75" alt="Student">
+                {% endif %}
+                <div>
+                    <h2 style="font-size: 1.8rem; font-weight: 800;">{{ StudentRecord.0.StudentName }}</h2>
+                    <p style="opacity: 0.8; font-weight: 500;">ID: #{{ StudentRecord.0.StudentID }}</p>
+                </div>
+            </div>
+            <div class="course-badge">
+                <h3 style="font-size: 1.2rem; font-weight: 800;">{{ CourseName }}</h3>
+                <p style="opacity: 0.8; font-size: 0.85rem; margin-top: 5px;">Course Code: {{ CourseID }}</p>
+            </div>
+        </div>
+
+        <div class="grades-card">
+            <h3 class="section-title"><i class="fas fa-chart-line"></i> Detailed Performance</h3>
+
+            <table class="grades-table">
+                <thead>
+                    <tr>
+                        <th>Assessment Item</th>
+                        <th style="text-align: center;">Score</th>
+                        <th style="text-align: right;">Evaluation</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for grade in AssignmentGradeRecord %}
+                    <tr>
+                        <td>
+                            <div style="display: flex; align-items: center; gap: 12px;">
+                                <div style="width: 40px; height: 40px; background: #e0f2fe; color: var(--secondary); display: flex; align-items: center; justify-content: center; border-radius: 10px;">
+                                    <i class="fas fa-file-alt"></i>
+                                </div>
+                                <span>Homework #{{ grade.AssignmentNumber }}</span>
+                            </div>
+                        </td>
+                        <td>
+                            <div class="marks-container">
+                                <span class="obtained">{{ grade.MarksObtained }}</span>
+                                <span class="total">/ {{ grade.TotalMarks }}</span>
+                            </div>
+                        </td>
+                        <td style="text-align: right;">
+                            <span class="grade-badge" data-score="{{ grade.MarksObtained }}" data-total="{{ grade.TotalMarks }}">Evaluating...</span>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr><td colspan="3" style="text-align:center; padding: 40px; color:#94a3b8;">No assignment grades recorded.</td></tr>
+                    {% endfor %}
+
+                    {% for quiz in QuizGradeRecord %}
+                    <tr>
+                        <td>
+                            <div style="display: flex; align-items: center; gap: 12px;">
+                                <div style="width: 40px; height: 40px; background: #fff7ed; color: #f39c12; display: flex; align-items: center; justify-content: center; border-radius: 10px;">
+                                    <i class="fas fa-bolt"></i>
+                                </div>
+                                <span>Quiz #{{ quiz.QuizNumber }}</span>
+                            </div>
+                        </td>
+                        <td>
+                            <div class="marks-container">
+                                <span class="obtained">{{ quiz.MarksObtained }}</span>
+                                <span class="total">/ {{ quiz.TotalMarks }}</span>
+                            </div>
+                        </td>
+                        <td style="text-align: right;">
+                            <span class="grade-badge" data-score="{{ quiz.MarksObtained }}" data-total="{{ quiz.TotalMarks }}">Evaluating...</span>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", () => {
+            const badges = document.querySelectorAll(".grade-badge");
+
+            badges.forEach(badge => {
+                const score = parseFloat(badge.dataset.score);
+                const total = parseFloat(badge.dataset.total);
+                const percentage = (score / total) * 100;
+
+                let config = { color: "", text: "" };
+
+                if (percentage >= 85) { config = { color: "#27ae60", text: "Excellent" }; }
+                else if (percentage >= 70) { config = { color: "#2980b9", text: "Good" }; }
+                else if (percentage >= 50) { config = { color: "#f39c12", text: "Satisfactory" }; }
+                else { config = { color: "#e74c3c", text: "Poor" }; }
+
+                badge.textContent = config.text;
+                badge.className = "perf-badge";
+                badge.style.color = config.color;
+                badge.style.backgroundColor = config.color + "15"; // Adds 15% opacity to background
+                badge.style.border = `1px solid ${config.color}30`;
+            });
+        });
+    </script>
+</body>
+</html>

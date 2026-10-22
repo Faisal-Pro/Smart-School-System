@@ -1,0 +1,271 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Attendance Command Center</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            --bg: #050a0e;
+            --primary: #3282b8;
+            --secondary: #0f4c75;
+            --accent: #bbe1fa;
+            --success: #00f2fe; /* Cyber cyan */
+            --danger: #ff4b2b;
+            --glass: rgba(15, 23, 42, 0.7);
+            --border: rgba(255, 255, 255, 0.08);
+        }
+
+        body {
+            margin: 0; padding: 0; height: 100vh;
+            display: flex; justify-content: center; align-items: center;
+            background: radial-gradient(circle at top right, #1e3a8a, #0f172a, #020617);
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            color: #f8fafc;
+            overflow: hidden;
+        }
+
+        /* COMMAND CARD */
+        .command-card {
+            background: var(--glass);
+            backdrop-filter: blur(25px);
+            -webkit-backdrop-filter: blur(25px);
+            border: 1px solid var(--border);
+            padding: 50px 40px;
+            border-radius: 48px;
+            box-shadow: 0 40px 100px -20px rgba(0, 0, 0, 0.8);
+            text-align: center;
+            max-width: 480px;
+            width: 90%;
+            position: relative;
+            transition: all 0.5s ease;
+        }
+
+        /* STATUS RING */
+        .status-ring-container {
+            position: relative;
+            width: 240px;
+            height: 240px;
+            margin: 30px auto;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .status-ring {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            border: 4px solid rgba(255, 255, 255, 0.05);
+            transition: all 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .status-ring.active {
+            border-color: var(--success);
+            box-shadow: 0 0 40px rgba(0, 242, 254, 0.2), inset 0 0 20px rgba(0, 242, 254, 0.1);
+            animation: pulse-border 2s infinite;
+        }
+
+        .status-ring.finished {
+            border-color: var(--danger);
+            box-shadow: 0 0 40px rgba(255, 75, 43, 0.2);
+        }
+
+        /* TIMER STYLING */
+        .main-timer {
+            font-size: 5.5rem;
+            font-weight: 800;
+            margin: 0;
+            font-variant-numeric: tabular-nums;
+            background: linear-gradient(to bottom, #fff, #94a3b8);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            letter-spacing: -2px;
+        }
+
+        .active .main-timer {
+            background: linear-gradient(to bottom, #fff, var(--success));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        /* TYPOGRAPHY */
+        .badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 20px;
+            border-radius: 100px;
+            font-size: 0.7rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 2.5px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid var(--border);
+            color: var(--accent);
+            margin-bottom: 24px;
+        }
+
+        h1 { font-size: 1.2rem; font-weight: 400; margin: 0; color: #94a3b8; line-height: 1.4; }
+        .course-name { 
+            color: #fff; 
+            font-weight: 800; 
+            display: block; 
+            font-size: 2.4rem; 
+            margin-top: 5px;
+            letter-spacing: -1px;
+        }
+
+        .sub-text {
+            color: #64748b;
+            font-size: 0.9rem;
+            margin-top: 25px;
+            font-weight: 500;
+            max-width: 80%;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        /* LASER SCANNER */
+        .laser-scanner {
+            position: absolute;
+            width: 80%;
+            height: 2px;
+            background: linear-gradient(90deg, transparent, var(--success), transparent);
+            box-shadow: 0 0 15px var(--success);
+            top: 50%;
+            left: 10%;
+            opacity: 0;
+            z-index: 5;
+            pointer-events: none;
+        }
+
+        .active .laser-scanner { 
+            animation: scan 3s ease-in-out infinite; 
+            opacity: 0.6; 
+        }
+
+        @keyframes scan { 
+            0%, 100% { transform: translateY(-80px); opacity: 0; } 
+            50% { transform: translateY(80px); opacity: 1; } 
+        }
+
+        @keyframes pulse-border {
+            0% { transform: scale(1); opacity: 1; }
+            50% { transform: scale(1.05); opacity: 0.8; }
+            100% { transform: scale(1); opacity: 1; }
+        }
+
+        #active-state { display: none; }
+    </style>
+</head>
+<body>
+
+    <div class="command-card" id="main-container" data-Course-Id="{{ Course_Id }}">
+
+        <div id="countdown-state">
+            <span class="badge"><i class="fas fa-sync fa-spin"></i> Initializing Node</span>
+            <h1>Preparing Portal For<br><span class="course-name">{{ CourseName }}</span></h1>
+            
+            <div class="status-ring-container">
+                <div class="status-ring"></div>
+                <div class="main-timer" id="timer">10</div>
+            </div>
+            
+            <p class="sub-text">Calibrating biometric sensors and establishing secure uplink...</p>
+        </div>
+
+        <div id="active-state">
+            <span class="badge" id="session-badge" style="border-color: var(--success); color: var(--success);">
+                <i class="fas fa-broadcast-tower"></i> System Live
+            </span>
+            <h1 id="session-title">Attendance Gateway <span class="course-name" style="color: var(--success);">ACTIVE</span></h1>
+            
+            <div class="status-ring-container active">
+                <div class="status-ring active" id="main-ring"></div>
+                <div class="laser-scanner"></div>
+                <div class="main-timer" id="session-timer" style="font-size: 3.8rem;">01:00</div>
+            </div>
+            
+            <p class="sub-text" id="session-p">Neural-link active. AI is identifying students in real-time.</p>
+        </div>
+    </div>
+
+    <script>
+        const timerElement = document.getElementById('timer');
+        const sessionTimerElement = document.getElementById('session-timer');
+        const countdownState = document.getElementById('countdown-state');
+        const activeState = document.getElementById('active-state');
+        const mainRing = document.getElementById('main-ring');
+        const sessionBadge = document.getElementById('session-badge');
+        const sessionTitle = document.getElementById('session-title');
+        const container = document.getElementById('main-container');
+        const courseId = container.getAttribute('data-Course-Id');
+
+        let leadInSeconds = 10;
+        let sessionSeconds = 60;
+
+        const leadInInterval = setInterval(() => {
+            leadInSeconds--;
+            timerElement.textContent = leadInSeconds;
+
+            if (leadInSeconds <= 0) {
+                clearInterval(leadInInterval);
+                activateBackendSession(); 
+                startActiveSession();
+            }
+        }, 1000);
+
+        function activateBackendSession() {
+            fetch(`/activate-attendance-session/${courseId}/`)
+                .catch(err => console.error("Uplink Error:", err));
+        }
+
+        function startActiveSession() {
+            countdownState.style.opacity = '0';
+            setTimeout(() => {
+                countdownState.style.display = 'none';
+                activeState.style.display = 'block';
+                activeState.style.opacity = '1';
+            }, 300);
+
+            const sessionInterval = setInterval(() => {
+                sessionSeconds--;
+                
+                let mins = Math.floor(sessionSeconds / 60);
+                let secs = sessionSeconds % 60;
+                sessionTimerElement.textContent = 
+                    `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+
+                if (sessionSeconds <= 0) {
+                    clearInterval(sessionInterval);
+                    closeAttendanceGate();
+                }
+            }, 1000);
+        }
+
+        function closeAttendanceGate() {
+            sessionTimerElement.textContent = "DONE";
+            sessionTimerElement.style.fontSize = "2.8rem";
+            
+            mainRing.classList.remove('active');
+            mainRing.classList.add('finished');
+            
+            sessionBadge.innerHTML = "<i class='fas fa-lock'></i> Encrypted";
+            sessionBadge.style.borderColor = "var(--danger)";
+            sessionBadge.style.color = "var(--danger)";
+            
+            sessionTitle.innerHTML = "Gateway <span class='course-name' style='color:var(--danger)'>CLOSED</span>";
+            document.getElementById('session-p').textContent = "Uplink terminated. Attendance records are now immutable.";
+
+            fetch(`/deactivate-attendance-session/${courseId}/`)
+                .catch(err => console.error("Closure Error:", err));
+        }
+    </script>
+</body>
+</html>

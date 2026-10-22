@@ -1,0 +1,334 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="icon" type="image/x-icon" href="{% static 'Images/School Logo.jpg' %}">
+    <title>{{ CourseRecord.0.1 }} | Learning Stream</title>
+    <style>
+        :root {
+            --primary: #0f4c75;
+            --secondary: #3282b8;
+            --accent: #bbe1fa;
+            --bg: #f0f4f8;
+            --white: #ffffff;
+            --text-dark: #1e293b;
+            --sidebar-width: 280px;
+            --success: #27ae60;
+            --warning: #f39c12;
+            --danger: #e74c3c;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Plus Jakarta Sans', sans-serif; background-color: var(--bg); color: var(--text-dark); display: flex; }
+
+        /* Sidebar Styling */
+        .sidebar {
+            width: var(--sidebar-width);
+            height: 100vh;
+            background-color: var(--primary);
+            color: #fff;
+            position: fixed;
+            display: flex;
+            flex-direction: column;
+            z-index: 1000;
+            box-shadow: 4px 0 10px rgba(0,0,0,0.1);
+        }
+
+        .user-profile {
+            padding: 40px 20px 20px 20px;
+            text-align: center;
+            background: linear-gradient(to bottom, #083352, var(--primary));
+        }
+
+        .user-profile img {
+            width: 80px; height: 80px; border-radius: 50%;
+            border: 3px solid var(--secondary); object-fit: cover; margin-bottom: 12px;
+        }
+
+        .user-profile h3 { font-size: 1rem; font-weight: 700; color: var(--accent); }
+
+        nav { flex: 1; display: flex; flex-direction: column; }
+        nav ul { list-style: none; padding: 10px 0; flex: 1; }
+        nav ul li a {
+            padding: 14px 25px; color: rgba(255,255,255,0.7);
+            text-decoration: none; display: flex; align-items: center;
+            gap: 15px; transition: 0.3s; font-weight: 500; cursor: pointer;
+        }
+
+        nav ul li a:hover { background: rgba(255,255,255,0.1); color: #fff; }
+        nav ul li a.active { background: var(--secondary); color: #fff; }
+
+        .sidebar-footer { padding: 20px; border-top: 1px solid rgba(255,255,255,0.1); }
+        .btn-sidebar-back {
+            display: flex; align-items: center; gap: 10px; color: #fff;
+            text-decoration: none; font-weight: 600; font-size: 0.9rem;
+            padding: 12px; border-radius: 12px; background: rgba(255,255,255,0.1); transition: 0.3s;
+        }
+        .btn-sidebar-back:hover { background: #e74c3c; }
+
+        /* Main Content */
+        .main-content { margin-left: var(--sidebar-width); flex: 1; padding: 40px; }
+
+        .header-banner {
+            background: var(--white); padding: 25px 35px; border-radius: 20px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05); margin-bottom: 30px;
+            display: flex; justify-content: space-between; align-items: center;
+        }
+
+        .header-left { display: flex; align-items: center; gap: 20px; }
+        .back-circle {
+            width: 45px; height: 45px; background: var(--bg); border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            color: var(--primary); text-decoration: none; transition: 0.3s;
+        }
+        .back-circle:hover { background: var(--primary); color: white; transform: translateX(-3px); }
+        .header-banner h1 { font-size: 1.6rem; color: var(--primary); font-weight: 800; }
+
+        /* AI INSIGHT CARD STYLING */
+        .ai-insight-card {
+            background: var(--white);
+            border-radius: 24px;
+            padding: 25px;
+            margin-bottom: 35px;
+            display: flex;
+            align-items: center;
+            gap: 30px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+            border-left: 10px solid var(--success);
+            transition: 0.3s ease;
+        }
+        /* Dynamic Colors for Risk Levels */
+        .ai-insight-card.warning { border-left-color: var(--warning); }
+        .ai-insight-card.danger { border-left-color: var(--danger); }
+
+        .risk-gauge {
+            min-width: 110px;
+            height: 110px;
+            border-radius: 50%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            background: var(--bg);
+            border: 6px solid var(--success);
+        }
+        .warning .risk-gauge { border-color: var(--warning); }
+        .danger .risk-gauge { border-color: var(--danger); }
+
+        .risk-gauge .percent { font-size: 1.6rem; font-weight: 800; color: var(--primary); }
+        .risk-gauge .label { font-size: 0.65rem; text-transform: uppercase; font-weight: 700; opacity: 0.6; }
+
+        .advice-content h3 { font-size: 1.2rem; margin-bottom: 10px; color: var(--primary); display: flex; align-items: center; gap: 10px; }
+        .advice-content ul { list-style: none; padding: 0; }
+        .advice-content ul li { font-size: 0.95rem; color: #475569; display: flex; align-items: center; gap: 10px; margin-bottom: 6px; }
+        .advice-content ul li i { color: var(--secondary); font-size: 0.8rem; }
+
+        /* Attendance Modal Styling */
+        .modal {
+            display: none; position: fixed; z-index: 3000;
+            left: 0; top: 0; width: 100%; height: 100%;
+            background-color: rgba(0,0,0,0.6); backdrop-filter: blur(8px);
+        }
+
+        .modal-card {
+            background: var(--white); margin: 10% auto; padding: 40px;
+            border-radius: 25px; width: 400px; text-align: center;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.2); position: relative;
+        }
+
+        .status-icon { font-size: 4rem; margin-bottom: 20px; }
+        .waiting { color: var(--warning); animation: pulse 2s infinite; }
+        .active-gate { color: var(--success); }
+
+        .btn-verify {
+            background: var(--success); color: white; padding: 15px 30px;
+            border-radius: 12px; text-decoration: none; display: none;
+            margin-top: 20px; font-weight: 700; transition: 0.3s;
+        }
+        .btn-verify:hover { transform: scale(1.05); background: #219150; }
+
+        @keyframes pulse {
+            0% { transform: scale(1); opacity: 1; }
+            50% { transform: scale(1.1); opacity: 0.7; }
+            100% { transform: scale(1); opacity: 1; }
+        }
+
+        .materials-grid { max-width: 900px; margin: 0 auto; display: flex; flex-direction: column; gap: 30px; }
+        .material-card { background: var(--white); border-radius: 24px; padding: 25px; box-shadow: 0 10px 25px rgba(0,0,0,0.03); border: 1px solid #e2e8f0; }
+        .card-header { display: flex; align-items: center; margin-bottom: 20px; }
+        .card-header img { width: 48px; height: 48px; border-radius: 12px; margin-right: 15px; }
+        .author-info h4 { font-size: 1rem; color: var(--primary); }
+        .description-box { font-size: 0.95rem; line-height: 1.6; color: #475569; margin-bottom: 20px; }
+        .media-container { border-radius: 15px; overflow: hidden; background: #f8fafc; border: 1px solid #f1f5f9; }
+        .img-preview { width: 100%; cursor: pointer; display: block; max-height: 500px; object-fit: cover; }
+        video { width: 100%; display: block; background: #000; }
+
+        @media (max-width: 1024px) {
+            .sidebar { width: 80px; }
+            .sidebar span, .user-profile h3, .sidebar-footer span { display: none; }
+            .main-content { margin-left: 80px; padding: 20px; }
+        }
+    </style>
+</head>
+<body>
+
+    <div id="attendanceModal" class="modal">
+        <div class="modal-card">
+            <span style="position:absolute; right:20px; top:15px; cursor:pointer;" onclick="closeAttendance()"><i class="fas fa-times"></i></span>
+            <div id="statusIcon" class="status-icon waiting"><i class="fas fa-hourglass-half"></i></div>
+            <h2 id="modalTitle">Scanning for Session...</h2>
+            <p id="modalDesc">Please wait for your teacher to open today's attendance gate.</p>
+            
+            <a href="{% url 'StudentFaceLogInPage' CourseID StudentID %}" id="verifyBtn" class="btn-verify">
+                <i class="fas fa-camera"></i> Start Face Verification
+            </a>
+        </div>
+    </div>
+
+    <aside class="sidebar">
+        <div class="user-profile">
+            {% if StudentRecord.0.StudentImage %}
+                <img src="data:image/jpeg;base64,{{ StudentRecord.0.StudentImage }}" alt="Profile">
+            {% else %}
+                <img src="https://ui-avatars.com/api/?name={{ StudentRecord.0.StudentName }}" alt="Profile">
+            {% endif %}
+            <h3>{{ StudentRecord.0.StudentName }}</h3>
+        </div>
+        
+        <nav>
+            <ul>
+                <li><a href="{% url 'course_list' StudentID %}" class="active"><i class="fas fa-th-large"></i> <span>My Courses</span></a></li>
+                <li><a href="javascript:void(0)" onclick="openAttendance()"><i class="fas fa-fingerprint"></i> <span>Assign Presence</span></a></li>
+                <li><a href="{% url 'take_quiz' StudentID CourseID %}"><i class="fas fa-lightbulb"></i> <span>Quizzes</span></a></li>
+                <li><a href="{% url 'HomeWork' CourseID StudentID %}"><i class="fas fa-edit"></i> <span>Homework</span></a></li>
+                <li><a href="{% url 'Grade' CourseID StudentID %}"><i class="fas fa-chart-line"></i> <span>Grades</span></a></li>
+            </ul>
+        </nav>
+
+        <div class="sidebar-footer">
+            <a href="javascript:history.back()" class="btn-sidebar-back">
+                <i class="fas fa-arrow-left"></i>
+                <span>Exit Course</span>
+            </a>
+        </div>
+    </aside>
+
+    <main class="main-content">
+        <header class="header-banner">
+            <div class="header-left">
+                <a href="javascript:history.back()" class="back-circle">
+                    <i class="fas fa-chevron-left"></i>
+                </a>
+                <div>
+                    <h1>{{ CourseRecord.0.1 }}</h1>
+                    <p id="dateTime" style="font-weight: 600; color: var(--secondary);"></p>
+                </div>
+            </div>
+            <div style="opacity: 0.3;"><i class="fas fa-graduation-cap fa-2x"></i></div>
+        </header>
+
+        <section class="ai-insight-card {% if ai_report.risk_score > 70 %}danger{% elif ai_report.risk_score > 40 %}warning{% endif %}">
+            <div class="risk-gauge">
+                <span class="percent">{{ ai_report.risk_score }}%</span>
+                <span class="label">Risk Level</span>
+            </div>
+            <div class="advice-content">
+                <h3><i class="fas fa-robot"></i> AI Academic Analysis</h3>
+                <ul>
+                    {% for advice in ai_report.advice %}
+                        <li><i class="fas fa-caret-right"></i> {{ advice }}</li>
+                    {% empty %}
+                        <li><i class="fas fa-check-circle"></i> Everything looks great! Keep up the good work.</li>
+                    {% endfor %}
+                </ul>
+            </div>
+        </section>
+
+        <section class="materials-grid">
+            {% if materials %}
+                {% for material in materials %}
+                    <article class="material-card">
+                        <div class="card-header">
+                            <img src="data:image/jpeg;base64,{{ material.publisher_image }}" 
+                                 onerror="this.src='https://ui-avatars.com/api/?name={{ material.publisher_name }}'">
+                            <div class="author-info">
+                                <h4>Dr. {{ material.publisher_name }}</h4>
+                                <span><i class="far fa-clock"></i> {{ material.date_posted }}</span>
+                            </div>
+                        </div>
+                        <div class="description-box">{{ material.description }}</div>
+                        <div class="media-container">
+                            {% if material.material_type == 'image' %}
+                                <img src="data:image/jpeg;base64,{{ material.file_path }}" class="img-preview">
+                            {% elif material.material_type == 'video' %}
+                                <video controls><source src="data:video/mp4;base64,{{ material.file_path }}" type="video/mp4"></video>
+                            {% endif %}
+                        </div>
+                    </article>
+                {% endfor %}
+            {% else %}
+                <div style="text-align:center; padding:100px 20px; opacity: 0.4;">
+                    <i class="fas fa-cloud-moon fa-4x"></i>
+                    <h2 style="margin-top: 20px;">No course materials yet.</h2>
+                </div>
+            {% endif %}
+        </section>
+    </main>
+
+    <script>
+        // 1. Clock Update
+        function updateDateTime() {
+            const now = new Date();
+            const options = { weekday: 'long', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit' };
+            document.getElementById('dateTime').textContent = now.toLocaleDateString('en-US', options);
+        }
+        updateDateTime();
+
+        // 2. Attendance Polling
+        let pollingInterval;
+        const modal = document.getElementById('attendanceModal');
+
+        function openAttendance() {
+            modal.style.display = 'block';
+            checkServerStatus(); 
+            pollingInterval = setInterval(checkServerStatus, 3000);
+        }
+
+        function closeAttendance() {
+            modal.style.display = 'none';
+            clearInterval(pollingInterval);
+        }
+
+        function checkServerStatus() {
+            // Adding ?t= + Date.now() forces the browser to get NEW data every time
+            fetch(`/check-attendance-status/{{ CourseID }}/?t=${Date.now()}`)
+                .then(response => response.json())
+                .then(data => {
+                    const btn = document.getElementById('verifyBtn');
+                    const icon = document.getElementById('statusIcon');
+                    const title = document.getElementById('modalTitle');
+
+                    if (data.is_active === true) {
+                        icon.innerHTML = '<i class="fas fa-check-circle"></i>';
+                        icon.className = 'status-icon active-gate';
+                        title.textContent = "Attendance is Open!";
+                        btn.style.display = 'inline-block';
+                    } else {
+                        icon.innerHTML = '<i class="fas fa-hourglass-half"></i>';
+                        icon.className = 'status-icon waiting';
+                        title.textContent = "Scanning for Session...";
+                        btn.style.display = 'none';
+                    }
+                });
+        }
+
+        window.onclick = function(event) {
+            if (event.target == modal) closeAttendance();
+        }
+    </script>
+</body>
+</html>

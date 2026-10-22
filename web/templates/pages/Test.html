@@ -1,0 +1,438 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        .container {
+            display: flex;
+            max-width: 800px;
+            margin: 50px auto;
+            background-color: #fff;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            height: 80vh;
+        }
+
+        .sidebar {
+            width: 200px;
+            background-color: #f1f1f1;
+            border-right: 1px solid #ccc;
+            overflow-y: auto;
+        }
+
+        .profile {
+            padding: 10px;
+            margin: 5px;
+            background-color: #fff;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            text-decoration: none;
+            color: inherit;
+        }
+
+        .profile img {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            margin-right: 10px;
+        }
+
+        .profile:hover {
+            background-color: #0f4c75; /* Change background color on hover */
+        }
+
+        .chat-container {
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .message-header {
+            text-align: center;
+            font-size: 14px;
+            color: #666;
+            padding: 5px;
+            border-bottom: 1px solid #ccc;
+        }
+
+        .message-container {
+            flex-grow: 1;
+            padding: 10px;
+            overflow-y: auto;
+        }
+
+        .message {
+            margin: 10px;
+            display: flex;
+            align-items: flex-start;
+        }
+
+        .message-widget {
+            padding: 10px;
+            border-radius: 8px;
+            max-width: 70%;
+            word-wrap: break-word;
+            display: flex;
+            flex-direction: column;
+            color: #000;
+        }
+
+        .sender-message-widget {
+            align-self: flex-end;
+            background-color: gray;
+            color: #fff;
+        }
+
+        .receiver-message-widget {
+            align-self: flex-start;
+            background-color: #e0e0e0;
+            color: #000;
+        }
+
+        .message-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 5px;
+        }
+
+        .avatar {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            margin-right: 10px;
+        }
+
+        .message-text {
+            margin-bottom: 5px;
+        }
+
+        .message-time {
+            font-size: 12px;
+            color: #999;
+        }
+
+        .message-input-container {
+            display: flex;
+            padding: 10px;
+            background-color: #f9f9f9;
+            flex-direction: row;
+            align-items: center;
+        }
+
+        .message-input {
+            flex-grow: 1;
+            padding: 8px;
+            margin-right: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+
+        .send-button {
+            padding: 8px;
+            background-color: #4CAF50;
+            color: #fff;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            min-width: auto;
+        }
+
+        /* Modal Styles */
+        .modal {
+            display: none; /* Hidden by default */
+            position: fixed; /* Stay in place */
+            z-index: 1; /* Sit on top */
+            padding-top: 60px; /* Location of the box */
+            left: 0;
+            top: 0;
+            width: 100%; /* Full width */
+            height: 100%; /* Full height */
+            overflow: auto; /* Enable scroll if needed */
+            background-color: rgb(0,0,0); /* Fallback color */
+            background-color: rgba(0,0,0,0.9); /* Black w/ opacity */
+        }
+
+        .modal-content {
+            margin: auto;
+            display: block;
+            width: 80%;
+            max-width: 700px;
+        }
+
+        .close {
+            position: absolute;
+            top: 15px;
+            right: 35px;
+            color: #f1f1f1;
+            font-size: 40px;
+            font-weight: bold;
+            transition: 0.3s;
+        }
+
+        .close:hover,
+        .close:focus {
+            color: #bbb;
+            text-decoration: none;
+            cursor: pointer;
+        }
+
+        @media only screen and (max-width: 700px){
+            .modal-content {
+                width: 100%;
+            }
+        }
+
+        /* PDF Styles */
+        .pdf-viewer {
+            width: 100%;
+            height: 80vh;
+        }
+    </style>
+    <title>Chat Template UI</title>
+</head>
+
+<body>
+    <div class="container">
+        <div class="sidebar">
+            {% for profile in profiles %}
+            <a href="#" class="profile-link" onclick="fetchMessages('{{ profile.0 }}', '{{ profile.2 }}'); return false;">
+                <div class="profile">
+                    <img src="#" alt="{{ profile.0 }}">
+                    <div>{{ profile.0 }}</div>
+                </div>
+            </a>
+            {% endfor %}
+        </div>
+        <div class="chat-container" id="chatContainer">
+            <div class="message-header">Conversation</div>
+            <div class="message-container" id="messageContainer">
+                <!-- Messages will be inserted here by JavaScript -->
+            </div>
+            <div class="message-input-container">
+                <input type="text" id="messageInput" class="message-input" placeholder="Type your message...">
+                <input type="file" id="fileInput" class="file-input" accept="image/*,.pdf">
+                <button id="sendButton" class="send-button">Send</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- The Modal -->
+    <div id="myModal" class="modal">
+        <span class="close">&times;</span>
+        <img class="modal-content" id="img01">
+        <iframe class="modal-content pdf-viewer" id="pdf01" frameborder="0"></iframe>
+    </div>
+
+    <script>
+        const messageInput = document.getElementById('messageInput');
+        const fileInput = document.getElementById('fileInput');
+        const sendButton = document.getElementById('sendButton');
+        const messageContainer = document.getElementById('messageContainer');
+        let currentProfileAvatar = "#";
+
+        function sendMessage() {
+            const messageText = messageInput.value.trim();
+            const file = fileInput.files[0];
+            
+            if (messageText === '' && !file) {
+                return; // Do nothing if no text or file is provided
+            }
+
+            const now = new Date();
+            const messageElement = document.createElement('div');
+            messageElement.classList.add('message');
+            
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    if (file.type === 'application/pdf') {
+                        messageElement.innerHTML = `
+                            <div class="message-widget sender-message-widget">
+                                <div class="message-header">
+                                    <img class="avatar" src="${currentProfileAvatar}" alt="Avatar">
+                                    <div class="message-time">${now.getHours()}:${now.getMinutes()}</div>
+                                </div>
+                                <div class="message-text">${messageText}</div>
+                                <div class="message-file">
+                                    <a href="${e.target.result}" target="_blank" onclick="openModal('${e.target.result}', 'pdf')">View PDF</a>
+                                </div>
+                            </div>
+                        `;
+                    } else {
+                        messageElement.innerHTML = `
+                            <div class="message-widget sender-message-widget">
+                                <div class="message-header">
+                                    <img class="avatar" src="${currentProfileAvatar}" alt="Avatar">
+                                    <div class="message-time">${now.getHours()}:${now.getMinutes()}</div>
+                                </div>
+                                <div class="message-text">${messageText}</div>
+                                <div class="message-image">
+                                    <img src="${e.target.result}" alt="Image" style="max-width: 100%;" onclick="openModal('${e.target.result}', 'image')">
+                                </div>
+                            </div>
+                        `;
+                    }
+                    messageContainer.appendChild(messageElement);
+
+                    // Call the saveMessage function with the extracted data
+                    saveMessage(messageText, e.target.result, file.type, now.toISOString().slice(0, 10), now.getHours(), now.getMinutes());
+
+                    // Clear input field and file input after sending message
+                    messageInput.value = '';
+                    fileInput.value = '';
+                    messageInput.focus();
+                }
+                reader.readAsDataURL(file);
+            } else {
+                messageElement.innerHTML = `
+                    <div class="message-widget sender-message-widget">
+                        <div class="message-header">
+                            <img class="avatar" src="${currentProfileAvatar}" alt="Avatar">
+                            <div class="message-time">${now.getHours()}:${now.getMinutes()}</div>
+                        </div>
+                        <div class="message-text">${messageText}</div>
+                    </div>
+                `;
+                messageContainer.appendChild(messageElement);
+
+                // Call the saveMessage function with the extracted data
+                saveMessage(messageText, '', '', now.toISOString().slice(0, 10), now.getHours(), now.getMinutes());
+
+                // Clear input field after sending message
+                messageInput.value = '';
+                messageInput.focus();
+            }
+        }
+
+        function fetchMessages(profileId, avatar) {
+            currentProfileAvatar = "#";
+            const formData = new FormData();
+            formData.append('profile_id', profileId);
+
+            fetch('/get_message/', {
+                method: 'POST',
+                headers: {
+                    'X-CSRFToken': getCookie('csrftoken')
+                },
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                displayMessages(data.messages, currentProfileAvatar);
+            })
+            .catch(error => {
+                console.error('Error fetching messages:', error);
+            });
+        }
+
+        function displayMessages(messages, avatar) {
+            messageContainer.innerHTML = ''; // Clear previous messages
+
+            messages.forEach(message => {
+                const messageElement = document.createElement('div');
+                messageElement.classList.add('message');
+                let messageWidgetClass = 'receiver-message-widget';
+                let messageBackgroundColor = '#e0e0e0'; // Default background color
+
+                if (message.source == 1) {
+                    messageBackgroundColor = '#32CD32'; // Green for source == 1
+                } else if (message.source == 2) {
+                    messageBackgroundColor = '#808080'; // Gray for source == 2
+                }
+
+                messageElement.innerHTML = `
+                    <div class="message-widget ${messageWidgetClass}" style="background-color: ${messageBackgroundColor};">
+                        <div class="message-header">
+                            <img class="avatar" src="${avatar}" alt="Avatar">
+                            <div class="message-time">${message.hour}:${message.minute}</div>
+                        </div>
+                        <div class="message-text">${message.text}</div>
+                        ${message.image ? `<div class="message-image"><img src="${message.image}" alt="Image" style="max-width: 100%;" onclick="openModal('${message.image}', 'image')"></div>` : ''}
+                        ${message.file ? `<div class="message-file"><a href="${message.file}" target="_blank" onclick="openModal('${message.file}', 'pdf')">View PDF</a></div>` : ''}
+                    </div>
+                `;
+                
+                messageContainer.appendChild(messageElement);
+            });
+        }
+
+        function saveMessage(message, file, fileType, date, hour, minute) {
+            const data = new FormData();
+            data.append('message', message);
+            data.append('file', file);
+            data.append('fileType', fileType);
+            data.append('date', date);
+            data.append('hour', hour);
+            data.append('minute', minute);
+
+            fetch('/save_message/', {
+                method: 'POST',
+                headers: {
+                    'X-CSRFToken': getCookie('csrftoken')
+                },
+                body: data
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+                return response.json();
+            })
+            .then(data => {
+                console.log('Message saved successfully:', data);
+            })
+            .catch(error => {
+                console.error('Error saving message:', error);
+            });
+        }
+
+        function getCookie(name) {
+            const value = `; ${document.cookie}`;
+            const parts = value.split(`; ${name}=`);
+            if (parts.length === 2) return parts.pop().split(';').shift();
+        }
+
+        sendButton.addEventListener('click', sendMessage);
+        messageInput.addEventListener('keypress', function(event) {
+            if (event.key === 'Enter') {
+                sendMessage();
+            }
+        });
+
+        // Modal functionality
+        const modal = document.getElementById("myModal");
+        const modalImg = document.getElementById("img01");
+        const modalPdf = document.getElementById("pdf01");
+        const span = document.getElementsByClassName("close")[0];
+
+        function openModal(src, type) {
+            modal.style.display = "block";
+            if (type === 'image') {
+                modalImg.style.display = "block";
+                modalPdf.style.display = "none";
+                modalImg.src = src;
+            } else if (type === 'pdf') {
+                modalImg.style.display = "none";
+                modalPdf.style.display = "block";
+                modalPdf.src = src;
+            }
+        }
+
+        span.onclick = function() { 
+            modal.style.display = "none";
+        }
+
+        window.onclick = function(event) {
+            if (event.target == modal) {
+                modal.style.display = "none";
+            }
+        }
+    </script>
+</body>
+</html>

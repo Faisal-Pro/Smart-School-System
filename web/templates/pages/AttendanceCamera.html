@@ -1,0 +1,237 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Identity Verification</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary-bg: #1b262c;
+            --accent: #3282b8;
+            --light-blue: #bbe1fa;
+            --success: #00b894;
+            --danger: #ff7675;
+            --glass: rgba(27, 38, 44, 0.85);
+        }
+
+        body {
+            margin: 0;
+            background: radial-gradient(circle at center, #1b262c, #0f4c75);
+            color: white;
+            font-family: 'Segoe UI', Roboto, sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        /* 1. GLASS OVERLAY PANEL */
+        .header-panel {
+            position: absolute;
+            top: 30px;
+            background: var(--glass);
+            backdrop-filter: blur(10px);
+            padding: 15px 30px;
+            border-radius: 50px;
+            border: 1px solid rgba(187, 225, 250, 0.2);
+            text-align: center;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+            z-index: 100;
+        }
+
+        .header-panel h2 { margin: 0; font-size: 1.2rem; letter-spacing: 1px; color: var(--light-blue); }
+        .id-badge { font-size: 0.8rem; opacity: 0.7; font-family: monospace; }
+
+        /* 2. CIRCULAR CAMERA PORTAL */
+        .camera-wrapper {
+            position: relative;
+            width: 450px;
+            height: 450px;
+            border-radius: 50%;
+            border: 4px solid var(--accent);
+            padding: 10px;
+            box-shadow: 0 0 50px rgba(50, 130, 184, 0.4);
+            background: rgba(0,0,0,0.2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .camera-inner {
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            overflow: hidden;
+            position: relative;
+            background: #000;
+        }
+
+        video {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transform: scaleX(-1); /* Mirror effect */
+        }
+
+        /* 3. HI-TECH SCANNING ELEMENTS */
+        .face-guide {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 70%;
+            height: 70%;
+            border: 2px dashed rgba(187, 225, 250, 0.4);
+            border-radius: 50%;
+            pointer-events: none;
+            z-index: 10;
+        }
+
+        .scan-line {
+            position: absolute;
+            width: 100%;
+            height: 4px;
+            background: linear-gradient(to bottom, transparent, var(--light-blue), transparent);
+            top: 0;
+            z-index: 15;
+            animation: scanMove 3s ease-in-out infinite;
+            box-shadow: 0 0 20px var(--light-blue);
+        }
+
+        @keyframes scanMove {
+            0%, 100% { top: 10%; opacity: 0.2; }
+            50% { top: 90%; opacity: 1; }
+        }
+
+        /* 4. STATUS FEEDBACK */
+        .status-container {
+            margin-top: 30px;
+            text-align: center;
+            z-index: 10;
+        }
+
+        .log-text {
+            display: block;
+            font-size: 1.4rem;
+            font-weight: 600;
+            margin-bottom: 5px;
+            transition: 0.3s;
+        }
+
+        .hint-text {
+            color: var(--light-blue);
+            font-size: 0.9rem;
+            opacity: 0.8;
+        }
+
+        /* Ambient background glow */
+        .bg-glow {
+            position: absolute;
+            width: 600px;
+            height: 600px;
+            background: radial-gradient(circle, rgba(50, 130, 184, 0.15) 0%, transparent 70%);
+            z-index: 1;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="bg-glow"></div>
+
+    <div class="header-panel">
+        <h2><i class="fas fa-shield-halved"></i> AI IDENTITY CHECK</h2>
+        <span class="id-badge">VERIFYING STUDENT: {{ StudentID }}</span>
+    </div>
+
+    <div class="camera-wrapper">
+        <div class="camera-inner">
+            <video id="video" autoplay playsinline></video>
+            <div class="face-guide"></div>
+            <div class="scan-line"></div>
+        </div>
+    </div>
+
+    <div class="status-container">
+        <span id="log" class="log-text">Initializing AI...</span>
+        <span class="hint-text">Keep your face centered and well-lit</span>
+    </div>
+
+    <script>
+        const video = document.getElementById('video');
+        const log = document.getElementById('log');
+
+        // Start WebCam
+        navigator.mediaDevices.getUserMedia({ video: { width: 640, height: 480 } })
+            .then(stream => { 
+                video.srcObject = stream; 
+                log.textContent = "AI Ready - Scanning...";
+            })
+            .catch(err => { 
+                log.textContent = "Camera Error";
+                log.style.color = "var(--danger)";
+                alert("Camera access denied."); 
+            });
+
+        // Safety Check Interval
+        const sessionCheckInterval = setInterval(() => {
+            fetch("/check-attendance-status/{{ CourseID }}/")
+                .then(res => res.json())
+                .then(data => {
+                    if (!data.is_active) {
+                        clearInterval(sessionCheckInterval);
+                        clearInterval(inferenceInterval);
+                        alert("The attendance session has ended.");
+                        window.location.href = "/CoursePageStudent/{{ CourseID }}/{{ StudentID }}/";
+                    }
+                });
+        }, 5000);
+
+        // AI Inference Loop
+        const inferenceInterval = setInterval(() => {
+            const canvas = document.createElement('canvas');
+            canvas.width = 640;
+            canvas.height = 480;
+            const ctx = canvas.getContext('2d');
+            ctx.drawImage(video, 0, 0, 640, 480);
+            const imageData = canvas.toDataURL('image/jpeg', 0.8);
+
+            log.textContent = "Analyzing Features...";
+            log.style.color = "var(--light-blue)";
+            
+            const csrftoken = "{{ csrf_token }}"
+            fetch("{% url 'SubmitAttendanceAI' %}", {
+                method: "POST",
+                headers: { 
+                    "Content-Type": "application/x-www-form-urlencoded",
+                    "X-CSRFToken": csrftoken  // <--- ADD THIS LINE
+                },
+                body: `image=${encodeURIComponent(imageData)}&course_id={{ CourseID }}&student_id={{ StudentID }}`
+            })
+            .then(res => res.json())
+            .then(data => {
+                if (data.status === 'success') {
+                    log.textContent = "Identity Confirmed!";
+                    log.style.color = "var(--success)";
+                    document.querySelector('.camera-wrapper').style.borderColor = "var(--success)";
+                    
+                    clearInterval(inferenceInterval);
+                    clearInterval(sessionCheckInterval);
+                    
+                    setTimeout(() => {
+                        window.location.href = "/CoursePageStudent/{{ StudentID }}/{{ CourseID }}/";
+                    }, 1500);
+
+                } else if (data.status === 'not_recognized') {
+                    log.textContent = "Recognition Failed";
+                    log.style.color = "var(--danger)";
+                }
+            })
+            .catch(err => console.error("AI Server Error:", err));
+        }, 3000);
+    </script>
+</body>
+</html>

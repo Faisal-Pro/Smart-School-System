@@ -1,0 +1,200 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+    <title>Upload Material</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: Arial, sans-serif;
+        }
+
+        body {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .sidebar {
+            width: 250px;
+            height: 100vh;
+            background-color: #0f4c75;
+            color: #fff;
+            position: fixed;
+            top: 0;
+            left: 0;
+        }
+
+        .sidebar .logo {
+            text-align: center;
+            padding: 20px 0;
+            background-color: #3282b8;
+        }
+
+        .sidebar .logo img {
+            height: 50px;
+        }
+
+        .sidebar nav ul {
+            list-style-type: none;
+            padding: 0;
+        }
+
+        .sidebar nav ul li {
+            padding: 15px 20px;
+            text-align: left;
+        }
+
+        .sidebar nav ul li a {
+            text-decoration: none;
+            color: #fff;
+            display: block;
+        }
+
+        .sidebar nav ul li a:hover {
+            background-color: #3282b8;
+        }
+
+        .main-content {
+            margin-left: 250px;
+            padding: 20px;
+            width: calc(100% - 250px);
+        }
+
+        .header {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+            background-color: #f8f8f8;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .header h1 {
+            font-size: 24px;
+            color: #0f4c75;
+            margin-bottom: 10px;
+        }
+
+        .form-container {
+            background-color: #fff;
+            padding: 20px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            border-radius: 8px;
+            max-width: 600px;
+            margin: 20px auto;
+        }
+
+        .form-container h2 {
+            text-align: center;
+            color: #0f4c75;
+            margin-bottom: 20px;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            color: #555;
+        }
+
+        .form-group input, .form-group textarea, .form-group select {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+
+        .form-group textarea {
+            resize: vertical;
+            height: 100px;
+        }
+
+        .form-group input[type="file"] {
+            padding: 3px;
+        }
+
+        .form-group button {
+            display: block;
+            width: 100%;
+            padding: 10px;
+            background-color: #3282b8;
+            border: none;
+            border-radius: 4px;
+            color: #fff;
+            font-size: 16px;
+            cursor: pointer;
+        }
+
+        .form-group button:hover {
+            background-color: #0f4c75;
+        }
+    </style>
+</head>
+<body>
+    <div class="sidebar">
+
+        <div class="logo">
+            <img src="{% static 'Images/School Logo.jpg' %}" alt="School Logo">
+        </div>
+        <nav>
+            <ul>
+                <li><a href="#">Dashboard</a></li>
+                <li><a href="#">View Students</a></li>
+                <li><a href="#">Course Announcements</a></li>
+                <li><a href="#">Make Announcements</a></li>
+                <li><a href="#">Upload Material</a></li>
+                <li><a href="#">Make Exam</a></li>
+                <li><a href="#">Delivered Exam</a></li>
+                <li><a href="#">Make Homework</a></li>
+                <li><a href="#">Delivered Homework</a></li>
+                <li><a href="#">Generate Grades</a></li>
+                <li><a href="#">Take Attendance</a></li>
+                <li><a href="#">Generate Report</a></li>
+                <li><a href="#">Public Chat</a></li>
+            </ul>
+        </nav>
+    </div>
+    <div class="main-content">
+        <div class="header">
+            <h1>Upload Material</h1>
+        </div>
+        <div class="form-container">
+            <h2>Material Information</h2>
+            <form action="{% url 'upload_media' %}" method="post" >
+                <div class="form-group">
+                    <label for="description">Description</label>
+                    <textarea id="description" name="description" required></textarea>
+                </div>
+                <div class="form-group">
+                    <label for="media-type">Media Type</label>
+                    <select id="media-type" name="media-type" required>
+                        <option value="">Select Media Type</option>
+                        <option value="pdf">PDF</option>
+                        <option value="video">Video</option>
+                        <option value="image">Image</option>
+                        <option value="audio">Audio</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="media-file">Upload Media</label>
+                    <input type="file" id="media-file" name="media-file" required>
+                </div>
+                <div class="form-group">
+                    {% csrf_token %}
+                    <button type="submit">Upload</button>
+                </div>
+            </form>
+        </div>
+
+    </div>
+
+</body>
+</html>
