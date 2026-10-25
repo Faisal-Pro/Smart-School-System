@@ -259,7 +259,9 @@
                     <td class="student-id">#{{ student.Student_ID }}</td>
                     <td>
                         {% if student.Student_Image %}
-                            <img src="{% static 'Images/' %}{{ student.Student_Image }}" class="student-img" alt="Student">
+                            <img src="{% static 'Images/' %}{{ student.Student_Image }}" class="student-img" alt="Student"
+                                data-fallback="{% static 'Images/default-avatar.png' %}"
+                                onerror="this.onerror=null;this.src=this.dataset.fallback;">
                         {% else %}
                             <div class="student-img" style="display:flex; align-items:center; justify-content:center; background:#e2e8f0;">
                                 <i class="fas fa-user" style="color:#94a3b8"></i>

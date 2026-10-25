@@ -256,7 +256,7 @@
         <div class="nav-left">
             <a href="javascript:history.back()" class="btn-back">
                 <i class="fas fa-chevron-left"></i>
-                <span>Dashboard</span>
+                <span>Back</span>
             </a>
             <img src="{% static 'Images/School Logo.jpg' %}" height="40" style="border-radius: 8px;">
         </div>
@@ -272,7 +272,7 @@
         </header>
 
         {% for announcement in announcements %}
-        <article class="post-card" style="animation: slideUp 0.6s ease backwards calc({{ forloop.counter0 }} * 0.1s)">
+        <article class="post-card" style="animation: slideUp 0.6s ease backwards;">
             <div class="post-content-wrap">
                 <header class="post-header">
                     <div class="user-meta">
@@ -289,6 +289,7 @@
                         </div>
                     </div>
 
+                    {% if request.session.role == 'admin' %}
                     <div class="admin-tools">
                         <a href="{% url 'update_announcement' announcement.id %}" class="tool-link" title="Edit Post">
                             <i class="fas fa-pen-nib"></i>
@@ -300,6 +301,7 @@
                             <i class="fas fa-trash-alt"></i>
                         </a>
                     </div>
+                    {% endif %}
                 </header>
 
                 <div class="post-body">

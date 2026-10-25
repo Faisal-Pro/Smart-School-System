@@ -1,18 +1,36 @@
 from django.contrib import admin
 from .models import (
-    Info, Courses, MidtermGrades, AttendanceGate, 
-    New_previous_Profiles, StudentInformation, StudentCourses, 
-    ParentInformation, TeacherInformation, TeacherCourses, 
-    StudentTeacherCommunications, CourseContents, Announcements, 
-    Quizzes, Questions, Options, StudentAnswers, Assignments, 
-    HomeworkDelivered, SubmittedAssignmentFlag, HomeWorkGrades, 
-    QuizGrades, QuizTakeStatus, TeacherSchedule, 
-    CourseAnnouncementReadStatus, FinalGrade, AttendanceList, 
-    AnnouncementReadStatus
+    Courses,
+    MidtermGrades,
+    AttendanceGate,
+    New_previous_Profiles,
+    StudentInformation,
+    StudentCourses,
+    ParentInformation,
+    TeacherInformation,
+    TeacherCourses,
+    StudentTeacherCommunications,
+    CourseContents,
+    Announcements,
+    Quizzes,
+    Questions,
+    Options,
+    StudentAnswers,
+    Assignments,
+    HomeworkDelivered,
+    SubmittedAssignmentFlag,
+    HomeWorkGrades,
+    QuizGrades,
+    QuizTakeStatus,
+    TeacherSchedule,
+    CourseAnnouncementReadStatus,
+    FinalGrade,
+    AttendanceList,
+    AnnouncementReadStatus,
 )
 
 # تسجيل جميع الجداول لتظهر في لوحة الإدارة
-admin.site.register(Info)
+# admin.site.register(Info)
 admin.site.register(Courses)
 admin.site.register(MidtermGrades)
 admin.site.register(AttendanceGate)

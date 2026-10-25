@@ -1,0 +1,191 @@
+"""Role based access control for the whole site.
+
+Every URL has a name (see urls.py). Each name is public, or allowed for
+some roles: admin, teacher, student, parent. Anything not listed below is
+admin-only, so a forgotten page is never open by accident.
+"""
+
+import logging
+
+from django.conf import settings
+from django.http import HttpResponseForbidden, JsonResponse
+from django.shortcuts import redirect
+from django.urls import Resolver404, resolve
+
+log = logging.getLogger("access")
+
+SKIP_PREFIXES = ("/static/", "/media/", "/admin/", "/favicon.ico")
+
+PUBLIC = {
+    "MainPage",
+    "ParentLogInPage",
+    "ParentLogIn2",
+    "StudentLogInPage",
+    "StudentLogIn",
+    "StudentLogIn2",
+    "TeacherLogInPage",
+    "TeacherLogIn2",
+    "AdminLogIn",
+    "Logout",
+    "StudentFaceLoginPage",
+    "announcements2",
+    "serve_announcement_file",
+}
+
+RULES = {}
+
+
+def _allow(roles, *names):
+    for name in names:
+        RULES[name] = set(roles)
+
+
+_allow(
+    {"teacher", "student", "parent", "admin"},
+    "get_records",
+    "CourseContent",
+    "get_course_contents",
+)
+
+_allow(
+    {"student", "parent", "admin"},
+    "StudentSchedulePage",
+    "StudentInformation",
+    "CoursePageStudent",
+    "course_list",
+    "index2",
+    "announcements",
+    "CourseAnnouncement",
+    "HomeWork",
+    "StudentDashboard",
+    "Grade",
+    "CourseAttendanceHistory",
+    "FinalGrade",
+)
+
+_allow(
+    {"student", "admin"},
+    "take_quiz",
+    "submit_quiz",
+    "HomeworkDelivered",
+    "RegisterFace",
+    "CaptureFrame",
+    "StudentFaceLogInPage",
+    "SubmitAttendanceAI",
+    "check_attendance_status",
+)
+
+_allow(
+    {"teacher", "admin"},
+    "UploadMaterialPage",
+    "UploadMaterial",
+    "CoursePage",
+    "materials_view",
+    "upload_material_view",
+    "index3",
+    "AddAnnouncementsCoursePage",
+    "AddAnnouncementsCourse",
+    "upload_assignment_Page",
+    "upload_assignment",
+    "DeleteMaterial",
+    "UpdateMaterialPage",
+    "UpdateMaterial",
+    "ViewStudentsCourse",
+    "quiz-insertion",
+    "GenerateQuizPage",
+    "quiz_delivered",
+    "confirm_grades",
+    "GenerateReport",
+    "HomeWorkDelivered2",
+    "TeacherSchedule",
+    "GenerateGrades",
+    "SaveAssignmentGrade",
+    "SaveFinalGrade",
+    "ViewAssignmentFile",
+    "activate_attendance_session",
+    "DeactivateAttendance",
+    "get_attendance_history",
+    "TeacherInformation",
+)
+
+# Not listed anywhere -> admin only (dashboard, add/view/update/delete ...).
+
+STUDENT_KWARGS = {"Student_ID", "StudentID", "Student_Id", "student_id", "ID"}
+TEACHER_KWARGS = {"Teacher_Id", "teacher_id", "Teacher_ID"}
+
+
+def check_access(url_name, kwargs, session):
+    """Return ('allow' | 'login' | 'forbidden', allowed_roles)."""
+    if url_name in PUBLIC:
+        return "allow", set()
+    allowed = RULES.get(url_name, {"admin"})
+    role = session.get("role")
+    if not role:
+        return "login", allowed
+    if role not in allowed:
+        return "forbidden", allowed
+    if role == "student":
+        own = session.get("user_id")
+        for key in STUDENT_KWARGS & set(kwargs):
+            if kwargs[key] != own:
+                return "forbidden", allowed
+    elif role == "parent":
+        child = session.get("student_id")
+        for key in STUDENT_KWARGS & set(kwargs):
+            if kwargs[key] != child:
+                return "forbidden", allowed
+    elif role == "teacher":
+        own = session.get("user_id")
+        for key in TEACHER_KWARGS & set(kwargs):
+            if kwargs[key] != own:
+                return "forbidden", allowed
+    return "allow", allowed
+
+
+def _login_target(allowed):
+    if allowed == {"admin"}:
+        return "AdminLogIn"
+    if "student" in allowed:
+        return "StudentLogInPage"
+    if "teacher" in allowed:
+        return "TeacherLogInPage"
+    return "MainPage"
+
+
+class AccessControlMiddleware:
+    def __init__(self, get_response):
+        self.get_response = get_response
+
+    def __call__(self, request):
+        path = request.path_info
+        if path.startswith(SKIP_PREFIXES):
+            return self.get_response(request)
+        try:
+            match = resolve(path)
+        except Resolver404:
+            return self.get_response(request)
+
+        decision, allowed = check_access(match.url_name, match.kwargs, request.session)
+        if decision == "allow":
+            return self.get_response(request)
+
+        enforce = getattr(settings, "ACCESS_ENFORCE", True)
+        log.warning(
+            "[ACCESS] %s would be %s (url=%s, role=%s)",
+            match.url_name,
+            decision,
+            path,
+            request.session.get("role"),
+        )
+        if not enforce:
+            return self.get_response(request)
+
+        wants_json = (
+            "application/json" in request.headers.get("Accept", "")
+            or request.content_type == "application/json"
+        )
+        if decision == "login":
+            if wants_json:
+                return JsonResponse({"error": "login required"}, status=401)
+            return redirect(_login_target(allowed))
+        return HttpResponseForbidden("You do not have permission to open this page.")

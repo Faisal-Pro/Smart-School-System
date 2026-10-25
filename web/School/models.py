@@ -1,22 +1,28 @@
 from django.db import models
 
-class Info(models.Model):
-    Fname = models.CharField(max_length=250)
-    id = models.CharField(max_length=10, primary_key=True)
-    
-    def __str__(self):
-        return f"{self.id} - {self.Fname}"
+# class Info(models.Model):
+#     Fname = models.CharField(max_length=250)
+#     id = models.CharField(max_length=10, primary_key=True)
 
+#     class Meta:
+#         db_table = "Info"
+#         verbose_name_plural = "Info"
+
+#     def __str__(self):
+#         return f"{self.id} - {self.Fname}"
 
 
 class Courses(models.Model):
     course_name = models.CharField(max_length=250)
     course_id = models.IntegerField(primary_key=True)
     course_level = models.CharField(max_length=250)
-    image_url = models.CharField(max_length=250) # <--- This is the name the DB knows
+    image_url = models.CharField(max_length=250)  # <--- This is the name the DB knows
     link_url = models.CharField(max_length=250, default="#")
+
     class Meta:
-        db_table = 'Courses'
+        db_table = "Courses"
+        verbose_name_plural = "Courses"
+
 
 class MidtermGrades(models.Model):
     Student_ID = models.IntegerField()
@@ -27,18 +33,24 @@ class MidtermGrades(models.Model):
     ExamDate = models.DateTimeField(auto_now_add=True)
 
     class Meta:
-        db_table = 'MidtermGrades'
+        db_table = "MidtermGrades"
+        verbose_name_plural = "MidtermGrades"
 
     def __str__(self):
         return f"Student {self.Student_ID} - Course {self.Course_ID}: {self.MarksObtained}/{self.TotalMarks}"
 
+
 class AttendanceGate(models.Model):
     # Links the gate to a specific course
-    course = models.ForeignKey('Courses', on_delete=models.CASCADE)
+    course = models.ForeignKey("Courses", on_delete=models.CASCADE)
     # The actual toggle
     is_open = models.BooleanField(default=False)
     # Track when it was opened (useful for security/auto-close)
     opened_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        db_table = "AttendanceGate"
+        verbose_name_plural = "AttendanceGate"
 
     def __str__(self):
         status = "OPEN" if self.is_open else "CLOSED"
@@ -51,10 +63,14 @@ class New_previous_Profiles(models.Model):
     Student_url = models.CharField(max_length=250)
     Teacher_url = models.CharField(max_length=250)
 
+    class Meta:
+        db_table = "New_previous_Profiles"
+        verbose_name_plural = "New_previous_Profiles"
 
     def __str__(self):
         return f"Student ID: {self.Student_ID}, Teacher ID: {self.Teacher_ID}"
-    
+
+
 class StudentInformation(models.Model):
     Student_Name = models.CharField(max_length=250)
     Student_ID = models.IntegerField(primary_key=True)
@@ -63,15 +79,20 @@ class StudentInformation(models.Model):
     Student_Gender = models.CharField(max_length=250)
     Student_Image = models.CharField(max_length=250)
     Student_Nationality = models.CharField(max_length=50, default="Unknown")
-    Student_NationalID = models.CharField(max_length=20, unique=True, null=True, blank=True)
+    Student_NationalID = models.CharField(
+        max_length=20, unique=True, null=True, blank=True
+    )
     Passwordd = models.CharField(max_length=250)
-    student_cgpa = models.FloatField(null=True, blank=True, default = 0.0)
-    entry_year = models.IntegerField(null=True, blank=True, default = 2024)
+    student_cgpa = models.FloatField(null=True, blank=True, default=0.0)
+    entry_year = models.IntegerField(null=True, blank=True, default=2024)
 
     class Meta:
-        db_table = 'StudentInformation'  # <--- Add this line!
+        db_table = "StudentInformation"  # <--- Add this line!
+        verbose_name_plural = "StudentInformation"
+
     def __str__(self):
-        return self.Student_Name 
+        return self.Student_Name
+
 
 class StudentCourses(models.Model):
     # This matches the "s.Student_ID" in your SQL query
@@ -82,20 +103,29 @@ class StudentCourses(models.Model):
     semester = models.CharField(max_length=50, null=True, blank=True)
 
     class Meta:
-        db_table = 'StudentCourses' # This is the critical line that fixes the errorQL
+        db_table = "StudentCourses"  # This is the critical line that fixes the errorQL
+        verbose_name_plural = "StudentCourses"
+
 
 class ParentInformation(models.Model):
     Parent_Name = models.CharField(max_length=250)
     Parent_ID = models.IntegerField(primary_key=True)
-    Parent_NationalID = models.CharField(max_length=20, unique=True, null=True, blank=True) # New Field
+    Parent_NationalID = models.CharField(
+        max_length=20, unique=True, null=True, blank=True
+    )  # New Field
     Parent_Image = models.CharField(max_length=250)
     Student_ID = models.ForeignKey(StudentInformation, on_delete=models.CASCADE)
-    Passwordd = models.CharField(max_length=250, default="12345") # Ensure default is set
+    Passwordd = models.CharField(
+        max_length=250, default="12345"
+    )  # Ensure default is set
 
     class Meta:
-        db_table = 'ParentInformation'  # <--- Add this line!
+        db_table = "ParentInformation"  # <--- Add this line!
+        verbose_name_plural = "ParentInformation"
+
     def __str__(self):
         return self.Parent_Name
+
 
 class TeacherInformation(models.Model):
     Teacher_Name = models.CharField(max_length=250)
@@ -105,27 +135,31 @@ class TeacherInformation(models.Model):
     Teacher_NationalID = models.CharField(max_length=14, unique=True, null=True)
     Course_Handle = models.CharField(max_length=250)
     Teacher_Image = models.CharField(max_length=250)
-    Passwordd = models.CharField(max_length=100, default='12345')
+    Passwordd = models.CharField(max_length=100, default="12345")
 
     class Meta:
-        db_table = 'TeacherInformation'  # <--- Add this line!
+        db_table = "TeacherInformation"  # <--- Add this line!
+        verbose_name_plural = "TeacherInformation"
 
     def __str__(self):
-        return self.Teacher_Name 
-    
+        return self.Teacher_Name
+
+
 class TeacherCourses(models.Model):
     teacher_id = models.IntegerField()
     course_id = models.IntegerField()
 
     class Meta:
-        db_table = 'TeacherCourses' # Matches your Raw SQL query name
+        db_table = "TeacherCourses"  # Matches your Raw SQL query name
+        verbose_name_plural = "TeacherCourses"
 
     def __str__(self):
         return f"Teacher {self.teacher_id} - Course {self.course_id}"
-    
+
+
 class StudentTeacherCommunications(models.Model):
     Message_text = models.CharField(max_length=4000)
-    Message_ID = models.AutoField(primary_key=True) 
+    Message_ID = models.AutoField(primary_key=True)
     Message_Date = models.CharField(max_length=250)
     Message_Hour = models.IntegerField()
     Message_Minute = models.IntegerField()
@@ -133,12 +167,16 @@ class StudentTeacherCommunications(models.Model):
     Student_ID = models.ForeignKey(StudentInformation, on_delete=models.CASCADE)
     Teacher_ID = models.ForeignKey(TeacherInformation, on_delete=models.CASCADE)
 
+    class Meta:
+        db_table = "StudentTeacherCommunications"
+        verbose_name_plural = "StudentTeacherCommunications"
+
     def __str__(self):
         return f"Message ID: {self.Message_ID}"
 
 
 class CourseContents(models.Model):
-    MaterialID = models.AutoField(primary_key=True) 
+    MaterialID = models.AutoField(primary_key=True)
     PublisherImage = models.CharField(max_length=250)
     PublisherName = models.CharField(max_length=250)
     DateOfPublish = models.CharField(max_length=250)
@@ -147,42 +185,66 @@ class CourseContents(models.Model):
     MaterialIcon = models.CharField(max_length=250)
     course_id = models.ForeignKey(Courses, on_delete=models.CASCADE)
 
+    class Meta:
+        db_table = "CourseContents"
+        verbose_name_plural = "CourseContents"
 
     def __str__(self):
-        return self.MaterialID 
-    
+        return self.MaterialID
+
+
 class Announcements(models.Model):
     publisher_name = models.CharField(max_length=250)
     description = models.TextField()
-    pdf_file = models.FileField(upload_to='announcements/pdfs/', null=True, blank=True)
-    video_file = models.FileField(upload_to='announcements/videos/', null=True, blank=True)
+    pdf_file = models.FileField(upload_to="announcements/pdfs/", null=True, blank=True)
+    video_file = models.FileField(
+        upload_to="announcements/videos/", null=True, blank=True
+    )
     date_posted = models.DateTimeField(auto_now_add=True)
-    publisher_image = models.ImageField(upload_to='announcements/images/', null=True, blank=True)
+    publisher_image = models.ImageField(
+        upload_to="announcements/images/", null=True, blank=True
+    )
     admin_id = models.IntegerField(null=True, blank=True)
 
     class Meta:
-        db_table = 'Announcements' # Forcing the table name like we did before
+        db_table = "Announcements"  # Forcing the table name like we did before
+        verbose_name_plural = "Announcements"
 
     def __str__(self):
         return self.publisher_name
-    
+
+
 class Quizzes(models.Model):
     QuizID = models.AutoField(primary_key=True)
     QuizName = models.CharField(max_length=255)
     # Add this line to link the Quiz to a Teacher
-    Teacher = models.ForeignKey('TeacherInformation', on_delete=models.CASCADE, db_column='Teacher_Id', null=True)
-    course = models.ForeignKey('Courses', on_delete=models.CASCADE, db_column='course_id')
-    QuizNumber = models.IntegerField(default=1) # You used this in your SQL too
+    Teacher = models.ForeignKey(
+        "TeacherInformation",
+        on_delete=models.CASCADE,
+        db_column="Teacher_Id",
+        null=True,
+    )
+    course = models.ForeignKey(
+        "Courses", on_delete=models.CASCADE, db_column="course_id"
+    )
+    QuizNumber = models.IntegerField(default=1)  # You used this in your SQL too
 
     class Meta:
-        db_table = 'Quizzes'
+        db_table = "Quizzes"
+        verbose_name_plural = "Quizzes"
+
 
 class Questions(models.Model):
     QuestionID = models.AutoField(primary_key=True)
     Quiz = models.ForeignKey(Quizzes, on_delete=models.CASCADE)
     QuestionText = models.TextField()
-    QuestionType = models.CharField(max_length=50) # 'mcq' or 'written'
+    QuestionType = models.CharField(max_length=50)  # 'mcq' or 'written'
     Marks = models.IntegerField()
+
+    class Meta:
+        db_table = "Questions"
+        verbose_name_plural = "Questions"
+
 
 class Options(models.Model):
     OptionID = models.AutoField(primary_key=True)
@@ -190,14 +252,24 @@ class Options(models.Model):
     OptionText = models.CharField(max_length=255)
     IsCorrect = models.BooleanField(default=False)
 
+    class Meta:
+        db_table = "Options"
+        verbose_name_plural = "Options"
+
+
 class StudentAnswers(models.Model):
-    StudentID = models.IntegerField() # Or ForeignKey to StudentInformation
+    StudentID = models.IntegerField()  # Or ForeignKey to StudentInformation
     Quiz = models.ForeignKey(Quizzes, on_delete=models.CASCADE)
     Question = models.ForeignKey(Questions, on_delete=models.CASCADE)
     AnswerType = models.CharField(max_length=50)
     StudentAnswer = models.TextField(null=True, blank=True)
     SelectedOption = models.IntegerField(null=True, blank=True)
     Flag = models.IntegerField(default=0)
+
+    class Meta:
+        db_table = "StudentAnswers"
+        verbose_name_plural = "StudentAnswers"
+
 
 class Assignments(models.Model):
     AssignmentId = models.AutoField(primary_key=True)
@@ -207,13 +279,15 @@ class Assignments(models.Model):
     AssignementNumber = models.IntegerField()
     PublisherImage = models.BinaryField(null=True)
     CreatedAt = models.DateTimeField(auto_now_add=True)
-    course = models.ForeignKey('Courses', on_delete=models.CASCADE)
+    course = models.ForeignKey("Courses", on_delete=models.CASCADE)
     Teacher_Id = models.IntegerField()
     TotalMark = models.IntegerField(default=100)
     Flag = models.IntegerField(default=1)
 
     class Meta:
-        db_table = 'Assignments' # Forces the table name to be exactly "Assignments"
+        db_table = "Assignments"  # Forces the table name to be exactly "Assignments"
+        verbose_name_plural = "Assignments"
+
 
 class HomeworkDelivered(models.Model):
     id = models.AutoField(primary_key=True)
@@ -227,7 +301,9 @@ class HomeworkDelivered(models.Model):
     Flag = models.IntegerField(default=0)
 
     class Meta:
-        db_table = 'HomeworkDelivered'
+        db_table = "HomeworkDelivered"
+        verbose_name_plural = "HomeworkDelivered"
+
 
 class SubmittedAssignmentFlag(models.Model):
     AssignmentId = models.IntegerField()
@@ -236,7 +312,9 @@ class SubmittedAssignmentFlag(models.Model):
     Student_ID = models.IntegerField()
 
     class Meta:
-        db_table = 'SubmittedAssignmentFlag'
+        db_table = "SubmittedAssignmentFlag"
+        verbose_name_plural = "SubmittedAssignmentFlag"
+
 
 class HomeWorkGrades(models.Model):
     Student_ID = models.IntegerField()
@@ -247,43 +325,53 @@ class HomeWorkGrades(models.Model):
     Feedback = models.TextField(null=True, blank=True)
 
     class Meta:
-        db_table = 'HomeWorkGrades'
+        db_table = "HomeWorkGrades"
+        verbose_name_plural = "HomeWorkGrades"
+
 
 class QuizGrades(models.Model):
     StudentID = models.IntegerField()
     CourseID = models.IntegerField()
     QuizNumber = models.IntegerField()
-    QuestionID = models.IntegerField() # Usually grades are stored per question or per quiz
+    QuestionID = (
+        models.IntegerField()
+    )  # Usually grades are stored per question or per quiz
     MarksObtained = models.FloatField()
     TotalMarks = models.FloatField()
 
     class Meta:
-        db_table = 'QuizGrades'
+        db_table = "QuizGrades"
+        verbose_name_plural = "QuizGrades"
+
 
 class QuizTakeStatus(models.Model):
     Student_ID = models.IntegerField()
     # Link to the Quiz
-    Quiz = models.ForeignKey('Quizzes', on_delete=models.CASCADE, db_column='QuizID')
-    IsTaken = models.IntegerField(default=0) # 0 for No, 1 for Yes
+    Quiz = models.ForeignKey("Quizzes", on_delete=models.CASCADE, db_column="QuizID")
+    IsTaken = models.IntegerField(default=0)  # 0 for No, 1 for Yes
     TakenDate = models.DateTimeField(null=True, blank=True)
     course_id = models.IntegerField()
 
     class Meta:
-        db_table = 'QuizTakeStatus'
+        db_table = "QuizTakeStatus"
+        verbose_name_plural = "QuizTakeStatus"
+
 
 class TeacherSchedule(models.Model):
     teacher_id = models.IntegerField()  # Links to your TeacherInformation ID
-    day = models.CharField(max_length=20)   # e.g., 'Monday'
-    start_time = models.CharField(max_length=20) # e.g., '08:00 AM'
-    end_time = models.CharField(max_length=20)   # e.g., '10:00 AM'
+    day = models.CharField(max_length=20)  # e.g., 'Monday'
+    start_time = models.CharField(max_length=20)  # e.g., '08:00 AM'
+    end_time = models.CharField(max_length=20)  # e.g., '10:00 AM'
     course_name = models.CharField(max_length=250)
     room = models.CharField(max_length=50)
 
     class Meta:
-        db_table = 'TeacherSchedule'  # This matches your raw SQL query
+        db_table = "TeacherSchedule"
+        verbose_name_plural = "TeacherSchedule"
 
     def __str__(self):
         return f"{self.course_name} on {self.day}"
+
 
 class CourseAnnouncementReadStatus(models.Model):
     Student_ID = models.IntegerField()
@@ -291,34 +379,42 @@ class CourseAnnouncementReadStatus(models.Model):
     IsRead = models.BooleanField(default=False)
 
     class Meta:
-        db_table = 'CourseAnnouncementReadStatus'
+        db_table = "CourseAnnouncementReadStatus"
+        verbose_name_plural = "CourseAnnouncementReadStatus"
+
 
 class FinalGrade(models.Model):
     # Defining the fields based on your SELECT query
-    student_id = models.IntegerField()  # Usually a ForeignKey, but using Integer for raw SQL compatibility
+    student_id = (
+        models.IntegerField()
+    )  # Usually a ForeignKey, but using Integer for raw SQL compatibility
     course_id = models.IntegerField()
-    total_assignment = models.FloatField(db_column='TotalAssignment')
-    total_quiz_mark = models.FloatField(db_column='TotalQuizMark')
-    midterm = models.FloatField(db_column='MidTerm')
-    final = models.FloatField(db_column='Final')
-    class_participation = models.FloatField(db_column='ClassParticipation')
-    class_attendance = models.FloatField(db_column='ClassAttendance')
-    credit = models.IntegerField(db_column='Credit')
-    student_status = models.CharField(max_length=50, db_column='StudentStatus')
-    total = models.FloatField(db_column='Total')
+    total_assignment = models.FloatField(db_column="TotalAssignment")
+    total_quiz_mark = models.FloatField(db_column="TotalQuizMark")
+    midterm = models.FloatField(db_column="MidTerm")
+    final = models.FloatField(db_column="Final")
+    class_participation = models.FloatField(db_column="ClassParticipation")
+    class_attendance = models.FloatField(db_column="ClassAttendance")
+    credit = models.IntegerField(db_column="Credit")
+    student_status = models.CharField(max_length=50, db_column="StudentStatus")
+    total = models.FloatField(db_column="Total")
 
     class Meta:
-        db_table = 'School_finalgrade'  # This is the most likely name in your SQLite DB
+        db_table = "School_finalgrade"  # This is the most likely name in your SQLite DB
+        verbose_name_plural = "FinalGrades"
+
 
 class AttendanceList(models.Model):
     Student_ID = models.CharField(max_length=100)
     Course_ID = models.IntegerField()
     Teacher_ID = models.IntegerField()
     Date = models.DateField(auto_now_add=True)
-    Status = models.CharField(max_length=10) # 'Present' or 'Absent'
+    Status = models.CharField(max_length=10)  # 'Present' or 'Absent'
 
     class Meta:
-        db_table = 'AttendanceList' # This forces the name to match your code
+        db_table = "AttendanceList"  # This forces the name to match your code
+        verbose_name_plural = "AttendanceLists"
+
 
 class AnnouncementReadStatus(models.Model):
     # We use IntegerFields to match the raw IDs you are passing in your loops
@@ -329,4 +425,5 @@ class AnnouncementReadStatus(models.Model):
     ReadDate = models.DateTimeField(null=True, blank=True)
 
     class Meta:
-        db_table = 'AnnouncementReadStatus' # This matches your SQL query exactly
+        db_table = "AnnouncementReadStatus"  # This matches your SQL query exactly
+        verbose_name_plural = "AnnouncementReadStatus"
