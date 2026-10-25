@@ -131,6 +131,6 @@ STATICFILES_DIRS = [os.path.join(BASE_DIR, "Project/static")]
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
 # Access control: start in log-only mode, switch to True after testing.
-ACCESS_ENFORCE = False
+ACCESS_ENFORCE = True
 SESSION_COOKIE_AGE = 8 * 60 * 60
 SESSION_EXPIRE_AT_BROWSER_CLOSE = True
