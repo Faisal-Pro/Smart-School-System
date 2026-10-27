@@ -1,4 +1,4 @@
-{% load static %}
+{% load static school_tags %}
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -210,7 +210,7 @@
             <div class="course-card">
                 <a href="{% url 'CoursePageStudent' StudentID course.0 %}">
                     <div class="card-banner">
-                        <img src="{% static 'Images/' %}{{ course.3 }}" 
+                        <img src="{{ course.3|img_src }}"
                             onerror="this.onerror=null; this.src='https://ui-avatars.com/api/?name={{ course.1 }}&background=3282b8&color=fff&size=400';" 
                             alt="{{ course.1 }}">
                         <span class="course-level-badge">Lvl {{ course.2|default:"1" }}</span>

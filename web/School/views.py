@@ -428,10 +428,44 @@ def StudentSchedulePage(request, Student_ID):
             }
         )
 
+    # ---- Build the weekly timetable from TeacherSchedule ----
+    day_names = ["Saturday", "Sunday", "Monday", "Tuesday", "Wednesday", "Thursday"]
+    color_classes = ["math", "physics", "chemistry", "cs", "stats"]
+    with connection.cursor() as cursor:
+        cursor.execute(
+            """
+            SELECT ts.day, ts.start_time, ts.end_time, ts.course_name, ts.room
+            FROM TeacherSchedule ts
+            INNER JOIN Courses c ON c.course_name = ts.course_name
+            INNER JOIN StudentCourses sc ON sc.course_id = c.course_id
+            WHERE sc.Student_ID = %s
+            """,
+            [Student_ID],
+        )
+        sched_rows = cursor.fetchall()
+
+    slots = sorted({(r[1], r[2]) for r in sched_rows})
+    timetable = []
+    for start, end in slots:
+        cells = []
+        for day in day_names:
+            found = [
+                {
+                    "name": r[3],
+                    "room": r[4],
+                    "color": color_classes[sum(map(ord, r[3])) % len(color_classes)],
+                }
+                for r in sched_rows
+                if r[0] == day and r[1] == start and r[2] == end
+            ]
+            cells.append(found)
+        timetable.append({"label": f"{start} - {end}", "cells": cells})
+
     context = {
         "StudentRecord": student_data,
         "CourseRecord": course_list,
         "AnnouncementNum": unread_count,
+        "Timetable": timetable,
     }
 
     return render(request, "pages/StudentSchedule.html", context)
@@ -454,7 +488,7 @@ def CoursePageStudent(request, Student_ID, course_id):
             """
             SELECT PublisherImage, PublisherName, DateOfPublish,
             DescriptionText, MaterialPath, MaterialIcon 
-            FROM School_coursecontents
+            FROM CourseContents
             WHERE course_id_id = %s
             ORDER BY MaterialID DESC
         """,
@@ -494,8 +528,8 @@ def CoursePageStudent(request, Student_ID, course_id):
         try:
             cursor.execute(
                 """
-                SELECT COUNT(*) FROM School_quiztakestatus
-                WHERE Student_ID = %s AND IsTaken = 0 AND course_id_id = %s
+                SELECT COUNT(*) FROM QuizTakeStatus
+                WHERE Student_ID = %s AND IsTaken = 0 AND course_id = %s
             """,
                 [Student_ID, course_id],
             )
@@ -653,22 +687,29 @@ def FinalGrade(request, StudentID):
                         "Final": summary[1],
                         "ClassParticipation": summary[2],
                         "ClassAttendance": f"{attendance_pct}%",
+                        "AttendancePct": attendance_pct,
                         "Credit": summary[3],
                         "StudentStatus": summary[4],
                         "Total": summary[5],
                     }
                 )
             else:
-                # If no summary record exists yet, show partial data
+                # No summary record yet: use the real midterm mark if it exists
+                cursor.execute(
+                    "SELECT MarksObtained FROM MidtermGrades WHERE Student_ID = %s AND Course_ID = %s",
+                    [StudentID, c_id],
+                )
+                mid_row = cursor.fetchone()
                 FinalGrade_data.append(
                     {
                         "CourseName": c_name,
                         "TotalAssignment": total_hw,
                         "TotalQuizMark": total_quiz,
-                        "MidTerm": 0,
-                        "Final": 0,
+                        "MidTerm": mid_row[0] if mid_row else None,
+                        "Final": None,
                         "ClassParticipation": 0,
                         "ClassAttendance": f"{attendance_pct}%",
+                        "AttendancePct": attendance_pct,
                         "Credit": 0,
                         "StudentStatus": "Active",
                         "Total": 0,
@@ -700,7 +741,7 @@ def TeacherSchedule(request, teacher_id):
 
             teacher_data = {
                 "TeacherName": teacher_row[0],
-                "TeacherImage": img_b64,
+                "TeacherImage": raw_img or "",
             }
 
         # 2. Fetch Schedule Info
@@ -722,7 +763,7 @@ def TeacherSchedule(request, teacher_id):
             )
 
         context = {
-            "Teacher": teacher_data,  # Simplified for the template
+            "TeacherRecord": [teacher_data] if teacher_data else [],
             "Schedules": schedules_list,
         }
     return render(request, "pages/TeacherSchedule.html", context)
@@ -731,7 +772,7 @@ def TeacherSchedule(request, teacher_id):
 def AddTeacherPage(request):
     with connection.cursor() as cursor:
         cursor.execute(
-            "SELECT TOP 1 Teacher_Id FROM TeacherInformation ORDER BY Teacher_Id DESC"
+            "SELECT Teacher_Id FROM TeacherInformation ORDER BY Teacher_Id DESC LIMIT 1"
         )
         last_record = cursor.fetchone()
         last_Teacher_Id = last_record[0] if last_record else 0
@@ -1002,7 +1043,7 @@ def SaveTeacher(request):
                 Teacher_Age=age,
                 Teacher_Gender=gender,
                 Course_Handle=assigned_course,
-                Passwordd=generated_pw,
+                Passwordd=make_password(generated_pw),
             )
 
             if image:
@@ -1044,7 +1085,7 @@ def update_teacher_page(request, t_id):
         # ADD THIS LINE:
         teacher.Teacher_NationalID = request.POST.get("national_id")
         name_part = teacher.Teacher_Name.replace(" ", "")[:3].upper()
-        teacher.Passwordd = f"{name_part}@{teacher.Teacher_NationalID}"
+        teacher.Passwordd = make_password(f"{name_part}@{teacher.Teacher_NationalID}")
         if "teacher_image" in request.FILES:
             teacher.Teacher_Image = request.FILES["teacher_image"]
 
@@ -1334,7 +1375,7 @@ def add_student(request):
                 Student_Nationality=student_nationality,
                 Student_NationalID=national_id,
                 Student_Image=student_image,
-                Passwordd=generated_password,
+                Passwordd=make_password(generated_password),
                 student_cgpa=cgpa,  # Verified float value
                 entry_year=entry,  # Verified int value
             )
@@ -1596,7 +1637,7 @@ def add_parent(request):
                 Parent_NationalID=p_national_id,
                 Student_ID=student_instance,
                 Parent_Image=p_image.name if p_image else "default.png",
-                Passwordd=generated_password,  # Apply logic here
+                Passwordd=make_password(generated_password),
             )
             new_parent.save()
             return JsonResponse({"status": "success"})
@@ -1640,7 +1681,8 @@ def update_parent(request, parent_id):
 
             # --- UPDATE PASSWORD LOGIC ---
             name_part = p_name.replace(" ", "")[:3]
-            parent.Passwordd = f"{name_part}@{p_national_id}"
+            new_pw = f"{name_part}@{p_national_id}"
+            new_pw = make_password(new_pw)
 
             if request.FILES.get("parent_image"):
                 parent.Parent_Image = request.FILES.get("parent_image").name
@@ -1706,7 +1748,7 @@ def AddTeacher(request):
                     image_binary,
                     date_of_birth,
                     enrollment_date,
-                    "123",
+                    make_password("123"),
                 ],
             )
 
@@ -1716,7 +1758,7 @@ def AddTeacher(request):
 def redirectAddStudent(request):
     with connection.cursor() as cursor:
         cursor.execute(
-            "SELECT TOP 1 Student_ID FROM StudentInformation ORDER BY Student_ID DESC"
+            "SELECT Student_ID FROM StudentInformation ORDER BY Student_ID DESC LIMIT 1"
         )
         last_record = cursor.fetchone()
         last_student_id = last_record[0] if last_record else 0
@@ -1779,7 +1821,7 @@ def UploadMaterial(request, Teacher_Id, course_id):
                 # 4. FINAL INSERT (The Foreign Key should now always pass)
                 cursor.execute(
                     """
-                    INSERT INTO School_coursecontents(
+                    INSERT INTO CourseContents(
                         PublisherImage, PublisherName, DateOfPublish, 
                         DescriptionText, MaterialPath, course_id_id, MaterialIcon
                     ) 
@@ -1815,12 +1857,12 @@ def DeleteMaterial(request, material_id):
             with connection.cursor() as cursor:
                 # Optional: Check if the record exists first
                 cursor.execute(
-                    "SELECT MaterialID FROM School_coursecontents WHERE MaterialID = %s",
+                    "SELECT MaterialID FROM CourseContents WHERE MaterialID = %s",
                     [material_id],
                 )
                 if cursor.fetchone():
                     cursor.execute(
-                        "DELETE FROM School_coursecontents WHERE MaterialID = %s",
+                        "DELETE FROM CourseContents WHERE MaterialID = %s",
                         [material_id],
                     )
                     return JsonResponse(
@@ -1867,12 +1909,12 @@ def materials_view(request, Teacher_Id, course_id):
         )
 
     with connection.cursor() as cursor:
-        # 1. FETCH FROM School_coursecontents (Where your upload goes!)
+        # 1. FETCH FROM CourseContents (Where your upload goes!)
         cursor.execute(
             """
             SELECT PublisherImage, PublisherName, DateOfPublish,
                    DescriptionText, MaterialPath, MaterialIcon, MaterialID
-            FROM School_coursecontents
+            FROM CourseContents
             WHERE course_id_id = %s
             ORDER BY MaterialID DESC
         """,
@@ -3141,7 +3183,7 @@ def CourseAttendanceHistory(request, Course_ID, StudentID):
                 """
                 SELECT Student_ID_id, Attendance_Date, 
                        AttendanceTime, AttendanceStatus, LectureNumber 
-                FROM School_attendancelist 
+                FROM AttendanceList 
                 WHERE course_id_id = %s AND Student_ID_id = %s
                 ORDER BY Attendance_Date DESC
             """,
@@ -3359,7 +3401,7 @@ def quiz_delivered(request, CourseID):
 
         # B. Fetch Questions
         cursor.execute(
-            "SELECT QuestionID, QuestionText, Marks FROM School_questions WHERE Quiz_id = %s",
+            "SELECT QuestionID, QuestionText, Marks FROM Questions WHERE Quiz_id = %s",
             [quiz_id],
         )
         for q_row in cursor.fetchall():
@@ -3377,9 +3419,9 @@ def quiz_delivered(request, CourseID):
                 sa.StudentAnswer, 
                 o.OptionText,
                 COALESCE(g.MarksObtained, 0) as SavedMark
-            FROM School_studentanswers sa
+            FROM StudentAnswers sa
             JOIN StudentInformation si ON sa.StudentID = si.Student_ID
-            LEFT JOIN School_options o ON sa.SelectedOption = o.OptionID
+            LEFT JOIN Options o ON sa.SelectedOption = o.OptionID
             LEFT JOIN QuizGrades g ON sa.StudentID = g.StudentID AND sa.Question_id = g.QuestionID
             WHERE sa.Quiz_id = %s
         """,
@@ -3438,7 +3480,7 @@ def confirm_grades(request):
                 for question_id, marks_obtained in grades.items():
                     # 1. Get Marks and the linked Quiz ID from the question
                     cursor.execute(
-                        "SELECT Marks, Quiz_id FROM School_questions WHERE QuestionID = %s",
+                        "SELECT Marks, Quiz_id FROM Questions WHERE QuestionID = %s",
                         [question_id],
                     )
                     q_data = cursor.fetchone()

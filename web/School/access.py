@@ -8,7 +8,7 @@ admin-only, so a forgotten page is never open by accident.
 import logging
 
 from django.conf import settings
-from django.http import HttpResponseForbidden, JsonResponse
+from django.http import HttpResponse, JsonResponse
 from django.shortcuts import redirect
 from django.urls import Resolver404, resolve
 
@@ -108,6 +108,9 @@ _allow(
     "TeacherInformation",
 )
 
+_allow({"teacher"}, "TeacherDashboard")
+_allow({"parent"}, "ParentDashboard")
+
 # Not listed anywhere -> admin only (dashboard, add/view/update/delete ...).
 
 STUDENT_KWARGS = {"Student_ID", "StudentID", "Student_Id", "student_id", "ID"}
@@ -188,4 +191,21 @@ class AccessControlMiddleware:
             if wants_json:
                 return JsonResponse({"error": "login required"}, status=401)
             return redirect(_login_target(allowed))
-        return HttpResponseForbidden("You do not have permission to open this page.")
+        role = request.session.get("role")
+        who = f"You are signed in as <b>{role}</b>." if role else "You are not signed in."
+        html = (
+            "<!doctype html><meta charset='utf-8'><title>Access denied</title>"
+            "<body style='font-family:sans-serif;background:#f1f5f9;display:grid;"
+            "place-items:center;min-height:100vh;margin:0'>"
+            "<div style='background:#fff;padding:40px;border-radius:16px;max-width:420px;"
+            "text-align:center;box-shadow:0 10px 30px rgba(0,0,0,.08)'>"
+            "<h1 style='margin:0 0 8px'>403</h1>"
+            "<p>You do not have permission to open this page.</p>"
+            f"<p style='color:#64748b'>{who}</p>"
+            "<a href='/Logout/' style='display:inline-block;margin:6px;padding:10px 18px;"
+            "background:#0d4a6f;color:#fff;border-radius:8px;text-decoration:none'>Log out</a>"
+            "<a href='/' style='display:inline-block;margin:6px;padding:10px 18px;"
+            "background:#e2e8f0;color:#0f172a;border-radius:8px;text-decoration:none'>Back to Home</a>"
+            "</div></body>"
+        )
+        return HttpResponse(html, status=403)

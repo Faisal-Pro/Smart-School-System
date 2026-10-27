@@ -1,22 +1,38 @@
+# Python / environments
 .venv/
 venv/
+test_env/
 pyvenv.cfg
 __pycache__/
 *.pyc
-db.sqlite3
 .env
+
+# Database, uploads, local data
+db.sqlite3
 media/
 dataset/
 temp_login.jpg
+**/data/raw/
+
+# Real student data (NEVER publish)
+*.csv
+
+# Heavy / private models
 shape_predictor_68_face_landmarks.dat
+web/School/TrainedModel.h5
+attendance_vision/face_id_deep.h5
+attendance_vision/face_model_deep.h5
+
+# Logs and editors
 *.log
 .ipynb_checkpoints/
 .idea/
 .vscode/
 Thumbs.db
-web/School/TrainedModel.h5
-attendance_vision/face_id_deep.h5
-attendance_vision/face_model_deep.h5
-merged_student_data_refined.csv
-merged_student_data_full.csv
-**/data/raw/
+.DS_Store
+
+web/static/
+_old_templates/
+trainer/
+info/
+*.h5

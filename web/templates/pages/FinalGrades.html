@@ -246,19 +246,19 @@
                             <div class="course-title">{{ Grades.CourseName }}</div>
                         </td>
                         <td align="center">
-                            <div class="score-pill"><i class="fas fa-file-alt"></i> {{ Grades.TotalAssignment }}</div>
+                            <div class="score-pill"><i class="fas fa-file-alt"></i> {{ Grades.TotalAssignment|floatformat:1 }}</div>
                         </td>
                         <td align="center">
-                            <div class="score-pill"><i class="fas fa-pen-nib"></i> {{ Grades.TotalQuizMark }}</div>
+                            <div class="score-pill"><i class="fas fa-pen-nib"></i> {{ Grades.TotalQuizMark|floatformat:1 }}</div>
                         </td>
                         <td align="center">
-                            <div class="score-pill"><i class="fas fa-clock"></i> {{ Grades.MidTerm }}</div>
+                            <div class="score-pill"><i class="fas fa-clock"></i> {{ Grades.MidTerm|floatformat:1|default:"—" }}</div>
                         </td>
                         <td align="center">
-                            <div class="score-pill" style="background: #e0f2fe; color: #0369a1;"><i class="fas fa-graduation-cap"></i> {{ Grades.Final }}</div>
+                            <div class="score-pill" style="background: #e0f2fe; color: #0369a1;"><i class="fas fa-graduation-cap"></i> {{ Grades.Final|floatformat:1|default:"—" }}</div>
                         </td>
                         <td align="center">
-                            <span class="attendance-stat">{{ Grades.ClassAttendance }}</span>
+                            <span class="attendance-stat" style="color: {% if Grades.AttendancePct >= 75 %}#16a34a{% elif Grades.AttendancePct >= 50 %}#d97706{% else %}#dc2626{% endif %};">{{ Grades.ClassAttendance }}</span>
                         </td>
                     </tr>
                     {% empty %}
@@ -285,4 +285,4 @@
 </div>
 
 </body>
-</html>
+</html>

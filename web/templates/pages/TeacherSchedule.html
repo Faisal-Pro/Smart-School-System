@@ -1,4 +1,4 @@
-{% load static %}
+{% load static school_tags %}
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -222,7 +222,7 @@
 
         <div class="schedule-card">
             <div class="card-header">
-                <img src="data:image/jpeg;base64,{{ Teacher.TeacherImage }}" 
+                <img src="{{ Teacher.TeacherImage|img_src }}" 
                      onerror="this.src='https://ui-avatars.com/api/?name={{ Teacher.TeacherName }}&background=0f172a&color=fff';" 
                      alt="Instructor" 
                      class="teacher-img">
@@ -280,4 +280,4 @@
 {% endfor %}
 
 </body>
-</html>
+</html>

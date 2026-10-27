@@ -1,0 +1,18 @@
+=== DATA ===
+rows: 132282   students: 5209   at-risk share: 44.4%
+baseline accuracy (always predict 'not at risk'): 0.556
+
+=== 1) RANDOM ROW SPLIT (what train_model.py does) ===
+all 4 features                                 acc=0.880 prec=0.894 recall=0.827 f1=0.859 auc=0.952  (TP=9717 FP=1152 FN=2032 TN=13556)
+students that appear in BOTH train and test: 4791 (100% of test students)  <- this inflates the score
+
+=== 2) SPLIT BY STUDENT (honest: test students were never seen) ===
+all 4 features                                 acc=0.876 prec=0.889 recall=0.825 f1=0.856 auc=0.951  (TP=9840 FP=1228 FN=2091 TN=13629)
+without Cumulative_GPA                         acc=0.868 prec=0.892 recall=0.801 f1=0.844 auc=0.940  (TP=9554 FP=1152 FN=2377 TN=13705)
+term_work_norm only                            acc=0.787 prec=0.751 recall=0.782 f1=0.766 auc=0.848  (TP=9328 FP=3094 FN=2603 TN=11763)
+
+How to read it:
+- If (1) is much higher than (2), the model partly memorised students.
+- If 'without Cumulative_GPA' is close to 'all 4 features', GPA adds little.
+- If 'term_work_norm only' is already high, the label mostly follows term work.
+- Use the numbers from section 2 in your README.

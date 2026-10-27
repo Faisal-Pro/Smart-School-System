@@ -188,7 +188,7 @@ def attendance_verification_page(request, course_id, student_id):
         "CourseID": course_id,
         "StudentID": student_id,
     }
-    return render(request, "pages/attendancecamera.html", context)
+    return render(request, "pages/AttendanceCamera.html", context)
 
 
 def check_attendance_status(request, course_id):

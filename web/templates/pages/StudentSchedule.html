@@ -202,40 +202,22 @@
             <div class="grid-header">Wed</div>
             <div class="grid-header">Thu</div>
 
-            <div class="time-col">09:30 - 11:20</div>
-            <div class="class-box math">Math <span>Room 101</span></div>
-            <div class="class-box physics">Physics <span>Lab A</span></div>
+            {% for row in Timetable %}
+            <div class="time-col">{{ row.label }}</div>
+            {% for cell in row.cells %}
+            {% if cell %}
+            <div class="class-box {{ cell.0.color }}">{% for c in cell %}{{ c.name }} <span>Room {{ c.room }}</span>{% endfor %}</div>
+            {% else %}
             <div class="class-box empty"></div>
-            <div class="class-box empty"></div>
-            <div class="class-box empty"></div>
-            <div class="class-box math">Discrete <span>Room 204</span></div>
-
-            <div class="time-col">11:30 - 12:30</div>
-            <div class="class-box physics">Physics <span>Lab A</span></div>
-            <div class="class-box cs">Computer Sci <span>Lab B</span></div>
-            <div class="class-box stats">Statistics <span>Room 302</span></div>
-            <div class="class-box empty"></div>
-            <div class="class-box empty"></div>
-            <div class="class-box empty"></div>
-
-            <div class="time-col">12:30 - 13:40</div>
-            <div class="class-box chemistry">Discrete <span>Room 204</span></div>
-            <div class="class-box empty"></div>
-            <div class="class-box stats">Statistics <span>Room 302</span></div>
-            <div class="class-box math">Math <span>Room 101</span></div>
-            <div class="class-box chemistry">Electronics <span>Lab C</span></div>
-            <div class="class-box empty"></div>
-
-            <div class="time-col">14:00 - 15:40</div>
-            <div class="class-box cs">Computer Sci <span>Lab B</span></div>
-            <div class="class-box empty"></div>
-            <div class="class-box empty"></div>
-            <div class="class-box chemistry">Electronics <span>Lab C</span></div>
-            <div class="class-box empty"></div>
-            <div class="class-box empty"></div>
+            {% endif %}
+            {% endfor %}
+            {% empty %}
+            <div class="time-col">-</div>
+            <div class="class-box empty" style="grid-column: 2 / -1;">No scheduled classes for your courses yet.</div>
+            {% endfor %}
         </div>
     </div>
 </div>
 
 </body>
-</html>
+</html>

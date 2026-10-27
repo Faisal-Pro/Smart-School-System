@@ -1,4 +1,4 @@
-{% load static %}
+{% load static school_tags %}
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -237,15 +237,14 @@
     </style>
 </head>
 <body>
-    <a href="{% url 'Logout' %}" style="position:fixed;top:14px;right:18px;z-index:999;background:#0d4a6f;color:#fff;padding:8px 14px;border-radius:8px;text-decoration:none;font:600 13px sans-serif;">Log out</a>
 
     <aside id="sidebar" class="sidebar">
         <div class="sidebar-header">
             <div class="profile-wrapper">
                 {% if StudentImage %}
-                    <img src="{% if 'http' in StudentImage %}{{ StudentImage }}{% else %}{% static 'Images/' %}{{ StudentImage }}{% endif %}" alt="Profile">
+                    <img src="{{ StudentImage|img_src }}" alt="Profile" alt="Profile">
                 {% else %}
-                    <img src="{% static 'Images/default_user.png' %}" alt="Default">
+                    <img src="{% static 'Images/default-avatar.png' %}" alt="Default">
                 {% endif %}
             </div>
             <h2>{{ StudentName }}</h2>
@@ -273,7 +272,7 @@
                         <i class="fas fa-camera"></i> Register Face ID
                     </a>
                 </li>
-                <li style="margin-top: 40px;"><a href="{% url 'MainPage' %}" style="color: #ff7675;"><i class="fas fa-power-off"></i> Logout</a></li>
+                <li style="margin-top: 40px;"><a href="{% url 'Logout' %}" style="color: #ff7675;"><i class="fas fa-power-off"></i> Logout</a></li>
             </ul>
         </nav>
     </aside>
