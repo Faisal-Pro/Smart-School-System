@@ -57,13 +57,33 @@ python manage.py runserver
 python manage.py test                # automated tests
 ```
 
-Demo logins (password `demo1234`): see `seed_demo.py` for the ids (students 1001+, teachers 101+).
+Demo logins (password `demo1234`): students 1001-1012, teachers 101-110, parents 2001-2008, see `seed_demo.py`.
 
 ## Screenshots
-<!-- add images to docs/screenshots and link them here -->
-| Home | Admin dashboard | Risk report |
-|------|-----------------|-------------|
-| ![](docs/screenshots/home.png) | ![](docs/screenshots/admin.png) | ![](docs/screenshots/risk.png) |
+
+| Home | Admin dashboard |
+|------|-----------------|
+| ![Home](docs/screenshots/home.jpg) | ![Admin dashboard](docs/screenshots/admin-dashboard.jpg) |
+
+**AI risk indicator** (same course, two students: a strong one and one with poor attendance and scores)
+
+| Low risk | High risk |
+|----------|-----------|
+| ![Low risk](docs/screenshots/risk-low.jpg) | ![High risk](docs/screenshots/risk-high.jpg) |
+
+| Teacher dashboard | Parent dashboard |
+|-------------------|------------------|
+| ![Teacher](docs/screenshots/teacher-dashboard.jpg) | ![Parent](docs/screenshots/parent-dashboard.jpg) |
+
+| Student courses | Weekly timetable |
+|-----------------|------------------|
+| ![Courses](docs/screenshots/student-courses.jpg) | ![Timetable](docs/screenshots/weekly-timetable.jpg) |
+
+| Academic transcript | Course catalog (admin) |
+|---------------------|------------------------|
+| ![Transcript](docs/screenshots/academic-transcript.jpg) | ![Catalog](docs/screenshots/course-catalog.jpg) |
+
+All data shown is fictional demo data created by `python manage.py seed_demo --reset`.
 
 ## Known limitations
 - Course announcements module is being rewritten.

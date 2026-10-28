@@ -1,4 +1,5 @@
 {% load static %}
+{% load school_tags %}
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -180,7 +181,7 @@
         {% for Teacher in TeacherRecords %}
         <div style="display: flex; align-items: center; gap: 12px;">
             <span style="font-weight: 700; font-size: 0.9rem; color: var(--primary-dark);">Dr. {{ Teacher.TeacherName }}</span>
-            <img src="data:image/jpeg;base64,{{ Teacher.TeacherImage }}" alt="Instructor" style="width: 40px; height: 40px; border-radius: 50%; object-fit: cover; border: 2px solid var(--accent);">
+            <img src="{{ Teacher.TeacherImage|img_src }}" alt="Instructor" style="width: 40px; height: 40px; border-radius: 50%; object-fit: cover; border: 2px solid var(--accent);">
         </div>
         {% endfor %}
     </nav>
@@ -204,7 +205,7 @@
         <div class="student-grid" id="studentGrid">
             {% for StudentRecord in StudentRecords %}
             <div class="student-card">
-                <img src="data:image/jpeg;base64,{{ StudentRecord.StudentImage }}" 
+                <img src="{{ StudentRecord.StudentImage|img_src }}" 
                      alt="Student" 
                      class="student-image"
                      onerror="this.src='https://ui-avatars.com/api/?name={{ StudentRecord.StudentName }}&background=3b82f6&color=fff&bold=true';">

@@ -1,4 +1,5 @@
 {% load static %}
+{% load school_tags %}
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -140,7 +141,7 @@
   <div class="container" id="card-{{ Student.StudentID }}">
     <!-- Profile Section -->
     <div class="profile">
-      <img src="data:image/jpeg;base64,{{ Student.StudentImage }}" alt="Student Photo">
+      <img src="{{ Student.StudentImage|img_src }}" alt="Student Photo">
       <div class="name">Name: {{ Student.StudentName }}</div>
       <div class="id">ID: {{ Student.StudentID }}</div>
       <div class="class">Class: {{ Student.Class }}</div>

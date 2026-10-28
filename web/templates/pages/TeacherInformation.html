@@ -1,4 +1,5 @@
 {% load static %}
+{% load school_tags %}
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -222,7 +223,7 @@
 
         <div class="profile-content">
             <div class="profile-main">
-                <img src="data:image/jpeg;base64,{{ TeacherInfo.TeacherImage }}" 
+                <img src="{{ TeacherInfo.TeacherImage|img_src }}" 
                      class="profile-img"
                      onerror="this.src='https://ui-avatars.com/api/?name={{ TeacherInfo.TeacherName }}&background=0f4c75&color=fff&size=200';" 
                      alt="Profile Photo">

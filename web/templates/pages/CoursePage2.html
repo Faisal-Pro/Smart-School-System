@@ -1,4 +1,5 @@
 {% load static %}
+{% load school_tags %}
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -56,7 +57,7 @@
     <aside class="sidebar">
         {% for Teacher in TeacherRecords %}
         <div class="logo-section">
-            <img src="data:image/jpeg;base64,{{ Teacher.TeacherImage }}" alt="Instructor">
+            <img src="{{ Teacher.TeacherImage|img_src }}" alt="Instructor">
             <h2>Dr. {{ Teacher.TeacherName }}</h2>
             <p>FACULTY INSTRUCTOR</p>
         </div>

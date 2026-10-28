@@ -1,4 +1,5 @@
 {% load static %}
+{% load school_tags %}
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -114,7 +115,7 @@
             <div class="material-card" id="card-{{ mat.material_id }}">
                 <div class="card-top">
                     <div class="user-meta">
-                        <img src="data:image/jpeg;base64,{{ mat.publisher_image }}" alt="Instructor">
+                        <img src="{{ mat.publisher_image|img_src }}" alt="Instructor">
                         <div>
                             <span class="name">{{ mat.publisher }}</span>
                             <span class="date">{{ mat.publish_date }}</span>

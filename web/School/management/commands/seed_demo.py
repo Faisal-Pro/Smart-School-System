@@ -73,16 +73,16 @@ COURSES = [
 #   "Math" -> Math 1 + Discrete Mathematics      "Data" -> Data Structures + Database
 #   "Computer" -> Intro to Computer Science + Computer Architecture + Computer Networks
 TEACHERS = [
-    (101, "Dr. Laila Hassan", 44, "Female", "Math", [1, 4]),
-    (102, "Dr. Omar Nabil", 51, "Male", "Physics", [2]),
-    (103, "Dr. Khaled Fawzy", 47, "Male", "Computer", [3, 7, 10]),
-    (104, "Eng. Sara Mansour", 38, "Female", "Programming", [5]),
-    (105, "Dr. Mona Adel", 41, "Female", "Data", [6, 9]),
-    (106, "Dr. Tarek Samir", 53, "Male", "Operating", [8]),
-    (107, "Dr. Hana Youssef", 39, "Female", "Software", [11]),
-    (108, "Dr. Amr Salah", 46, "Male", "Security", [12]),
-    (109, "Dr. Rania Kamel", 42, "Female", "Artificial", [13]),
-    (110, "Dr. Hossam Ezzat", 55, "Male", "Graduation", [14]),
+    (101, "Laila Hassan", 44, "Female", "Math", [1, 4]),
+    (102, "Omar Nabil", 51, "Male", "Physics", [2]),
+    (103, "Khaled Fawzy", 47, "Male", "Computer", [3, 7, 10]),
+    (104, "Sara Mansour", 38, "Female", "Programming", [5]),
+    (105, "Mona Adel", 41, "Female", "Data", [6, 9]),
+    (106, "Tarek Samir", 53, "Male", "Operating", [8]),
+    (107, "Hana Youssef", 39, "Female", "Software", [11]),
+    (108, "Amr Salah", 46, "Male", "Security", [12]),
+    (109, "Rania Kamel", 42, "Female", "Artificial", [13]),
+    (110, "Hossam Ezzat", 55, "Male", "Graduation", [14]),
 ]
 
 # id, name, age, gender, level, profile, parent name (None = no parent account)

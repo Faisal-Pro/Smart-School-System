@@ -1,4 +1,5 @@
 {% load static %}
+{% load school_tags %}
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -192,7 +193,7 @@
     <aside class="sidebar">
         <div class="user-profile">
             {% if StudentRecord.0.StudentImage %}
-                <img src="data:image/jpeg;base64,{{ StudentRecord.0.StudentImage }}" alt="Profile">
+                <img src="{{ StudentRecord.0.StudentImage|img_src }}" alt="Profile">
             {% else %}
                 <img src="https://ui-avatars.com/api/?name={{ StudentRecord.0.StudentName }}" alt="Profile">
             {% endif %}
@@ -253,7 +254,7 @@
                 {% for material in materials %}
                     <article class="material-card">
                         <div class="card-header">
-                            <img src="data:image/jpeg;base64,{{ material.publisher_image }}" 
+                            <img src="{{ material.publisher_image|img_src }}" 
                                  onerror="this.src='https://ui-avatars.com/api/?name={{ material.publisher_name }}'">
                             <div class="author-info">
                                 <h4>Dr. {{ material.publisher_name }}</h4>
@@ -263,7 +264,7 @@
                         <div class="description-box">{{ material.description }}</div>
                         <div class="media-container">
                             {% if material.material_type == 'image' %}
-                                <img src="data:image/jpeg;base64,{{ material.file_path }}" class="img-preview">
+                                <img src="{{ material.file_path|img_src }}" class="img-preview">
                             {% elif material.material_type == 'video' %}
                                 <video controls><source src="data:video/mp4;base64,{{ material.file_path }}" type="video/mp4"></video>
                             {% endif %}

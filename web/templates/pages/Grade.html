@@ -1,4 +1,5 @@
 {% load static %}
+{% load school_tags %}
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -203,7 +204,7 @@
         <div class="profile-header">
             <div class="student-info">
                 {% if StudentRecord.0.StudentImage %}
-                    <img src="data:image/jpeg;base64,{{ StudentRecord.0.StudentImage }}" alt="Student">
+                    <img src="{{ StudentRecord.0.StudentImage|img_src }}" alt="Student">
                 {% else %}
                     <img src="https://ui-avatars.com/api/?name={{ StudentRecord.0.StudentName }}&background=fff&color=0f4c75" alt="Student">
                 {% endif %}

@@ -1,4 +1,5 @@
 {% load static %}
+{% load school_tags %}
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -140,7 +141,7 @@
         {% for Teacher in TeacherRecords %}
         <div style="display: flex; align-items: center; gap: 10px;">
             <span style="font-weight: 700; font-size: 0.9rem;">Dr. {{ Teacher.TeacherName }}</span>
-            <img src="data:image/jpeg;base64,{{ Teacher.TeacherImage }}" style="width: 35px; height: 35px; border-radius: 50%; object-fit: cover;">
+            <img src="{{ Teacher.TeacherImage|img_src }}" style="width: 35px; height: 35px; border-radius: 50%; object-fit: cover;">
         </div>
         {% endfor %}
     </nav>
