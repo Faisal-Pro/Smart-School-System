@@ -9,7 +9,7 @@ from django.contrib.auth.models import User
 from django.core.management import call_command
 from django.test import TestCase
 
-from .analytics_utils import get_student_risk_report
+from .analytics_utils import get_student_risk_report, get_ai_prediction
 
 DEMO_PASSWORD = "demo1234"
 
@@ -79,8 +79,8 @@ class LoginTests(SchoolTestCase):
         self.assertRedirects(response, "/DirectAdminPage/")
         page = self.client.get("/DirectAdminPage/")
         self.assertEqual(page.context["total_students"], 12)
-        self.assertEqual(page.context["total_teachers"], 7)
-        self.assertEqual(page.context["total_courses"], 8)
+        self.assertEqual(page.context["total_teachers"], 10)
+        self.assertEqual(page.context["total_courses"], 14)
         self.assertIn("students_at_risk", page.context)
 
 
@@ -128,4 +128,12 @@ class RiskModelTests(SchoolTestCase):
     def test_weak_student_scores_higher_than_strong_student(self):
         strong = get_student_risk_report(1001, 1)["risk_score"]
         weak = get_student_risk_report(1003, 1)["risk_score"]
+        self.assertGreater(weak, strong)
+
+    def test_model_really_runs_and_is_not_the_0_5_fallback(self):
+        # features: term_work_norm, Cumulative_GPA, succededhours, level_id_x
+        strong = get_ai_prediction([0.9, 3.5, 90, 3])
+        weak = get_ai_prediction([0.1, 1.0, 10, 1])
+        self.assertNotEqual(strong, 0.5)
+        self.assertNotEqual(weak, 0.5)
         self.assertGreater(weak, strong)

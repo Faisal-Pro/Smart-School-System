@@ -3,6 +3,7 @@ from functools import lru_cache
 import numpy as np
 import os
 import pandas as pd
+import xgboost as xgb
 from django.db.models import Sum
 from .models import StudentInformation, AttendanceList, QuizGrades, HomeWorkGrades, MidtermGrades
 
@@ -16,21 +17,29 @@ def _load_model():
     return joblib.load(MODEL_PATH)
 
 
+FEATURE_COLS = ['term_work_norm', 'Cumulative_GPA', 'succededhours', 'level_id_x']
+
+
 def get_ai_prediction(features):
     """
     Executes inference using the XGBoost model.
+    Returns the probability (0..1) that the student is at risk.
     """
     try:
         if not os.path.exists(MODEL_PATH):
             return 0.5
         model = _load_model()
-        cols = ['term_work_norm', 'Cumulative_GPA', 'succededhours', 'level_id_x']
-        input_df = pd.DataFrame([features], columns=cols)
-        prediction = model.predict_proba(input_df)
-        return float(prediction[0][1])
+        # Build the DMatrix ourselves with explicit feature names. This works with
+        # every pandas version (pandas 3 broke automatic feature-name detection).
+        values = np.asarray([features], dtype=float)
+        dmatrix = xgb.DMatrix(values, feature_names=FEATURE_COLS)
+        prediction = model.get_booster().predict(dmatrix)
+        prediction = np.asarray(prediction)
+        return float(prediction[0][1] if prediction.ndim == 2 else prediction[0])
     except Exception as e:
         print(f"Prediction Error: {e}")
         return 0.5
+
 
 def get_student_risk_report(student_id, course_id):
     """

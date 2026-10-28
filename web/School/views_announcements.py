@@ -43,6 +43,12 @@ from django.contrib import messages
 from django.core.files.base import ContentFile
 from .analytics_utils import get_student_risk_report
 from django.contrib.auth.hashers import make_password
+import base64
+from django.db import connection
+from django.shortcuts import render
+from django.db import connection
+from django.db import connection
+from django.views.decorators.clickjacking import xframe_options_exempt
 
 
 def AddannouncementsPage(request):
