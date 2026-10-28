@@ -37,3 +37,4 @@ trainer/
 info/
 *.h5
 *.sqlite3
+web/test_results.txt
