@@ -176,6 +176,9 @@
                 alert("Camera access denied."); 
             });
 
+        const DASHBOARD = "{% url 'CoursePageStudent' StudentID CourseID %}";
+        let busy = false;
+
         // Safety Check Interval
         const sessionCheckInterval = setInterval(() => {
             fetch("/check-attendance-status/{{ CourseID }}/")
@@ -185,13 +188,15 @@
                         clearInterval(sessionCheckInterval);
                         clearInterval(inferenceInterval);
                         alert("The attendance session has ended.");
-                        window.location.href = "/CoursePageStudent/{{ CourseID }}/{{ StudentID }}/";
+                        window.location.href = DASHBOARD;
                     }
                 });
         }, 5000);
 
         // AI Inference Loop
         const inferenceInterval = setInterval(() => {
+            if (busy || !video.videoWidth) return;
+            busy = true;
             const canvas = document.createElement('canvas');
             canvas.width = 640;
             canvas.height = 480;
@@ -207,9 +212,10 @@
                 method: "POST",
                 headers: { 
                     "Content-Type": "application/x-www-form-urlencoded",
-                    "X-CSRFToken": csrftoken  // <--- ADD THIS LINE
+                    "X-CSRFToken": csrftoken
                 },
-                body: `image=${encodeURIComponent(imageData)}&course_id={{ CourseID }}&student_id={{ StudentID }}`
+                // the server takes the student from the login session, not from here
+                body: `image=${encodeURIComponent(imageData)}&course_id={{ CourseID }}`
             })
             .then(res => res.json())
             .then(data => {
@@ -222,15 +228,22 @@
                     clearInterval(sessionCheckInterval);
                     
                     setTimeout(() => {
-                        window.location.href = "/CoursePageStudent/{{ StudentID }}/{{ CourseID }}/";
+                        window.location.href = DASHBOARD;
                     }, 1500);
 
                 } else if (data.status === 'not_recognized') {
-                    log.textContent = "Recognition Failed";
+                    log.textContent = "Recognition Failed - try again";
                     log.style.color = "var(--danger)";
+                } else if (data.status === 'not_enrolled') {
+                    clearInterval(inferenceInterval);
+                    log.textContent = "No face registered. Ask the admin to enroll you.";
+                    log.style.color = "var(--danger)";
+                } else if (data.status === 'not_logged_in') {
+                    window.location.href = "{% url 'StudentLogInPage' %}";
                 }
             })
-            .catch(err => console.error("AI Server Error:", err));
+            .catch(err => console.error("AI Server Error:", err))
+            .finally(() => { busy = false; });
         }, 3000);
     </script>
 </body>

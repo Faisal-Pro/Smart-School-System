@@ -169,7 +169,8 @@
         
         const circumference = 140 * 2 * Math.PI;
         let count = 0;
-        const totalPhotos = 100;
+        const totalPhotos = 30;   // must match MAX_SAMPLES in Student.py
+        let tries = 0;
 
         // Initialize Progress Ring
         circle.style.strokeDasharray = `${circumference} ${circumference}`;
@@ -216,20 +217,32 @@
             fetch("{% url 'CaptureFrame' StudentID %}", {
                 method: "POST",
                 headers: { "X-CSRFToken": "{{ csrf_token }}", "Content-Type": "application/json" },
-                body: JSON.stringify({ image: imageData, count: count })
+                body: JSON.stringify({ image: imageData, count: tries })
             })
-            .then(() => {
-                count++;
+            .then(res => res.json())
+            .then(data => {
+                tries++;
+                if (data.status === 'no_face') {
+                    guideText.innerText = "No face found - center your face and add light.";
+                    setTimeout(captureFrames, 300);
+                    return;
+                }
+                if (data.status !== 'success' && data.status !== 'done') {
+                    guideText.innerText = "Error: " + (data.message || data.status);
+                    return;
+                }
+                count = data.saved || (count + 1);
                 const percentage = Math.floor((count / totalPhotos) * 100);
                 setProgress(percentage);
                 status.innerText = `${percentage}% Complete`;
                 
                 // Update instructions based on progress
-                if(percentage === 30) guideText.innerText = "Tilt your head up and down...";
-                if(percentage === 60) guideText.innerText = "Almost there! Keep moving...";
+                if(percentage >= 30 && percentage < 60) guideText.innerText = "Tilt your head up and down...";
+                if(percentage >= 60) guideText.innerText = "Almost there! Keep moving...";
 
-                setTimeout(captureFrames, 80); 
-            });
+                setTimeout(captureFrames, 250);
+            })
+            .catch(() => { guideText.innerText = "Server error. Reload and try again."; });
         }
     </script>
 </body>
