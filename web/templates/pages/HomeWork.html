@@ -356,6 +356,7 @@
             try {
                 const response = await fetch('/HomeworkDelivered/', {
                     method: 'POST',
+                    headers: {'X-CSRFToken': '{{ csrf_token }}'},
                     body: formData
                 });
                 const data = await response.json();

@@ -2937,7 +2937,6 @@ def HomeWork(request, Course_ID, StudentID):
     return render(request, "pages/HomeWork.html", context)
 
 
-@csrf_exempt
 def HomeworkDelivered(request):
     if request.method == "POST":
         student_id = request.POST.get("student_id")

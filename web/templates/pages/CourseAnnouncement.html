@@ -161,12 +161,12 @@
             <div class="announcement-meta">
                 <img src="data:image/jpeg;base64,{{ announcement.publisher_image }}" alt="Publisher" class="publisher-photo">
                 <div>
-                    <span><strong>Published by:</strong> Dr. {{ announcement.publisher }}</span><br>
-                    <span><strong>On:</strong> {{ announcement.publish_date }}</span>
+                    <span><strong>Published by:</strong> Dr. {{ announcement.publisher_name }}</span><br>
+                    <span><strong>On:</strong> {{ announcement.date_posted }}</span>
                 </div>
             </div>
             <div class="announcement-content">
-                {{ announcement.content|safe|linebreaksbr }}
+                {{ announcement.description|linebreaksbr }}
             </div>
 
             {% if announcement.pdf_file %}

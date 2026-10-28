@@ -54,7 +54,6 @@ _allow(
     "CoursePageStudent",
     "course_list",
     "index2",
-    "announcements",
     "CourseAnnouncement",
     "HomeWork",
     "StudentDashboard",
@@ -108,6 +107,7 @@ _allow(
     "TeacherInformation",
 )
 
+_allow({"teacher", "student", "parent", "admin"}, "announcements")
 _allow({"teacher"}, "TeacherDashboard")
 _allow({"parent"}, "ParentDashboard")
 
@@ -115,6 +115,8 @@ _allow({"parent"}, "ParentDashboard")
 
 STUDENT_KWARGS = {"Student_ID", "StudentID", "Student_Id", "student_id", "ID"}
 TEACHER_KWARGS = {"Teacher_Id", "teacher_id", "Teacher_ID"}
+# for these pages the teacher's own id arrives as ID
+TEACHER_ID_URLS = {"announcements"}
 
 
 def check_access(url_name, kwargs, session):
@@ -139,7 +141,10 @@ def check_access(url_name, kwargs, session):
                 return "forbidden", allowed
     elif role == "teacher":
         own = session.get("user_id")
-        for key in TEACHER_KWARGS & set(kwargs):
+        keys = TEACHER_KWARGS & set(kwargs)
+        if url_name in TEACHER_ID_URLS:
+            keys = keys | ({"ID"} & set(kwargs))
+        for key in keys:
             if kwargs[key] != own:
                 return "forbidden", allowed
     return "allow", allowed

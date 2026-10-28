@@ -305,7 +305,7 @@
                 </header>
 
                 <div class="post-body">
-                    {{ announcement.content|safe }}
+                    {{ announcement.content|linebreaksbr}}
                 </div>
 
                 {% if announcement.pdf_file or announcement.video_file %}
