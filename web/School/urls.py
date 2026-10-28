@@ -23,6 +23,8 @@ urlpatterns = [
         views.StudentSchedulePage,
         name="StudentSchedulePage",
     ),
+    path("TeacherDashboard/", Teacher.Dashboard, name="TeacherDashboard"),
+    path("ParentDashboard/", Parent.Dashboard, name="ParentDashboard"),
     path("AdminLogIn/", Admin_School.AdminLogin, name="AdminLogIn"),
     path("Logout/", Admin_School.Logout, name="Logout"),
     path(
@@ -87,8 +89,6 @@ urlpatterns = [
     path(
         "AssignStudentCourse2/", views.AssignStudentCourse2, name="AssignStudentCourse2"
     ),
-    path("upload_media/", views.upload_media, name="upload_media"),
-    path("media-list/", views.media_list, name="media_list"),
     path("announcements/<int:ID>/", views.announcement_list, name="announcements"),
     path("Addannouncements/", views.Addannouncements, name="Addannouncements"),
     path(

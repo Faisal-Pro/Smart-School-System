@@ -242,7 +242,7 @@
         <div class="sidebar-header">
             <div class="profile-wrapper">
                 {% if StudentImage %}
-                    <img src="{{ StudentImage|img_src }}" alt="Profile" alt="Profile">
+                    <img src="{{ StudentImage|img_src }}" alt="Profile">
                 {% else %}
                     <img src="{% static 'Images/default-avatar.png' %}" alt="Default">
                 {% endif %}
@@ -307,7 +307,7 @@
                 <div class="course-grid">
                     {% for Record in CourseRecord %}
                         <div class="course-card">
-                            <img src="{{ Record.image_url }}" 
+                            <img src="{{ Record.image_url|img_src:'Images/default-course.jpg' }}" 
                                  class="course-img"
                                  onerror="this.onerror=null; this.src='https://ui-avatars.com/api/?name={{ Record.CourseName }}&background=3282b8&color=fff';" 
                                  alt="Course">

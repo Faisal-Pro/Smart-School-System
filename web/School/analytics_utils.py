@@ -1,4 +1,5 @@
 import joblib
+from functools import lru_cache
 import numpy as np
 import os
 import pandas as pd
@@ -9,6 +10,12 @@ from .models import StudentInformation, AttendanceList, QuizGrades, HomeWorkGrad
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 MODEL_PATH = os.path.join(BASE_DIR, 'xgboost_risk_model.joblib')
 
+@lru_cache(maxsize=1)
+def _load_model():
+    """Load the XGBoost model once and keep it in memory."""
+    return joblib.load(MODEL_PATH)
+
+
 def get_ai_prediction(features):
     """
     Executes inference using the XGBoost model.
@@ -16,7 +23,7 @@ def get_ai_prediction(features):
     try:
         if not os.path.exists(MODEL_PATH):
             return 0.5
-        model = joblib.load(MODEL_PATH)
+        model = _load_model()
         cols = ['term_work_norm', 'Cumulative_GPA', 'succededhours', 'level_id_x']
         input_df = pd.DataFrame([features], columns=cols)
         prediction = model.predict_proba(input_df)

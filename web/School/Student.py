@@ -6,7 +6,6 @@ import json
 from django.db import connection
 from django.http import JsonResponse
 from django.shortcuts import render, redirect
-from django.views.decorators.csrf import csrf_exempt
 from .security import verify_password, login_session
 
 # --- CONFIG ---
@@ -45,7 +44,6 @@ def get_face_roi(img):
 
 
 # ================= REGISTRATION API =================
-@csrf_exempt
 def capture_frame_api(request, student_id):
     if request.method == "POST":
         try:
@@ -81,7 +79,6 @@ def capture_frame_api(request, student_id):
     return JsonResponse({"status": "failed"})
 
 
-@csrf_exempt
 def face_login_process(request):
     if request.method != "POST":
         return render(request, "pages/StudentLogIn.html")

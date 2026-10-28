@@ -2303,52 +2303,6 @@ def AddStudentCourse3(request):
     )
 
 
-def upload_media(request):
-    if request.method == "POST" and request.FILES["file"]:
-        uploaded_file = request.FILES["file"]
-
-        uploads_dir = os.path.join(settings.MEDIA_ROOT, "uploads")
-
-        if not os.path.exists(uploads_dir):
-            os.makedirs(uploads_dir)
-
-        file_name = uploaded_file.name
-        file_path = os.path.join(uploads_dir, file_name)
-
-        with open(file_path, "wb+") as destination:
-            for chunk in uploaded_file.chunks():
-                destination.write(chunk)
-
-        file_type = None
-        if file_name.lower().endswith(("jpg", "jpeg", "png", "gif")):
-            file_type = "image"
-        elif file_name.lower().endswith(("mp4", "avi", "mov")):
-            file_type = "video"
-        elif file_name.lower().endswith("pdf"):
-            file_type = "pdf"
-
-        with connection.cursor() as cursor:
-            cursor.execute(
-                """
-                INSERT INTO MediaFiles (file_path, file_type, uploaded_at)
-                VALUES (%s, %s, GETDATE())
-            """,
-                ["/media/uploads/" + file_name, file_type],
-            )
-
-        return redirect("media_list")
-
-    return render(request, "upload_media.html")
-
-
-def media_list(request):
-    with connection.cursor() as cursor:
-        cursor.execute("SELECT id, file_path, file_type FROM MediaFiles")
-        media_records = cursor.fetchall()
-
-    return render(request, "pages/media_list.html", {"media_records": media_records})
-
-
 def Addannouncements(request):
     if (
         request.method == "POST"
@@ -3555,7 +3509,6 @@ def confirm_grades(request):
     return JsonResponse({"error": "Invalid method"}, status=405)
 
 
-@csrf_exempt
 def HomeWork_delivered(request, CourseID):
     with connection.cursor() as cursor:
         # 1. Fetch Course Info
@@ -3626,7 +3579,6 @@ def ViewAssignmentFile(request, submission_id):
     return HttpResponse("File not found.", status=404)
 
 
-@csrf_exempt
 def SaveAssignmentGrade(request):
     if request.method == "POST":
         try:
