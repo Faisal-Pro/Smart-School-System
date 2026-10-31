@@ -22,6 +22,7 @@ from School.models import (
     Assignments,
     AttendanceGate,
     AttendanceList,
+    CourseAnnouncement,
     CourseAnnouncementReadStatus,
     CourseContents,
     Courses,
@@ -99,7 +100,12 @@ STUDENTS = [
     (1010, "Laila Mahmoud", 21, "Female", 3, "strong", "Mahmoud Aziz"),
     (1011, "Adam Fathy", 22, "Male", 4, "at_risk", None),
     (1012, "Dina Sherif", 22, "Female", 4, "strong", "Sherif Nabil"),
+    (1013, "Faisal Ahmed", 21, "Male", 3, "strong", "Ahmed Awad"),
 ]
+
+# students who are NOT enrolled in the default courses of their level
+# 1013 Faisal Ahmed: Data Structures, Database Management, AI & Machine Learning
+CUSTOM_COURSES = {1013: [6, 9, 13]}
 
 # attendance rate, quiz rate range, homework rate range, midterm range (of 20)
 PROFILES = {
@@ -115,70 +121,136 @@ PROFILES = {
 }
 
 # course id -> two questions: (text, correct answer, three wrong answers)
-QUIZ = {1: [('What is the derivative of x^2?', '2x', ['x', 'x^2', '2']),
-     ('What is the integral of 1 dx from 0 to 1?', '1', ['0', '2', '1/2'])],
- 2: [('Which unit measures force?', 'Newton', ['Joule', 'Watt', 'Pascal']),
-     ('Approximate gravity on Earth?',
-      '9.8 m/s2',
-      ['1.6 m/s2', '3.7 m/s2', '24.8 m/s2'])],
- 3: [('Which part of a computer executes instructions?',
-      'CPU',
-      ['Monitor', 'Keyboard', 'Power supply']),
-     ('How many bits are in one byte?', '8', ['4', '16', '32'])],
- 4: [('How many subsets does a set of 3 elements have?', '8', ['3', '6', '9']),
-     ('Which connective is true only when both statements are true?',
-      'AND',
-      ['OR', 'XOR', 'NOT'])],
- 5: [('Which OOP concept hides internal details of an object?',
-      'Encapsulation',
-      ['Recursion', 'Compilation', 'Iteration']),
-     ('A class that inherits from another class is called a:',
-      'Subclass',
-      ['Interface', 'Module', 'Constant'])],
- 6: [('Which data structure is LIFO?', 'Stack', ['Queue', 'Array', 'Tree']),
-     ('Time complexity of binary search?', 'O(log n)', ['O(n)', 'O(n^2)', 'O(1)'])],
- 7: [('Which memory is the fastest?', 'Registers', ['Hard disk', 'RAM', 'SSD']),
-     ('The ALU performs:',
-      'Arithmetic and logic operations',
-      ['Data storage', 'Screen output', 'Network routing'])],
- 8: [('Which OS component decides which process runs next?',
-      'Scheduler',
-      ['Compiler', 'Linker', 'Editor']),
-     ('A deadlock happens when processes:',
-      'Wait for each other forever',
-      ['Run too fast', 'Use too little memory', 'Finish early'])],
- 9: [('Which SQL command reads data from a table?',
-      'SELECT',
-      ['INSERT', 'DELETE', 'DROP']),
-     ('A primary key must be:', 'Unique', ['Empty', 'Repeated', 'Text only'])],
- 10: [('Which protocol is used to load web pages?', 'HTTP', ['SMTP', 'FTP', 'SSH']),
-      ('An IPv4 address has how many bits?', '32', ['16', '64', '128'])],
- 11: [('Which model delivers software in short repeated cycles?',
-       'Agile',
-       ['Waterfall only', 'Big bang', 'Spiral of silence']),
-      ('What is the purpose of unit testing?',
-       'Test small parts of the code',
-       ['Design the database', 'Write documentation', 'Deploy to users'])],
- 12: [('What does a firewall do?',
-       'Filters network traffic',
-       ['Speeds up the CPU', 'Compresses files', 'Stores passwords in plain text']),
-      ('Which is a strong password practice?',
-       'Long and unique password',
-       ['Reuse one password', 'Use your name', 'Share it with friends'])],
- 13: [('Which technique helps reduce overfitting?',
-       'Regularization',
-       ['Removing the test set',
-        'Adding noise to labels',
-        'Training without validation']),
-      ('Which algorithm is used for classification?',
-       'Logistic regression',
-       ['K-means', 'PCA', 'Apriori'])],
- 14: [('A project proposal should first state the:',
-       'Problem and objectives',
-       ['Final grades', 'Font size', 'Team photos']),
-      ('Which document records what the system must do?',
-       'Requirements specification',
-       ['Invoice', 'Poster', 'Menu'])]}
+QUIZ = {
+    1: [
+        ("What is the derivative of x^2?", "2x", ["x", "x^2", "2"]),
+        ("What is the integral of 1 dx from 0 to 1?", "1", ["0", "2", "1/2"]),
+    ],
+    2: [
+        ("Which unit measures force?", "Newton", ["Joule", "Watt", "Pascal"]),
+        (
+            "Approximate gravity on Earth?",
+            "9.8 m/s2",
+            ["1.6 m/s2", "3.7 m/s2", "24.8 m/s2"],
+        ),
+    ],
+    3: [
+        (
+            "Which part of a computer executes instructions?",
+            "CPU",
+            ["Monitor", "Keyboard", "Power supply"],
+        ),
+        ("How many bits are in one byte?", "8", ["4", "16", "32"]),
+    ],
+    4: [
+        ("How many subsets does a set of 3 elements have?", "8", ["3", "6", "9"]),
+        (
+            "Which connective is true only when both statements are true?",
+            "AND",
+            ["OR", "XOR", "NOT"],
+        ),
+    ],
+    5: [
+        (
+            "Which OOP concept hides internal details of an object?",
+            "Encapsulation",
+            ["Recursion", "Compilation", "Iteration"],
+        ),
+        (
+            "A class that inherits from another class is called a:",
+            "Subclass",
+            ["Interface", "Module", "Constant"],
+        ),
+    ],
+    6: [
+        ("Which data structure is LIFO?", "Stack", ["Queue", "Array", "Tree"]),
+        ("Time complexity of binary search?", "O(log n)", ["O(n)", "O(n^2)", "O(1)"]),
+    ],
+    7: [
+        ("Which memory is the fastest?", "Registers", ["Hard disk", "RAM", "SSD"]),
+        (
+            "The ALU performs:",
+            "Arithmetic and logic operations",
+            ["Data storage", "Screen output", "Network routing"],
+        ),
+    ],
+    8: [
+        (
+            "Which OS component decides which process runs next?",
+            "Scheduler",
+            ["Compiler", "Linker", "Editor"],
+        ),
+        (
+            "A deadlock happens when processes:",
+            "Wait for each other forever",
+            ["Run too fast", "Use too little memory", "Finish early"],
+        ),
+    ],
+    9: [
+        (
+            "Which SQL command reads data from a table?",
+            "SELECT",
+            ["INSERT", "DELETE", "DROP"],
+        ),
+        ("A primary key must be:", "Unique", ["Empty", "Repeated", "Text only"]),
+    ],
+    10: [
+        ("Which protocol is used to load web pages?", "HTTP", ["SMTP", "FTP", "SSH"]),
+        ("An IPv4 address has how many bits?", "32", ["16", "64", "128"]),
+    ],
+    11: [
+        (
+            "Which model delivers software in short repeated cycles?",
+            "Agile",
+            ["Waterfall only", "Big bang", "Spiral of silence"],
+        ),
+        (
+            "What is the purpose of unit testing?",
+            "Test small parts of the code",
+            ["Design the database", "Write documentation", "Deploy to users"],
+        ),
+    ],
+    12: [
+        (
+            "What does a firewall do?",
+            "Filters network traffic",
+            ["Speeds up the CPU", "Compresses files", "Stores passwords in plain text"],
+        ),
+        (
+            "Which is a strong password practice?",
+            "Long and unique password",
+            ["Reuse one password", "Use your name", "Share it with friends"],
+        ),
+    ],
+    13: [
+        (
+            "Which technique helps reduce overfitting?",
+            "Regularization",
+            [
+                "Removing the test set",
+                "Adding noise to labels",
+                "Training without validation",
+            ],
+        ),
+        (
+            "Which algorithm is used for classification?",
+            "Logistic regression",
+            ["K-means", "PCA", "Apriori"],
+        ),
+    ],
+    14: [
+        (
+            "A project proposal should first state the:",
+            "Problem and objectives",
+            ["Final grades", "Font size", "Team photos"],
+        ),
+        (
+            "Which document records what the system must do?",
+            "Requirements specification",
+            ["Invoice", "Poster", "Menu"],
+        ),
+    ],
+}
 
 ANNOUNCEMENTS = [
     (
@@ -213,6 +285,7 @@ WIPE = [
     Assignments,
     AttendanceGate,
     AttendanceList,
+    CourseAnnouncement,
     CourseAnnouncementReadStatus,
     CourseContents,
     FinalGrade,
@@ -264,7 +337,7 @@ class Command(BaseCommand):
         self.stdout.write(self.style.SUCCESS("Demo data created."))
         self.stdout.write(
             f"Password for every demo account: {DEMO_PASSWORD}\n"
-            "Students 1001-1012 | Teachers 101-110 | "
+            "Students 1001-1013 | Teachers 101-110 | "
             "Parents: see the list printed above"
         )
 
@@ -303,8 +376,12 @@ class Command(BaseCommand):
                 ("Monday", "Wednesday"),
                 ("Tuesday", "Thursday"),
             ][i % 3]
-            slots = [("09:00", "10:30"), ("11:00", "12:30"),
-                     ("13:00", "14:30"), ("15:00", "16:30")]
+            slots = [
+                ("09:00", "10:30"),
+                ("11:00", "12:30"),
+                ("13:00", "14:30"),
+                ("15:00", "16:30"),
+            ]
             for ci, cid in enumerate(cids):
                 start, end = slots[(i + ci) % 4]
                 for day in days:
@@ -385,7 +462,12 @@ class Command(BaseCommand):
                 credentials.append((parent_id, parent, f"parent of {name}"))
                 parent_id += 1
 
-            for cid, cname, clevel, image in courses_for(level):
+            my_courses = (
+                [COURSES[c - 1] for c in CUSTOM_COURSES[sid]]
+                if sid in CUSTOM_COURSES
+                else courses_for(level)
+            )
+            for cid, cname, clevel, image in my_courses:
                 tid = course_teacher[cid]
                 StudentCourses.objects.create(
                     Student_ID=sid,
@@ -436,6 +518,30 @@ class Command(BaseCommand):
                     MarksObtained=round(rng.uniform(*p["mid"]), 1),
                     TotalMarks=20.0,
                 )
+
+        # ---- one announcement per course, unread for every enrolled student ----
+        teacher_name = {t[0]: t[1] for t in TEACHERS}
+        for cid, cname, clevel, image in COURSES:
+            tid = course_teacher[cid]
+            ann = CourseAnnouncement.objects.create(
+                publisher_name=teacher_name[tid],
+                description=(
+                    f"Welcome to {cname}. The syllabus and the first assignment "
+                    "are published. Please read them before the next lecture."
+                ),
+                publisher_image=AVATAR,
+                Teacher_Id=tid,
+                course_id=cid,
+            )
+            enrolled = StudentCourses.objects.filter(course_id=cid)
+            CourseAnnouncementReadStatus.objects.bulk_create(
+                [
+                    CourseAnnouncementReadStatus(
+                        Student_ID=sc.Student_ID, Announcement_ID=ann.id, IsRead=False
+                    )
+                    for sc in enrolled
+                ]
+            )
 
         # ---- announcements ----
         for title, text, days_ago in ANNOUNCEMENTS:

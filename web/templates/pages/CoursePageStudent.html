@@ -203,9 +203,16 @@
         <nav>
             <ul>
                 <li><a href="{% url 'course_list' StudentID %}" class="active"><i class="fas fa-th-large"></i> <span>My Courses</span></a></li>
+{% if request.session.role != 'parent' %}
                 <li><a href="javascript:void(0)" onclick="openAttendance()"><i class="fas fa-fingerprint"></i> <span>Assign Presence</span></a></li>
+{% endif %}
+{% if request.session.role != 'parent' %}
                 <li><a href="{% url 'take_quiz' StudentID CourseID %}"><i class="fas fa-lightbulb"></i> <span>Quizzes</span></a></li>
+{% endif %}
+{% if request.session.role != 'parent' %}
                 <li><a href="{% url 'HomeWork' CourseID StudentID %}"><i class="fas fa-edit"></i> <span>Homework</span></a></li>
+{% endif %}
+                <li><a href="{% url 'CourseAnnouncement' StudentID CourseID %}"><i class="fas fa-bullhorn"></i> <span>Announcements</span></a></li>
                 <li><a href="{% url 'Grade' CourseID StudentID %}"><i class="fas fa-chart-line"></i> <span>Grades</span></a></li>
             </ul>
         </nav>

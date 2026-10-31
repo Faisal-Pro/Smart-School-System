@@ -373,6 +373,30 @@ class TeacherSchedule(models.Model):
         return f"{self.course_name} on {self.day}"
 
 
+class CourseAnnouncement(models.Model):
+    """An announcement a teacher posts inside one course."""
+
+    publisher_name = models.CharField(max_length=250)
+    description = models.TextField()
+    publisher_image = models.CharField(max_length=250, blank=True, default="")
+    pdf_file = models.FileField(
+        upload_to="course_announcements/pdfs/", null=True, blank=True
+    )
+    video_file = models.FileField(
+        upload_to="course_announcements/videos/", null=True, blank=True
+    )
+    Teacher_Id = models.IntegerField()
+    course_id = models.IntegerField()
+    date_posted = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        db_table = "CourseAnnouncement"
+        verbose_name_plural = "CourseAnnouncement"
+
+    def __str__(self):
+        return f"{self.publisher_name} (course {self.course_id})"
+
+
 class CourseAnnouncementReadStatus(models.Model):
     Student_ID = models.IntegerField()
     Announcement_ID = models.IntegerField()

@@ -151,6 +151,11 @@ def UploadMaterial(request, Teacher_Id, course_id):
         description = request.POST.get("description")
         media_type = request.POST.get("media-type")
         media_file = request.FILES.get("media-file")
+        if media_file is None:
+            return JsonResponse(
+                {"status": "error", "message": "Please choose a file first."},
+                status=400,
+            )
 
         icon_mapping = {
             "pdf": "fas fa-file-pdf",

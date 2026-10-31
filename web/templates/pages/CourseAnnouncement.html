@@ -170,16 +170,16 @@
                 {{ announcement.description|linebreaksbr }}
             </div>
 
-            {% if announcement.pdf_file %}
-            <a href="data:application/pdf;base64,{{ announcement.pdf_file }}" target="_blank">
+            {% if announcement.pdf_url %}
+            <a href="{{ announcement.pdf_url }}" target="_blank">
                 <img src="{% static 'Images/pdf.png' %}" class="pdf-icon" alt="PDF Icon">
             </a>
             {% endif %}
 
-            {% if announcement.video_file %}
+            {% if announcement.video_url %}
             <div class="video-container">
                 <video controls class="video-player">
-                    <source src="data:video/mp4;base64,{{ announcement.video_file }}" type="video/mp4">
+                    <source src="{{ announcement.video_url }}">
                     Your browser does not support the video tag.
                 </video>
             </div>

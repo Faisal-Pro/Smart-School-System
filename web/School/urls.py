@@ -145,6 +145,11 @@ urlpatterns = [
     path("add_course_Page/", views.add_course_Page, name="add_course_Page"),
     path("add_course/", views.add_course, name="add_course"),
     path(
+        "CourseRisk/<int:teacher_id>/<int:course_id>/",
+        views.CourseRisk,
+        name="CourseRisk",
+    ),
+    path(
         "ViewStudentsCourse/<int:Course_ID>/",
         views.ViewStudentsCourse,
         name="ViewStudentsCourse",
@@ -205,6 +210,11 @@ urlpatterns = [
     path("view_courses/", views.view_courses, name="view_courses"),
     path("delete_course/<int:course_id>/", views.delete_course, name="delete_course"),
     path("update_course/<int:course_id>/", views.update_course, name="update_course"),
+    path(
+        "course-announcement/file/<int:announcement_id>/<str:file_type>/",
+        views.serve_course_announcement_file,
+        name="serve_course_announcement_file",
+    ),
     path(
         "announcement/file/<int:announcement_id>/<str:file_type>/",
         views.serve_announcement_file,

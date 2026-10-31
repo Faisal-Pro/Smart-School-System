@@ -212,7 +212,7 @@
 
             <div class="form-group">
                 <label for="content">Announcement</label>
-                <textarea id="content" name="content" required></textarea>
+                <textarea id="content" name="description" required></textarea>
             </div>
 
             <button type="button" class="submit-btn" id="submitBtn">Submit</button>
@@ -255,9 +255,11 @@
                 $('#pdfFileName').text('');
                 $('#videoFileName').text('');
             },
-            error: function () {
+            error: function (xhr) {
                 const responseMessage = $('#responseMessage');
-                responseMessage.text('An error occurred while adding the announcement.')
+                let msg = 'An error occurred while adding the announcement.';
+                if (xhr.responseJSON && xhr.responseJSON.error) { msg = xhr.responseJSON.error; }
+                responseMessage.text(msg)
                                .css('color', 'red')
                                .removeClass('hide').addClass('show');
 

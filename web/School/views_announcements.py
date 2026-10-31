@@ -51,6 +51,15 @@ from django.db import connection
 from django.views.decorators.clickjacking import xframe_options_exempt
 
 
+from django.db import transaction
+from django.http import FileResponse, Http404
+from django.shortcuts import get_object_or_404
+from django.urls import reverse
+from django.core.exceptions import PermissionDenied
+from .models import CourseAnnouncement as CourseAnnouncementModel
+from .models import CourseAnnouncementReadStatus, StudentCourses, TeacherCourses
+
+
 def AddannouncementsPage(request):
     return render(request, "pages/add_announcement.html")
 
@@ -158,89 +167,84 @@ def serve_announcement_file(request, announcement_id, file_type):
     raise Http404("File not found")
 
 
+def _can_see_course(request, course_id):
+    """Admins and teachers: yes. Students/parents: only if the student is enrolled."""
+    role = request.session.get("role")
+    if role in ("admin", "teacher"):
+        return True
+    key = "user_id" if role == "student" else "student_id"
+    sid = request.session.get(key)
+    return StudentCourses.objects.filter(Student_ID=sid, course_id=course_id).exists()
+
+
 def AddAnnouncementsCourse(request, Teacher_Id, Course_Id):
-    if (
+    """A teacher posts an announcement inside one of HIS courses."""
+    if not (
         request.method == "POST"
         and request.headers.get("X-Requested-With") == "XMLHttpRequest"
     ):
-        try:
-            print("In the function")
-            description = request.POST.get("description")
+        return JsonResponse({"error": "Invalid request method or type."}, status=400)
 
-            TeacherID = Teacher_Id
-            with connection.cursor() as cursor:
-                cursor.execute(
-                    """SELECT Teacher_Image, Teacher_Name FROM TeacherInformation WHERE Teacher_Id = %s
-                """,
-                    [TeacherID],
+    description = (
+        request.POST.get("description") or request.POST.get("content") or ""
+    ).strip()
+    if not description:
+        return JsonResponse({"error": "Please write the announcement text."}, status=400)
+
+    teacher = TeacherModel.objects.filter(Teacher_Id=Teacher_Id).first()
+    if teacher is None:
+        return JsonResponse({"error": "Teacher not found."}, status=404)
+    if not TeacherCourses.objects.filter(
+        teacher_id=Teacher_Id, course_id=Course_Id
+    ).exists():
+        return JsonResponse({"error": "You do not teach this course."}, status=403)
+
+    pdf = request.FILES.get("pdf_file")
+    video = request.FILES.get("video_file")
+    if pdf and not pdf.name.lower().endswith(".pdf"):
+        return JsonResponse({"error": "The document must be a PDF."}, status=400)
+    if video and not video.name.lower().endswith((".mp4", ".webm", ".ogg")):
+        return JsonResponse({"error": "The video must be mp4, webm or ogg."}, status=400)
+
+    with transaction.atomic():
+        announcement = CourseAnnouncementModel.objects.create(
+            publisher_name=teacher.Teacher_Name,
+            description=description,
+            publisher_image=teacher.Teacher_Image or "",
+            pdf_file=pdf,
+            video_file=video,
+            Teacher_Id=Teacher_Id,
+            course_id=Course_Id,
+        )
+        # one "unread" row for every student enrolled in this course
+        student_ids = StudentCourses.objects.filter(course_id=Course_Id).values_list(
+            "Student_ID", flat=True
+        )
+        CourseAnnouncementReadStatus.objects.bulk_create(
+            [
+                CourseAnnouncementReadStatus(
+                    Student_ID=sid, Announcement_ID=announcement.id, IsRead=False
                 )
-                Record = cursor.fetchone()
+                for sid in set(student_ids)
+            ]
+        )
 
-            Teacher_image = Record[0] if Record and Record[0] is not None else None
-            Teacher_Name = Record[1]
+    return JsonResponse({"message": "Announcement added successfully!"}, status=200)
 
-            pdf_file = None
-            video_file = None
 
-            if "pdf_file" in request.FILES:
-                pdf_file_upload = request.FILES["pdf_file"]
-                fs = FileSystemStorage()
-                pdf_filename = fs.save(pdf_file_upload.name, pdf_file_upload)
-                pdf_path = fs.path(pdf_filename)
-                with open(pdf_path, "rb") as pdf:
-                    pdf_file = pdf.read()
-
-            if "video_file" in request.FILES:
-                video_file_upload = request.FILES["video_file"]
-                video_filename = fs.save(video_file_upload.name, video_file_upload)
-                video_path = fs.path(video_filename)
-                with open(video_path, "rb") as video:
-                    video_file = video.read()
-
-            with connection.cursor() as cursor:
-                cursor.execute(
-                    """
-                    INSERT INTO CourseAnnouncement (publisher_name, description, publisher_image, pdf_file, video_file, Teacher_Id, course_id)
-                    VALUES (%s, %s, %s, %s, %s, %s, %s)
-                """,
-                    [
-                        Teacher_Name,
-                        description,
-                        Teacher_image,
-                        pdf_file,
-                        video_file,
-                        TeacherID,
-                        Course_Id,
-                    ],
-                )
-                cursor.execute(
-                    " SELECT TOP 1 id  FROM CourseAnnouncement ORDER BY id DESC "
-                )
-                result = cursor.fetchone()
-                announcement_id = result[0]
-
-            with connection.cursor() as cursor:
-                cursor.execute("SELECT Student_ID FROM StudentInformation")
-                student_ids = [row[0] for row in cursor.fetchall()]
-
-            for student_id in student_ids:
-                with connection.cursor() as cursor:
-                    cursor.execute(
-                        """
-                        INSERT INTO CourseAnnouncementReadStatus (Student_ID, AnnouncementId, IsRead, ReadDate, course_id)
-                        VALUES (%s, %s, 0, NULL, %s)
-                    """,
-                        [student_id, announcement_id, Course_Id],
-                    )
-
-            return JsonResponse(
-                {"message": "Announcement added successfully!"}, status=200
-            )
-
-        except Exception as e:
-            return JsonResponse({"error": str(e)}, status=500)
-
-    return JsonResponse({"error": "Invalid request method or type."}, status=400)
+def serve_course_announcement_file(request, announcement_id, file_type):
+    """Send the PDF or video of a course announcement (login required)."""
+    announcement = get_object_or_404(CourseAnnouncementModel, pk=announcement_id)
+    if not _can_see_course(request, announcement.course_id):
+        raise PermissionDenied
+    if file_type == "pdf" and announcement.pdf_file:
+        return FileResponse(
+            announcement.pdf_file.open("rb"), content_type="application/pdf"
+        )
+    if file_type == "video" and announcement.video_file:
+        content_type = mimetypes.guess_type(announcement.video_file.name)[0] or "video/mp4"
+        return FileResponse(announcement.video_file.open("rb"), content_type=content_type)
+    raise Http404("File not found")
 
 
 def announcement_list(request, ID):
@@ -403,60 +407,32 @@ def announcement_list2(request):
 
 
 def CourseAnnouncement(request, StudentID, Course_Id):
-    with connection.cursor() as cursor:
-        cursor.execute(
-            """
-            SELECT 
-                id, 
-                publisher_name, 
-                description, 
-                CONCAT(LEFT(DATENAME(MONTH, date_posted), 3), ' ', DAY(date_posted), ' ', YEAR(date_posted)) AS date_posted,
-                publisher_image,
-                pdf_file,  -- Fetch the PDF column here
-                video_file -- Fetch the video column here
-            FROM 
-                CourseAnnouncement WHERE course_id = %s 
-            ORDER BY 
-                id DESC
-        """,
-            [Course_Id],
-        )
-        AnnouncementRecord = cursor.fetchall()
-
-        cursor.execute(
-            """
-                update CourseAnnouncementReadStatus
-                set IsRead = 1  where Student_ID = %s AND course_id = %s
-            """,
-            [StudentID, Course_Id],
-        )
-
-    announcements = []
-    for record in AnnouncementRecord:
-        image_data = None
-        if record[4]:
-            image_data = base64.b64encode(record[4]).decode("utf-8")
-
-        pdf_data = None
-        if record[5]:
-            pdf_data = base64.b64encode(record[5]).decode("utf-8")
-
-        video_data = None
-        if record[6]:
-            video_data = base64.b64encode(record[6]).decode("utf-8")
-
-        announcements.append(
-            {
-                "id": record[0],
-                "publisher_name": record[1],
-                "description": record[2],
-                "date_posted": record[3],
-                "publisher_image": image_data,
-                "pdf_file": pdf_data,
-                "video_file": video_data,
-            }
-        )
-
+    """Student page: all announcements of one course (and mark them as read)."""
+    if not _can_see_course(request, Course_Id):
+        raise PermissionDenied
+    rows = CourseAnnouncementModel.objects.filter(course_id=Course_Id).order_by("-id")
+    announcements = [
+        {
+            "id": row.id,
+            "publisher_name": row.publisher_name,
+            "description": row.description,
+            "date_posted": row.date_posted.strftime("%b %d, %Y"),
+            "publisher_image": row.publisher_image,
+            "pdf_url": reverse("serve_course_announcement_file", args=[row.id, "pdf"])
+            if row.pdf_file
+            else "",
+            "video_url": reverse(
+                "serve_course_announcement_file", args=[row.id, "video"]
+            )
+            if row.video_file
+            else "",
+        }
+        for row in rows
+    ]
+    CourseAnnouncementReadStatus.objects.filter(
+        Student_ID=StudentID, Announcement_ID__in=[r.id for r in rows]
+    ).update(IsRead=True)
     return render(
         request, "pages/CourseAnnouncement.html", {"announcements": announcements}
     )
+

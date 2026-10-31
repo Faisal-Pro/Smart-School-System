@@ -45,6 +45,7 @@ _allow(
     "get_records",
     "CourseContent",
     "get_course_contents",
+    "serve_course_announcement_file",
 )
 
 _allow(
@@ -90,6 +91,7 @@ _allow(
     "UpdateMaterialPage",
     "UpdateMaterial",
     "ViewStudentsCourse",
+    "CourseRisk",
     "quiz-insertion",
     "GenerateQuizPage",
     "quiz_delivered",

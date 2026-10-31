@@ -97,6 +97,8 @@
                 <li><a href="#"><i class="fas fa-user-graduate"></i> <span>Students</span></a></li>
                 <li><a href="#"><i class="fas fa-file-alt"></i> <span>Exams</span></a></li>
                 <li><a href="#"><i class="fas fa-book"></i> <span>Homework</span></a></li>
+<li><a href="{% url 'AddAnnouncementsCoursePage' teacher_id course_id %}"><i class="fas fa-bullhorn"></i> <span>Post Announcement</span></a></li>
+<li><a href="{% url 'CourseRisk' teacher_id course_id %}"><i class="fas fa-robot"></i> <span>Students at risk</span></a></li>
             </ul>
         </nav>
         <a href="{% url 'UploadMaterialPage' teacher_id course_id %}" class="upload-btn">

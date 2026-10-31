@@ -51,6 +51,11 @@ from django.db import connection
 from django.views.decorators.clickjacking import xframe_options_exempt
 
 
+from django.core.exceptions import PermissionDenied
+from django.shortcuts import get_object_or_404
+from .models import Courses, StudentCourses, StudentInformation, TeacherCourses
+
+
 def SaveFinalGrade(request):
     if request.method == "POST":
         try:
@@ -954,3 +959,54 @@ def SaveAssignmentGrade(request):
             return JsonResponse({"error": str(e)}, status=400)
 
     return JsonResponse({"error": "Invalid request method"}, status=405)
+
+
+def CourseRisk(request, teacher_id, course_id):
+    """Teacher page: every student of the course with the AI risk score, worst first."""
+    from .analytics_utils import get_student_risk_report
+
+    if not (
+        request.session.get("role") == "admin"
+        or TeacherCourses.objects.filter(
+            teacher_id=teacher_id, course_id=course_id
+        ).exists()
+    ):
+        raise PermissionDenied
+
+    course = get_object_or_404(Courses, pk=course_id)
+    student_ids = StudentCourses.objects.filter(course_id=course_id).values_list(
+        "Student_ID", flat=True
+    )
+    rows = []
+    for student in StudentInformation.objects.filter(Student_ID__in=set(student_ids)):
+        report = get_student_risk_report(student.Student_ID, course_id)
+        score = report["risk_score"]
+        if score > 60:
+            level, color = "Critical", "danger"
+        elif score > 30:
+            level, color = "Caution", "warning"
+        else:
+            level, color = "Good", "success"
+        rows.append(
+            {
+                "id": student.Student_ID,
+                "name": student.Student_Name,
+                "initials": "".join(w[0] for w in student.Student_Name.split()[:2]).upper(),
+                "score": score,
+                "level": level,
+                "color": color,
+                "advice": report["advice"][0] if report["advice"] else "",
+            }
+        )
+    rows.sort(key=lambda r: r["score"], reverse=True)
+    return render(
+        request,
+        "pages/CourseRisk.html",
+        {
+            "rows": rows,
+            "course": course,
+            "teacher_id": teacher_id,
+            "critical": sum(1 for r in rows if r["level"] == "Critical"),
+            "caution": sum(1 for r in rows if r["level"] == "Caution"),
+        },
+    )
